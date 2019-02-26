@@ -1,21 +1,11 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import { Skeleton } from 'antd'
-import styled from 'styled-components/macro'
 import { useDrizzle } from '../temp/drizzle-react-hooks'
 
-const SkeletonTitleProps = { width: 30 }
-const StyledSkeleton = styled(Skeleton)`
-  display: inline;
-
-  .ant-skeleton-title {
-    margin: -3px 0;
-  }
-`
 const ETHAmount = ({ amount, decimals }) => {
   const { drizzle } = useDrizzle()
   return amount === null ? (
-    <StyledSkeleton active paragraph={false} title={SkeletonTitleProps} />
+    <span>?</span>
   ) : (
     Number(drizzle.web3.utils.fromWei(String(amount))).toFixed(decimals)
   )
