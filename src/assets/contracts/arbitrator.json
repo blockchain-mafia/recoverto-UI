@@ -1,0 +1,573 @@
+{
+	"contractName": "CentralizedArbitrator",
+	"abi": [
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "owners",
+      "outputs": [
+        {
+          "name": "description",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_goodID",
+          "type": "bytes32"
+        }
+      ],
+      "name": "payArbitrationFeeByOwner",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_goodID",
+          "type": "bytes32"
+        }
+      ],
+      "name": "timeOutByOwner",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_goodID",
+          "type": "bytes32"
+        },
+        {
+          "name": "_claimID",
+          "type": "uint256"
+        }
+      ],
+      "name": "acceptClaim",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_goodID",
+          "type": "bytes32"
+        },
+        {
+          "name": "_addressForEncryption",
+          "type": "address"
+        },
+        {
+          "name": "_descriptionLinkEncrypted",
+          "type": "bytes"
+        }
+      ],
+      "name": "changeAddressAndDescriptionEncrypted",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_disputeID",
+          "type": "uint256"
+        },
+        {
+          "name": "_ruling",
+          "type": "uint256"
+        }
+      ],
+      "name": "rule",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_goodID",
+          "type": "bytes32"
+        },
+        {
+          "name": "_rewardAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "changeRewardAmount",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_goodID",
+          "type": "bytes32"
+        }
+      ],
+      "name": "payArbitrationFeeByFinder",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_goodID",
+          "type": "bytes32"
+        }
+      ],
+      "name": "resetClaims",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "goods",
+      "outputs": [
+        {
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "name": "rewardAmount",
+          "type": "uint256"
+        },
+        {
+          "name": "addressForEncryption",
+          "type": "address"
+        },
+        {
+          "name": "descriptionLinkEncrypted",
+          "type": "bytes"
+        },
+        {
+          "name": "amountLocked",
+          "type": "uint256"
+        },
+        {
+          "name": "timeoutLocked",
+          "type": "uint256"
+        },
+        {
+          "name": "ownerFee",
+          "type": "uint256"
+        },
+        {
+          "name": "exists",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_goodID",
+          "type": "bytes32"
+        },
+        {
+          "name": "_amountReimbursed",
+          "type": "uint256"
+        }
+      ],
+      "name": "reimburse",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_goodID",
+          "type": "bytes32"
+        },
+        {
+          "name": "_addressForEncryption",
+          "type": "address"
+        },
+        {
+          "name": "_descriptionLinkEncrypted",
+          "type": "bytes"
+        },
+        {
+          "name": "_rewardAmount",
+          "type": "uint256"
+        },
+        {
+          "name": "_timeoutLocked",
+          "type": "uint256"
+        }
+      ],
+      "name": "addGood",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_goodID",
+          "type": "bytes32"
+        },
+        {
+          "name": "_timeoutLocked",
+          "type": "uint256"
+        }
+      ],
+      "name": "changeTimeoutLocked",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_goodID",
+          "type": "bytes32"
+        }
+      ],
+      "name": "executeTransaction",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_goodID",
+          "type": "bytes32"
+        }
+      ],
+      "name": "timeOutByFinder",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_goodID",
+          "type": "bytes32"
+        },
+        {
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "pay",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "disputeIDtoClaimAcceptedID",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_goodID",
+          "type": "bytes32"
+        }
+      ],
+      "name": "isGoodExist",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_goodID",
+          "type": "bytes32"
+        },
+        {
+          "name": "_claimID",
+          "type": "uint256"
+        }
+      ],
+      "name": "removeClaim",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_goodID",
+          "type": "bytes32"
+        }
+      ],
+      "name": "appeal",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_goodID",
+          "type": "bytes32"
+        },
+        {
+          "name": "_evidence",
+          "type": "string"
+        }
+      ],
+      "name": "submitEvidence",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_goodID",
+          "type": "bytes32"
+        },
+        {
+          "name": "_finder",
+          "type": "address"
+        },
+        {
+          "name": "_linkDescription",
+          "type": "bytes"
+        }
+      ],
+      "name": "claim",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "goodIDtoClaimAcceptedID",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "name": "_arbitrator",
+          "type": "address"
+        },
+        {
+          "name": "_arbitratorExtraData",
+          "type": "bytes"
+        },
+        {
+          "name": "_feeTimeout",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "_metaEvidenceID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "_evidence",
+          "type": "string"
+        }
+      ],
+      "name": "MetaEvidence",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "_transactionID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "_party",
+          "type": "uint8"
+        }
+      ],
+      "name": "HasToPayFee",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "_arbitrator",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "_evidenceGroupID",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "name": "_party",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "_evidence",
+          "type": "string"
+        }
+      ],
+      "name": "Evidence",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "_arbitrator",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "_disputeID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "_metaEvidenceID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "_evidenceGroupID",
+          "type": "uint256"
+        }
+      ],
+      "name": "Dispute",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "_arbitrator",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "_disputeID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "_ruling",
+          "type": "uint256"
+        }
+      ],
+      "name": "Ruling",
+      "type": "event"
+    }
+  ]
+}
