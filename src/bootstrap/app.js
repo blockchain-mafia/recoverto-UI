@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet'
 import loadable from '@loadable/component'
 import { Router, navigate } from '@reach/router'
 import styled from 'styled-components/macro'
-import { ClimbingBoxLoader } from 'react-spinners'
+import { BeatLoader } from 'react-spinners'
 
 import drizzle from './drizzle'
 import { register } from './service-worker'
@@ -43,20 +43,20 @@ const StyledMain = styled(Main)`
 const C404 = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/404'),
   {
-    fallback: <ClimbingBoxLoader />
+    fallback: <BeatLoader />
   }
 )
 const Home = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/home'),
   {
-    fallback: <ClimbingBoxLoader />
+    fallback: <BeatLoader />
   }
 )
 const MyGood = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/my-good'),
   {
     // TODO: load the good
-    fallback: <ClimbingBoxLoader />
+    fallback: <BeatLoader />
   }
 )
 
@@ -73,13 +73,13 @@ export default () => (
       <Initializer
         error={<C404 Web3 />}
         loadingContractsAndAccounts={<C404 Web3 />}
-        loadingWeb3={<ClimbingBoxLoader />}
+        loadingWeb3={<BeatLoader />}
       >
         <ArchonInitializer>
           <Router>
             <Main path="/">
               <Home path="/" />
-              <MyGood path="/goods/:goodID" />
+              <MyGood path="/goods/:goodID_Pk" />
               <C404 default />
             </Main>
           </Router>

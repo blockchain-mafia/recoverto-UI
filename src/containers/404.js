@@ -1,4 +1,3 @@
-import { ReactComponent as Acropolis } from '../assets/images/acropolis.svg'
 import PropTypes from 'prop-types'
 import React from 'react'
 import styled from 'styled-components/macro'
@@ -8,10 +7,6 @@ const StyledDiv = styled.div`
   flex-direction: column;
   min-height: ${props => (props.Web3 ? '100vh' : 'calc(100vh - 64px)')};
   ${props => !props.Web3 && 'margin: 0 -9.375vw -62px;'}
-`
-const StyledAcropolis = styled(Acropolis)`
-  height: auto;
-  width: 100%;
 `
 const StyledInfoDiv = styled.div`
   flex: 1;
@@ -36,8 +31,7 @@ const StyledMessageLine3 = styled.div`
 `
 const _404 = ({ Web3 }) => (
   <StyledDiv Web3={Web3}>
-    <StyledAcropolis />
-    <StyledInfoDiv className="quaternary-background theme-background">
+    <StyledInfoDiv className="">
       <Styled404Div className="primary-color theme-color">
         {Web3 && 'Web3 '}404
       </Styled404Div>
@@ -46,13 +40,13 @@ const _404 = ({ Web3 }) => (
       </StyledMessageLine1>
       <StyledMessageLine2 className="ternary-color theme-color">
         {Web3
-          ? 'The gods are having trouble finding your Web3 provider.'
-          : 'Something went wrong in Athens!'}
+          ? 'Trouble finding your Web3 provider.'
+          : 'Issue with Web3'}
       </StyledMessageLine2>
       <StyledMessageLine3 className="ternary-color theme-color">
         {Web3
           ? "Please make sure you have your wallet unlocked on Mainnet or Kovan. If you don't have a wallet, we recommend you install MetaMask on desktop and Trust on mobile."
-          : 'The greek gods are not available at the moment.'}
+          : 'Issue with Web3.'}
       </StyledMessageLine3>
     </StyledInfoDiv>
   </StyledDiv>

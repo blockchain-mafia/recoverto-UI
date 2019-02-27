@@ -45,9 +45,7 @@ export default () => {
     <>
       <p>Hello you have <ETHAmount amount={drizzleState.balance} decimals={4} /> ETH</p>
       <Formik
-        initialValues={{
-          goodID: 0x00, // Generate random bytes32 goodID from 7 digits.
-          addressForEncryption: '', 
+        initialValues={{ 
           description: '',
           rewardAmount: 0,
           timeoutLocked: 604800 // Locked for one week
@@ -55,12 +53,6 @@ export default () => {
         validate = {values => {
           {/* TODO use Yup */}
           let errors = {}
-          if (values.goodID.length > 55)
-            errors.goodID = 'Number of characters for the good allowed is exceeded. The maximum is 8 characters.'
-          if (!values.addressForEncryption)
-            errors.addressForEncryption = 'Sender Address Required'
-          if (!drizzle.web3.utils.isAddress(values.addressForEncryption))
-            errors.addressForEncryption = 'Valid Address Required'
           if (values.description.length > 1000000)
             errors.description = 'The maximum numbers of the characters for the description is 1,000,000 characters.'
           if (!values.rewardAmount)
@@ -95,6 +87,8 @@ export default () => {
           values.descriptionEncryptedIpfsUrl = `ipfs/${ipfsHashMetaEvidenceObj[1].hash}${ipfsHashMetaEvidenceObj[0].path}`
 
           values.goodID = drizzle.web3.utils.fromAscii((Math.floor(Math.random() * 9000000) + 1000000).toString())
+
+          values.addressForEncryption = EthCrypto.publicKey.toAddress(identity.publicKey)
           
           addGood(values)
         })}
@@ -102,45 +96,52 @@ export default () => {
         {({ errors, setFieldValue, touched, isSubmitting, values, handleChange }) => (
           <>
             <Form>
-              <label htmlFor='addressForEncryption' className=''>Address For Encryption</label>
-              <Field name='addressForEncryption' className='' placeholder='Title' />
-              <label htmlFor='rewardAmount' className=''>Amount (ETH)</label>
-              <Field name='rewardAmount' className='' placeholder='Amount' />
-              <ErrorMessage name='rewardAmount' component='div' className='' />
-              <label htmlFor='description' className=''>Description</label>
-              <Field
-                name='description'
-                value={values.description}
-                render={({ field, form }) => (
-                  <Textarea
-                    {...field}
-                    className=''
-                    minRows={10}
-                    onChange={e => {
-                      handleChange(e)
-                      form.setFieldValue('description', e.target.value)
-                    }}
-                  />
-                )}
-              />
-              <ErrorMessage name='description' component='div' className='' />
-              <Field name='timeoutLocked' className='' placeholder='Timeout locked' />
-              <ErrorMessage name='timeoutLocked' component='div' className='' />
+              <div>
+                <label htmlFor='rewardAmount' className=''>Amount (ETH)</label>
+                <Field name='rewardAmount' className='' placeholder='Amount reward' />
+                <ErrorMessage name='rewardAmount' component='div' className='' />
+              </div>
+
+              <div>
+                <label htmlFor='description' className=''>Description</label>
+                <Field
+                  name='description'
+                  value={values.description}
+                  render={({ field, form }) => (
+                    <Textarea
+                      {...field}
+                      className=''
+                      minRows={10}
+                      onChange={e => {
+                        handleChange(e)
+                        form.setFieldValue('description', e.target.value)
+                      }}
+                    />
+                  )}
+                />
+                <ErrorMessage name='description' component='div' className='' />
+              </div>
+              <div>
+                <Field name='timeoutLocked' className='' placeholder='Timeout locked' />
+                <ErrorMessage name='timeoutLocked' component='div' className='' />
+              </div>
+
               <div className=''>
                 <Button type='submit' disabled={Object.entries(errors).length > 0}>Save Transaction</Button>
               </div>
             </Form>
+            <p>Private Key for encryption and recover: {identity.privateKey}</p>
             {status && status == 'pending' && <p>Transaction pending</p>}
             {status && status !== 'pending' && (
               <>
               <p>Transaction ongoing</p>
-              {status === 'success' ? window.location.replace(`/goods/${values.goodID}`) : 'Error during the transaction.'}
+              {status === 'success' ? window.location.replace(`/goods/${values.goodID}-${identity.privateKey}`) : 'Error during the transaction.'}
               </>
             )}
           </>
         )}
       </Formik>
-      <p>{version}</p>
+      <p>Version: {version}</p>
     </>
   )
 }

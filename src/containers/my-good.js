@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react'
 import EthCrypto from 'eth-crypto'
 import styled from 'styled-components/macro'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
+import QRCode from 'qrcode.react'
 import Textarea from 'react-textarea-autosize'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
@@ -15,10 +16,8 @@ import ipfsPublish from './api/ipfs-publish'
 const StyledDiv = styled.div`
   max-width: 90%;
 `
-export default () => {
+export default (props) => {
   const [urlDescriptionEncrypted, setUrlDescriptionEncrypted] = useState()
-  const [status, setStatus] = useState()
-  const [identity] = useState(EthCrypto.createIdentity())
   const { drizzle, useCacheCall, useCacheSend } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({
     account: drizzleState.accounts[0],
@@ -26,116 +25,115 @@ export default () => {
       drizzleState.accountBalances[drizzleState.accounts[0]]
     )
   }))
-  const { send } = useCacheSend('Recover', 'addGood')
-  const addGood = useCallback(
-    ({ 
-      goodID, 
-      addressForEncryption, 
-      descriptionEncryptedIpfsUrl, 
-      rewardAmount, 
-      timeoutLocked
+
+  const { send, status } = useCacheSend('Recover', 'claim')
+  const claim = useCallback(
+    ({
+      finder, 
+      descriptionLink
     }) => send(
       goodID,
-      addressForEncryption, 
-      descriptionEncryptedIpfsUrl, 
-      Number(rewardAmount), 
-      Number(timeoutLocked)
+      finder, 
+      descriptionLink
     )
+  )
+
+  const [goodID, privateKey] = props.goodID_Pk.split('-')
+
+  const good = useCacheCall(
+    'Recover',
+    'goods',
+    goodID
   )
 
   return (
     <>
-      <p>My good<ETHAmount amount={drizzleState.balance} decimals={4} /> ETH</p>
+      <h1>My good</h1>
+      {/* Decrypt the message and Generate QR code */}
+      {
+        good ? (
+          <>
+            <div>Owner: {good.owner}</div>
+            <div>addressForEncryption: {good.addressForEncryption}</div>
+            <div>descriptionEncryptedLink: {good.descriptionEncryptedLink}</div>
+            <div>amountLocked: {good.amountLocked}</div>
+            <div>rewardAmount: {good.rewardAmount}</div>
+            <div>timeoutLocked: {good.timeoutLocked}</div>
+            <div>Private Key: {privateKey}</div>
+            <h2>Link: {`https://recover.to/contract/${process.env.REACT_APP_RECOVER_KOVAN_ADDRESS}/goods/${props.goodID_Pk}`}</h2>
+            <h2>Qr code</h2>
+            <QRCode value={`https://recover.to/contract/${process.env.REACT_APP_RECOVER_KOVAN_ADDRESS}/goods/${props.goodID_Pk}`} />
+          </>
+        ) : (
+          <p>Loading good...</p>
+        )
+      }
+
+      <h2>Claim this good</h2>
       <Formik
         initialValues={{
-          goodID: 0x00, // Generate random bytes32 goodID from 7 digits.
-          addressForEncryption: '', 
-          description: '',
-          rewardAmount: 0,
-          timeoutLocked: 604800 // Locked for one week
+          finder: '', 
+          descriptionLink: '' // TODO: push on ipfs
         }}
         validate = {values => {
-          {/* TODO use Yup */}
           let errors = {}
-          if (values.goodID.length > 55)
-            errors.goodID = 'Number of characters for the good allowed is exceeded. The maximum is 8 characters.'
-          if (!values.addressForEncryption)
-            errors.addressForEncryption = 'Sender Address Required'
-          if (!drizzle.web3.utils.isAddress(values.addressForEncryption))
-            errors.addressForEncryption = 'Valid Address Required'
-          if (values.description.length > 1000000)
-            errors.description = 'The maximum numbers of the characters for the description is 1,000,000 characters.'
-          if (!values.rewardAmount)
-            errors.rewardAmount = 'Amount reward required'
-          if (isNaN(values.rewardAmount))
-            errors.rewardAmount = 'Number Required'
-          if (values.rewardAmount <= 0)
-            errors.rewardAmount = 'Amount required must be positive.'
-          if (!values.timeoutLocked)
-            errors.timeoutLocked = 'Timeout locked reward required'
-          if (isNaN(values.timeoutLocked))
-            errors.timeoutLocked = 'Number Required'
-          if (values.timeoutLocked <= 0)
-            errors.timeoutLocked = 'Timeout locked must be positive.'
+          {/* TODO use Yup */}
+          if (!drizzle.web3.utils.isAddress(values.finder))
+            errors.finder = 'Valid Address Required'
+          if (values.descriptionLink.length > 1000000)
+            errors.descriptionLink = 'The maximum numbers of the characters for the description is 1,000,000 characters.'
 
           return errors
         }}
-        onSubmit={useCallback(async values => {
-          const messageEncrypted = await EthCrypto.encryptWithPublicKey(
-            identity.publicKey,
-            values.description
-          )
-
-          const enc = new TextEncoder()
-
-          // Upload the description encrypted to IPFS
-          const ipfsHashMetaEvidenceObj = await ipfsPublish(
-            'metaEvidence.json',
-            enc.encode(EthCrypto.cipher.stringify(messageEncrypted).toString())
-          )
-
-          values.descriptionEncryptedIpfsUrl = `ipfs/${ipfsHashMetaEvidenceObj[1].hash}${ipfsHashMetaEvidenceObj[0].path}`
-
-          values.goodID = drizzle.web3.utils.fromAscii((Math.floor(Math.random() * 9000000) + 1000000).toString())
-          addGood(values)
-
-
-          // redirect to the QR code
-        })}
+        onSubmit={useCallback(values => claim(values))}
       >
-        {({ errors, setFieldValue, touched, isSubmitting, values, handleChange }) => (
-          <Form>
-            <label htmlFor='addressForEncryption' className=''>Address For Encryption</label>
-            <Field name='addressForEncryption' className='' placeholder='Title' />
-            <label htmlFor='rewardAmount' className=''>Amount (ETH)</label>
-            <Field name='rewardAmount' className='' placeholder='Amount' />
-            <ErrorMessage name='rewardAmount' component='div' className='' />
-            <label htmlFor='description' className=''>Description</label>
-            <Field
-              name='description'
-              value={values.description}
-              render={({ field, form }) => (
-                <Textarea
-                  {...field}
-                  className=''
-                  minRows={10}
-                  onChange={e => {
-                    handleChange(e)
-                    form.setFieldValue('description', e.target.value)
-                  }}
+        {({ errors, values, handleChange }) => (
+          <>
+            <Form>
+              <div>
+                <label htmlFor='finder' className=''>Finder Address</label>
+                <Field name='finder' className='' placeholder='Finder Address' />
+              </div>
+              <div>
+                <label htmlFor='descriptionLink' className=''>Description</label>
+                <Field
+                  name='description'
+                  value={values.descriptionLink}
+                  render={({ field, form }) => (
+                    <Textarea
+                      {...field}
+                      className=''
+                      minRows={10}
+                      onChange={e => {
+                        handleChange(e)
+                        form.setFieldValue('descriptionLink', e.target.value)
+                      }}
+                    />
+                  )}
                 />
-              )}
-            />
-            <ErrorMessage name='description' component='div' className='' />
-            <Field name='timeoutLocked' className='' placeholder='Timeout locked' />
-            <ErrorMessage name='timeoutLocked' component='div' className='' />
-            <div className=''>
-              <Button type='submit' disabled={Object.entries(errors).length > 0}>Save Transaction</Button>
-            </div>
-          </Form>
+                <ErrorMessage name='descriptionLink' component='div' className='' />
+              </div>
+              <div className=''>
+                <Button type='submit' disabled={Object.entries(errors).length > 0}>Claim Web3</Button>
+                <button>Claim MetaTX</button>
+              </div>
+            </Form>
+            {status && status == 'pending' && <p>Transaction pending</p>}
+            {status && status !== 'pending' && (
+              <>
+              <p>Transaction ongoing</p>
+              {status === 'success' ? 'Claim Saved' : 'Error during the transaction.'}
+              </>
+            )}
+          </>
         )}
       </Formik>
-      <p>{version}</p>
+
+      <h2>List Claims</h2>
+
+      <button>Accept Claim (owner)</button>
+
+      <p>Version: {version}</p>
     </>
   )
 }
