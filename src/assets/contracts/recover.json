@@ -70,28 +70,6 @@
 			"constant": false,
 			"inputs": [
 				{
-					"name": "_goodID",
-					"type": "bytes32"
-				},
-				{
-					"name": "_addressForEncryption",
-					"type": "address"
-				},
-				{
-					"name": "_descriptionLinkEncrypted",
-					"type": "bytes"
-				}
-			],
-			"name": "changeAddressAndDescriptionEncrypted",
-			"outputs": [],
-			"payable": false,
-			"stateMutability": "nonpayable",
-			"type": "function"
-		},
-		{
-			"constant": false,
-			"inputs": [
-				{
 					"name": "_disputeID",
 					"type": "uint256"
 				},
@@ -144,6 +122,28 @@
 				{
 					"name": "_goodID",
 					"type": "bytes32"
+				},
+				{
+					"name": "_addressForEncryption",
+					"type": "address"
+				},
+				{
+					"name": "_descriptionEncryptedLink",
+					"type": "string"
+				}
+			],
+			"name": "changeAddressAndDescriptionEncrypted",
+			"outputs": [],
+			"payable": false,
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"constant": false,
+			"inputs": [
+				{
+					"name": "_goodID",
+					"type": "bytes32"
 				}
 			],
 			"name": "resetClaims",
@@ -175,8 +175,8 @@
 					"type": "address"
 				},
 				{
-					"name": "descriptionLinkEncrypted",
-					"type": "bytes"
+					"name": "descriptionEncryptedLink",
+					"type": "string"
 				},
 				{
 					"name": "amountLocked",
@@ -225,23 +225,15 @@
 					"type": "bytes32"
 				},
 				{
-					"name": "_addressForEncryption",
+					"name": "_finder",
 					"type": "address"
 				},
 				{
-					"name": "_descriptionLinkEncrypted",
-					"type": "bytes"
-				},
-				{
-					"name": "_rewardAmount",
-					"type": "uint256"
-				},
-				{
-					"name": "_timeoutLocked",
-					"type": "uint256"
+					"name": "_descriptionLink",
+					"type": "string"
 				}
 			],
-			"name": "addGood",
+			"name": "claim",
 			"outputs": [],
 			"payable": false,
 			"stateMutability": "nonpayable",
@@ -306,6 +298,36 @@
 				}
 			],
 			"name": "pay",
+			"outputs": [],
+			"payable": false,
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"constant": false,
+			"inputs": [
+				{
+					"name": "_goodID",
+					"type": "bytes32"
+				},
+				{
+					"name": "_addressForEncryption",
+					"type": "address"
+				},
+				{
+					"name": "_descriptionEncryptedLink",
+					"type": "string"
+				},
+				{
+					"name": "_rewardAmount",
+					"type": "uint256"
+				},
+				{
+					"name": "_timeoutLocked",
+					"type": "uint256"
+				}
+			],
+			"name": "addGood",
 			"outputs": [],
 			"payable": false,
 			"stateMutability": "nonpayable",
@@ -394,28 +416,6 @@
 				}
 			],
 			"name": "submitEvidence",
-			"outputs": [],
-			"payable": false,
-			"stateMutability": "nonpayable",
-			"type": "function"
-		},
-		{
-			"constant": false,
-			"inputs": [
-				{
-					"name": "_goodID",
-					"type": "bytes32"
-				},
-				{
-					"name": "_finder",
-					"type": "address"
-				},
-				{
-					"name": "_linkDescription",
-					"type": "bytes"
-				}
-			],
-			"name": "claim",
 			"outputs": [],
 			"payable": false,
 			"stateMutability": "nonpayable",

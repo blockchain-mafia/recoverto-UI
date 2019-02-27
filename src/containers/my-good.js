@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 import EthCrypto from 'eth-crypto'
 import styled from 'styled-components/macro'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
@@ -16,6 +16,8 @@ const StyledDiv = styled.div`
   max-width: 90%;
 `
 export default () => {
+  const [urlDescriptionEncrypted, setUrlDescriptionEncrypted] = useState()
+  const [status, setStatus] = useState()
   const [identity] = useState(EthCrypto.createIdentity())
   const { drizzle, useCacheCall, useCacheSend } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({
@@ -24,12 +26,12 @@ export default () => {
       drizzleState.accountBalances[drizzleState.accounts[0]]
     )
   }))
-  const { send, status } = useCacheSend('Recover', 'addGood')
+  const { send } = useCacheSend('Recover', 'addGood')
   const addGood = useCallback(
     ({ 
       goodID, 
       addressForEncryption, 
-      descriptionEncryptedIpfsUrl,
+      descriptionEncryptedIpfsUrl, 
       rewardAmount, 
       timeoutLocked
     }) => send(
@@ -43,7 +45,7 @@ export default () => {
 
   return (
     <>
-      <p>Hello you have <ETHAmount amount={drizzleState.balance} decimals={4} /> ETH</p>
+      <p>My good<ETHAmount amount={drizzleState.balance} decimals={4} /> ETH</p>
       <Formik
         initialValues={{
           goodID: 0x00, // Generate random bytes32 goodID from 7 digits.
@@ -95,49 +97,42 @@ export default () => {
           values.descriptionEncryptedIpfsUrl = `ipfs/${ipfsHashMetaEvidenceObj[1].hash}${ipfsHashMetaEvidenceObj[0].path}`
 
           values.goodID = drizzle.web3.utils.fromAscii((Math.floor(Math.random() * 9000000) + 1000000).toString())
-          
           addGood(values)
+
+
+          // redirect to the QR code
         })}
       >
         {({ errors, setFieldValue, touched, isSubmitting, values, handleChange }) => (
-          <>
-            <Form>
-              <label htmlFor='addressForEncryption' className=''>Address For Encryption</label>
-              <Field name='addressForEncryption' className='' placeholder='Title' />
-              <label htmlFor='rewardAmount' className=''>Amount (ETH)</label>
-              <Field name='rewardAmount' className='' placeholder='Amount' />
-              <ErrorMessage name='rewardAmount' component='div' className='' />
-              <label htmlFor='description' className=''>Description</label>
-              <Field
-                name='description'
-                value={values.description}
-                render={({ field, form }) => (
-                  <Textarea
-                    {...field}
-                    className=''
-                    minRows={10}
-                    onChange={e => {
-                      handleChange(e)
-                      form.setFieldValue('description', e.target.value)
-                    }}
-                  />
-                )}
-              />
-              <ErrorMessage name='description' component='div' className='' />
-              <Field name='timeoutLocked' className='' placeholder='Timeout locked' />
-              <ErrorMessage name='timeoutLocked' component='div' className='' />
-              <div className=''>
-                <Button type='submit' disabled={Object.entries(errors).length > 0}>Save Transaction</Button>
-              </div>
-            </Form>
-            {status && status == 'pending' && <p>Transaction pending</p>}
-            {status && status !== 'pending' && (
-              <>
-              <p>Transaction ongoing</p>
-              {status === 'success' ? window.location.replace(`/goods/${values.goodID}`) : 'Error during the transaction.'}
-              </>
-            )}
-          </>
+          <Form>
+            <label htmlFor='addressForEncryption' className=''>Address For Encryption</label>
+            <Field name='addressForEncryption' className='' placeholder='Title' />
+            <label htmlFor='rewardAmount' className=''>Amount (ETH)</label>
+            <Field name='rewardAmount' className='' placeholder='Amount' />
+            <ErrorMessage name='rewardAmount' component='div' className='' />
+            <label htmlFor='description' className=''>Description</label>
+            <Field
+              name='description'
+              value={values.description}
+              render={({ field, form }) => (
+                <Textarea
+                  {...field}
+                  className=''
+                  minRows={10}
+                  onChange={e => {
+                    handleChange(e)
+                    form.setFieldValue('description', e.target.value)
+                  }}
+                />
+              )}
+            />
+            <ErrorMessage name='description' component='div' className='' />
+            <Field name='timeoutLocked' className='' placeholder='Timeout locked' />
+            <ErrorMessage name='timeoutLocked' component='div' className='' />
+            <div className=''>
+              <Button type='submit' disabled={Object.entries(errors).length > 0}>Save Transaction</Button>
+            </div>
+          </Form>
         )}
       </Formik>
       <p>{version}</p>

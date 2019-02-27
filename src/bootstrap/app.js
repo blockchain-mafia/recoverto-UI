@@ -1,20 +1,18 @@
 import React from 'react'
-
 import { Helmet } from 'react-helmet'
 import loadable from '@loadable/component'
 import { Router, navigate } from '@reach/router'
 import styled from 'styled-components/macro'
 import { ClimbingBoxLoader } from 'react-spinners'
 
+import drizzle from './drizzle'
 import { register } from './service-worker'
 import { ArchonInitializer } from './archon'
-import drizzle from './drizzle'
 import { DrizzleProvider, Initializer } from '../temp/drizzle-react-hooks'
-import { ReactComponent as Logo } from '../assets/images/logo.svg'
 import Identicon from '../components/identicon'
+import { ReactComponent as Logo } from '../assets/images/logo.svg'
 
 import '../components/theme.css'
-
 
 const Main = ({ children }) => (
   <div className='App'>
@@ -23,6 +21,8 @@ const Main = ({ children }) => (
         <ul>
           <li>Recover</li>
           <li onClick={() => navigate('/')}>Home</li>
+          <li onClick={() => navigate('/')}>My Goods</li>
+          <li onClick={() => navigate('/')}>Add a Good</li>
         </ul>
       </nav>
     </header>
@@ -52,6 +52,13 @@ const Home = loadable(
     fallback: <ClimbingBoxLoader />
   }
 )
+const MyGood = loadable(
+  () => import(/* webpackPrefetch: true */ '../containers/my-good'),
+  {
+    // TODO: load the good
+    fallback: <ClimbingBoxLoader />
+  }
+)
 
 export default () => (
   <>
@@ -72,6 +79,7 @@ export default () => (
           <Router>
             <Main path="/">
               <Home path="/" />
+              <MyGood path="/goods/:goodID" />
               <C404 default />
             </Main>
           </Router>
