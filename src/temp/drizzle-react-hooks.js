@@ -100,13 +100,15 @@ export const DrizzleProvider = ({ children, drizzle }) => {
           ]
       )
       return {
-        send: (...args) =>
+        send: (...args) => {
+          console.log('drizzle.useCacheSend', contractName, methodName, args)
           setStackIDs(stackIDs => [
             ...stackIDs,
             drizzle.contracts[contractName].methods[methodName].cacheSend(
               ...args
             )
-          ]),
+          ])
+        },
         status:
           transactions[transactions.length - 1] &&
           transactions[transactions.length - 1].status,
