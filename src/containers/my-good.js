@@ -25,12 +25,16 @@ export default props => {
     )
   }))
 
-  const { send, status } = useCacheSend('Recover', 'claim')
+  const { send: sendClaim, status: statusClaim } = useCacheSend('Recover', 'claim')
+  const { send: sendAcceptClaim, status: statusAcceptClaim } = useCacheSend('Recover', 'acceptClaim')
+  const { send: sendPay, status: statusPay } = useCacheSend('Recover', 'pay')
+
   const [goodID, privateKey] = props.goodID_Pk.split('-')
 
   const claim = useCallback(({ useMetaTx, finder, descriptionLink }) => {
     if (!useMetaTx) {
-      send(goodID, finder, descriptionLink)
+      if(goodID && finder && descriptionLink)
+        sendClaim(goodID, finder, descriptionLink)
     } else {
       const claimerAccount = drizzle.web3.eth.accounts.privateKeyToAccount(
         privateKey
@@ -58,6 +62,16 @@ export default props => {
 
   const good = useCacheCall('Recover', 'goods', goodID)
 
+  const claimsIDs = useCacheCall('Recover', 'getClaimsByGoodID', goodID)
+
+  let claims = []
+
+  if (claimsIDs && claimsIDs.length > 0)
+    claimsIDs.map(claimID => {
+      const claim = useCacheCall('Recover', 'claims', claimID)
+      claims.push({...claim, ID: claimID})
+    })
+
   return (
     <>
       <h1>My good</h1>
@@ -70,6 +84,7 @@ export default props => {
           <div>amountLocked: {good.amountLocked}</div>
           <div>rewardAmount: {good.rewardAmount}</div>
           <div>timeoutLocked: {good.timeoutLocked}</div>
+          <div>claims: {good.claimIDs}</div>
           <div>Private Key: {privateKey}</div>
           <h2>
             Link:{' '}
@@ -79,9 +94,7 @@ export default props => {
           </h2>
           <h2>Qr code</h2>
           <QRCode
-            value={`https://recover.to/contract/${
-              process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
-            }/goods/${props.goodID_Pk}`}
+            value={`https://recover.to/goods/${props.goodID_Pk}`}
           />
         </>
       ) : (
@@ -92,7 +105,7 @@ export default props => {
       <Formik
         initialValues={{
           finder: '',
-          descriptionLink: '' // TODO: push on ipfs
+          descriptionLink: ''
         }}
         validate={values => {
           let errors = {}
@@ -168,11 +181,11 @@ export default props => {
                 </Button>
               </div>
             </Form>
-            {status && status == 'pending' && <p>Transaction pending</p>}
-            {status && status !== 'pending' && (
+            {statusClaim && statusClaim == 'pending' && <p>Transaction pending</p>}
+            {statusClaim && statusClaim !== 'pending' && (
               <>
                 <p>Transaction ongoing</p>
-                {status === 'success'
+                {statusClaim === 'success'
                   ? 'Claim Saved'
                   : 'Error during the transaction.'}
               </>
@@ -183,7 +196,29 @@ export default props => {
 
       <h2>List Claims</h2>
 
-      <button>Accept Claim (owner)</button>
+      {claims && claims.map((claim,i) =>
+        <div key={i}>
+          <p>ID: {claim && claim.ID}</p>
+          <p>Finder: {claim && claim.finder}</p>
+          <p>Description: {claim && claim.descriptionLink}</p>
+
+          {claim && good && good.rewardAmount && (
+            <button 
+              onClick={() => sendAcceptClaim(goodID, claim.ID, {value: good.rewardAmount})}
+            >
+              Accept Claim
+            </button>
+          )}
+
+          {claim && good && good.amountLocked > 0 && (
+            <button 
+              onClick={() => sendPay(goodID, good.amountLocked)}
+            >
+              Pay the finder
+            </button>
+          )}
+        </div>
+      )}
 
       <p>Version: {version}</p>
     </>
