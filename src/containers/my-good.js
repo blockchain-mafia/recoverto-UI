@@ -12,11 +12,10 @@ import ETHAmount from '../components/eth-amount'
 
 import ipfsPublish from './api/ipfs-publish'
 
-
 const StyledDiv = styled.div`
   max-width: 90%;
 `
-export default (props) => {
+export default props => {
   const [urlDescriptionEncrypted, setUrlDescriptionEncrypted] = useState()
   const { drizzle, useCacheCall, useCacheSend } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({
@@ -27,82 +26,113 @@ export default (props) => {
   }))
 
   const { send, status } = useCacheSend('Recover', 'claim')
-  const claim = useCallback(
-    ({
-      finder, 
-      descriptionLink
-    }) => send(
-      goodID,
-      finder, 
-      descriptionLink
-    )
-  )
-
   const [goodID, privateKey] = props.goodID_Pk.split('-')
 
-  const good = useCacheCall(
-    'Recover',
-    'goods',
-    goodID
-  )
+  const claim = useCallback(({ useMetaTx, finder, descriptionLink }) => {
+    if (!useMetaTx) {
+      send(goodID, finder, descriptionLink)
+    } else {
+      const claimerAccount = drizzle.web3.eth.accounts.privateKeyToAccount(
+        privateKey
+      )
+      console.log('!!!! claimerAccount address', claimerAccount.address)
+      const msg = drizzle.web3.eth.abi.encodeParameters(
+        ['bytes32', 'address', 'string'],
+        [goodID, finder, descriptionLink]
+      )
+      const msgHash = drizzle.web3.utils.sha3(msg)
+      const sig = claimerAccount.sign(msgHash)
+      fetch(process.env.REACT_APP_METATX_URL, {
+        method: 'post',
+        body: JSON.stringify({
+          goodID: goodID,
+          finder: finder,
+          descriptionLink: descriptionLink,
+          sig: { v: sig.v, r: sig.r, s: sig.s }
+        })
+      })
+        .then(async res => console.log(await res.json()))
+        .catch(console.error)
+    }
+  })
+
+  const good = useCacheCall('Recover', 'goods', goodID)
 
   return (
     <>
       <h1>My good</h1>
       {/* Decrypt the message and Generate QR code */}
-      {
-        good ? (
-          <>
-            <div>Owner: {good.owner}</div>
-            <div>addressForEncryption: {good.addressForEncryption}</div>
-            <div>descriptionEncryptedLink: {good.descriptionEncryptedLink}</div>
-            <div>amountLocked: {good.amountLocked}</div>
-            <div>rewardAmount: {good.rewardAmount}</div>
-            <div>timeoutLocked: {good.timeoutLocked}</div>
-            <div>Private Key: {privateKey}</div>
-            <h2>Link: {`https://recover.to/contract/${process.env.REACT_APP_RECOVER_KOVAN_ADDRESS}/goods/${props.goodID_Pk}`}</h2>
-            <h2>Qr code</h2>
-            <QRCode value={`https://recover.to/contract/${process.env.REACT_APP_RECOVER_KOVAN_ADDRESS}/goods/${props.goodID_Pk}`} />
-          </>
-        ) : (
-          <p>Loading good...</p>
-        )
-      }
+      {good ? (
+        <>
+          <div>Owner: {good.owner}</div>
+          <div>addressForEncryption: {good.addressForEncryption}</div>
+          <div>descriptionEncryptedLink: {good.descriptionEncryptedLink}</div>
+          <div>amountLocked: {good.amountLocked}</div>
+          <div>rewardAmount: {good.rewardAmount}</div>
+          <div>timeoutLocked: {good.timeoutLocked}</div>
+          <div>Private Key: {privateKey}</div>
+          <h2>
+            Link:{' '}
+            {`https://recover.to/contract/${
+              process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
+            }/goods/${props.goodID_Pk}`}
+          </h2>
+          <h2>Qr code</h2>
+          <QRCode
+            value={`https://recover.to/contract/${
+              process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
+            }/goods/${props.goodID_Pk}`}
+          />
+        </>
+      ) : (
+        <p>Loading good...</p>
+      )}
 
       <h2>Claim this good</h2>
       <Formik
         initialValues={{
-          finder: '', 
+          finder: '',
           descriptionLink: '' // TODO: push on ipfs
         }}
-        validate = {values => {
+        validate={values => {
           let errors = {}
-          {/* TODO use Yup */}
+          {
+            /* TODO use Yup */
+          }
           if (!drizzle.web3.utils.isAddress(values.finder))
             errors.finder = 'Valid Address Required'
           if (values.descriptionLink.length > 1000000)
-            errors.descriptionLink = 'The maximum numbers of the characters for the description is 1,000,000 characters.'
+            errors.descriptionLink =
+              'The maximum numbers of the characters for the description is 1,000,000 characters.'
 
           return errors
         }}
-        onSubmit={useCallback(values => claim(values))}
+        onSubmit={claim}
       >
         {({ errors, values, handleChange }) => (
           <>
             <Form>
               <div>
-                <label htmlFor='finder' className=''>Finder Address</label>
-                <Field name='finder' className='' placeholder='Finder Address' />
+                <label htmlFor="finder" className="">
+                  Finder Address
+                </label>
+                <Field
+                  name="finder"
+                  className=""
+                  placeholder="Finder Address"
+                />
               </div>
               <div>
-                <label htmlFor='descriptionLink' className=''>Description</label>
+                <label htmlFor="descriptionLink" className="">
+                  Description
+                </label>
                 <Field
-                  name='description'
+                  name="description"
                   value={values.descriptionLink}
                   render={({ field, form }) => (
                     <Textarea
                       {...field}
-                      className=''
+                      className=""
                       minRows={10}
                       onChange={e => {
                         handleChange(e)
@@ -111,18 +141,40 @@ export default (props) => {
                     />
                   )}
                 />
-                <ErrorMessage name='descriptionLink' component='div' className='' />
+                <ErrorMessage
+                  name="descriptionLink"
+                  component="div"
+                  className=""
+                />
               </div>
-              <div className=''>
-                <Button type='submit' disabled={Object.entries(errors).length > 0}>Claim Web3</Button>
-                <button>Claim MetaTX</button>
+              <div>
+                <label htmlFor="useMetaTx" className="">
+                  Use Meta Transaction
+                </label>
+                <Field
+                  name="useMetaTx"
+                  type="checkbox"
+                  className=""
+                  placeholder=""
+                />
+              </div>
+              <div className="">
+                <Button
+                  type="submit"
+                  onClick={claim}
+                  disabled={Object.entries(errors).length > 0}
+                >
+                  Claim
+                </Button>
               </div>
             </Form>
             {status && status == 'pending' && <p>Transaction pending</p>}
             {status && status !== 'pending' && (
               <>
-              <p>Transaction ongoing</p>
-              {status === 'success' ? 'Claim Saved' : 'Error during the transaction.'}
+                <p>Transaction ongoing</p>
+                {status === 'success'
+                  ? 'Claim Saved'
+                  : 'Error during the transaction.'}
               </>
             )}
           </>

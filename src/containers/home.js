@@ -11,7 +11,6 @@ import ETHAmount from '../components/eth-amount'
 
 import ipfsPublish from './api/ipfs-publish'
 
-
 const StyledDiv = styled.div`
   max-width: 90%;
 `
@@ -26,35 +25,42 @@ export default () => {
   }))
   const { send, status } = useCacheSend('Recover', 'addGood')
   const addGood = useCallback(
-    ({ 
-      goodID, 
-      addressForEncryption, 
-      descriptionEncryptedIpfsUrl,
-      rewardAmount, 
-      timeoutLocked
-    }) => send(
+    ({
       goodID,
-      addressForEncryption, 
-      descriptionEncryptedIpfsUrl, 
-      Number(rewardAmount), 
-      Number(timeoutLocked)
-    )
+      addressForEncryption,
+      descriptionEncryptedIpfsUrl,
+      rewardAmount,
+      timeoutLocked
+    }) =>
+      send(
+        goodID,
+        addressForEncryption,
+        descriptionEncryptedIpfsUrl,
+        drizzle.web3.utils.toWei(rewardAmount, 'ether'),
+        Number(timeoutLocked)
+      )
   )
 
   return (
     <>
-      <p>Hello you have <ETHAmount amount={drizzleState.balance} decimals={4} /> ETH</p>
+      <p>
+        Hello you have <ETHAmount amount={drizzleState.balance} decimals={4} />{' '}
+        ETH
+      </p>
       <Formik
-        initialValues={{ 
+        initialValues={{
           description: '',
           rewardAmount: 0,
           timeoutLocked: 604800 // Locked for one week
         }}
-        validate = {values => {
-          {/* TODO use Yup */}
+        validate={values => {
+          {
+            /* TODO use Yup */
+          }
           let errors = {}
           if (values.description.length > 1000000)
-            errors.description = 'The maximum numbers of the characters for the description is 1,000,000 characters.'
+            errors.description =
+              'The maximum numbers of the characters for the description is 1,000,000 characters.'
           if (!values.rewardAmount)
             errors.rewardAmount = 'Amount reward required'
           if (isNaN(values.rewardAmount))
@@ -84,33 +90,58 @@ export default () => {
             enc.encode(EthCrypto.cipher.stringify(messageEncrypted).toString())
           )
 
-          values.descriptionEncryptedIpfsUrl = `ipfs/${ipfsHashMetaEvidenceObj[1].hash}${ipfsHashMetaEvidenceObj[0].path}`
+          values.descriptionEncryptedIpfsUrl = `ipfs/${
+            ipfsHashMetaEvidenceObj[1].hash
+          }${ipfsHashMetaEvidenceObj[0].path}`
 
-          values.goodID = drizzle.web3.utils.fromAscii((Math.floor(Math.random() * 9000000) + 1000000).toString())
+          values.goodID = drizzle.web3.utils.fromAscii(
+            (Math.floor(Math.random() * 9000000) + 1000000).toString()
+          )
 
-          values.addressForEncryption = EthCrypto.publicKey.toAddress(identity.publicKey)
-          
+          values.addressForEncryption = EthCrypto.publicKey.toAddress(
+            identity.publicKey
+          )
+
           addGood(values)
         })}
       >
-        {({ errors, setFieldValue, touched, isSubmitting, values, handleChange }) => (
+        {({
+          errors,
+          setFieldValue,
+          touched,
+          isSubmitting,
+          values,
+          handleChange
+        }) => (
           <>
             <Form>
               <div>
-                <label htmlFor='rewardAmount' className=''>Amount (ETH)</label>
-                <Field name='rewardAmount' className='' placeholder='Amount reward' />
-                <ErrorMessage name='rewardAmount' component='div' className='' />
+                <label htmlFor="rewardAmount" className="">
+                  Amount (ETH)
+                </label>
+                <Field
+                  name="rewardAmount"
+                  className=""
+                  placeholder="Amount reward"
+                />
+                <ErrorMessage
+                  name="rewardAmount"
+                  component="div"
+                  className=""
+                />
               </div>
 
               <div>
-                <label htmlFor='description' className=''>Description</label>
+                <label htmlFor="description" className="">
+                  Description
+                </label>
                 <Field
-                  name='description'
+                  name="description"
                   value={values.description}
                   render={({ field, form }) => (
                     <Textarea
                       {...field}
-                      className=''
+                      className=""
                       minRows={10}
                       onChange={e => {
                         handleChange(e)
@@ -119,23 +150,43 @@ export default () => {
                     />
                   )}
                 />
-                <ErrorMessage name='description' component='div' className='' />
+                <ErrorMessage name="description" component="div" className="" />
               </div>
               <div>
-                <Field name='timeoutLocked' className='' placeholder='Timeout locked' />
-                <ErrorMessage name='timeoutLocked' component='div' className='' />
+                <label htmlFor="timeoutLocked" className="">
+                  Time Locked
+                </label>
+                <Field
+                  name="timeoutLocked"
+                  className=""
+                  placeholder="Timeout locked"
+                />
+                <ErrorMessage
+                  name="timeoutLocked"
+                  component="div"
+                  className=""
+                />
               </div>
 
-              <div className=''>
-                <Button type='submit' disabled={Object.entries(errors).length > 0}>Save Transaction</Button>
+              <div className="">
+                <Button
+                  type="submit"
+                  disabled={Object.entries(errors).length > 0}
+                >
+                  Save Transaction
+                </Button>
               </div>
             </Form>
             <p>Private Key for encryption and recover: {identity.privateKey}</p>
             {status && status == 'pending' && <p>Transaction pending</p>}
             {status && status !== 'pending' && (
               <>
-              <p>Transaction ongoing</p>
-              {status === 'success' ? window.location.replace(`/goods/${values.goodID}-${identity.privateKey}`) : 'Error during the transaction.'}
+                <p>Transaction ongoing</p>
+                {status === 'success'
+                  ? window.location.replace(
+                      `/goods/${values.goodID}-${identity.privateKey}`
+                    )
+                  : 'Error during the transaction.'}
               </>
             )}
           </>
