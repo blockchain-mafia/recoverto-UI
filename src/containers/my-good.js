@@ -94,7 +94,7 @@ export default props => {
           </h2>
           <h2>Qr code</h2>
           <QRCode
-            value={`https://recover.to/goods/${props.goodID_Pk}`}
+            value={`https://recover.netlify.com//goods/${props.goodID_Pk}`}
           />
         </>
       ) : (
