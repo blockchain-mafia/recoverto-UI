@@ -25,16 +25,24 @@ export default props => {
     )
   }))
 
-  const { send: sendClaim, status: statusClaim } = useCacheSend('Recover', 'claim')
-  const { send: sendAcceptClaim, status: statusAcceptClaim } = useCacheSend('Recover', 'acceptClaim')
+  const { send: sendClaim, status: statusClaim } = useCacheSend(
+    'Recover',
+    'claim'
+  )
+  const { send: sendAcceptClaim, status: statusAcceptClaim } = useCacheSend(
+    'Recover',
+    'acceptClaim'
+  )
   const { send: sendPay, status: statusPay } = useCacheSend('Recover', 'pay')
 
-  const [goodID, privateKey] = props.goodID_Pk.split('-')
+  const [itemID, privateKey] = props.itemID_Pk.split('-')
 
+  // TODO: remove metaTx
+  // use api infura
   const claim = useCallback(({ useMetaTx, finder, descriptionLink }) => {
     if (!useMetaTx) {
-      if(goodID && finder && descriptionLink)
-        sendClaim(goodID, finder, descriptionLink)
+      if (itemID && finder && descriptionLink)
+        sendClaim(itemID, finder, descriptionLink)
     } else {
       const claimerAccount = drizzle.web3.eth.accounts.privateKeyToAccount(
         privateKey
@@ -42,14 +50,14 @@ export default props => {
       console.log('!!!! claimerAccount address', claimerAccount.address)
       const msg = drizzle.web3.eth.abi.encodeParameters(
         ['bytes32', 'address', 'string'],
-        [goodID, finder, descriptionLink]
+        [itemID, finder, descriptionLink]
       )
       const msgHash = drizzle.web3.utils.sha3(msg)
       const sig = claimerAccount.sign(msgHash)
       fetch(process.env.REACT_APP_METATX_URL, {
         method: 'post',
         body: JSON.stringify({
-          goodID: goodID,
+          itemID: itemID,
           finder: finder,
           descriptionLink: descriptionLink,
           sig: { v: sig.v, r: sig.r, s: sig.s }
@@ -60,48 +68,63 @@ export default props => {
     }
   })
 
-  const good = useCacheCall('Recover', 'goods', goodID)
+  const descriptionLinkContentFn = useCallback(() =>
+    fetch(`https://ipfs.kleros.io/${item.descriptionEncryptedLink}`)
+      .then(async res => EthCrypto.cipher.parse(await res.text()))
+      .then(
+        async msgEncrypted =>
+          await EthCrypto.decryptWithPrivateKey(privateKey, msgEncrypted)
+      )
+      .then(dataDecrypt => setUrlDescriptionEncrypted(dataDecrypt))
+  )
 
-  const claimsIDs = useCacheCall('Recover', 'getClaimsByGoodID', goodID)
+  const item = useCacheCall('Recover', 'items', itemID)
+
+  const claimsIDs = useCacheCall('Recover', 'getClaimsByItemID', itemID)
 
   let claims = []
+
+  if (item !== undefined && item.descriptionEncryptedLink !== undefined)
+    descriptionLinkContentFn()
 
   if (claimsIDs && claimsIDs.length > 0)
     claimsIDs.map(claimID => {
       const claim = useCacheCall('Recover', 'claims', claimID)
-      claims.push({...claim, ID: claimID})
+      claims.push({ ...claim, ID: claimID })
     })
 
   return (
     <>
-      <h1>My good</h1>
-      {/* Decrypt the message and Generate QR code */}
-      {good ? (
+      <h1>My item</h1>
+      {item ? (
         <>
-          <div>Owner: {good.owner}</div>
-          <div>addressForEncryption: {good.addressForEncryption}</div>
-          <div>descriptionEncryptedLink: {good.descriptionEncryptedLink}</div>
-          <div>amountLocked: {good.amountLocked}</div>
-          <div>rewardAmount: {good.rewardAmount}</div>
-          <div>timeoutLocked: {good.timeoutLocked}</div>
-          <div>claims: {good.claimIDs}</div>
+          <div>Owner: {item.owner}</div>
+          <div>addressForEncryption: {item.addressForEncryption}</div>
+          <div>descriptionEncryptedLink: {item.descriptionEncryptedLink}</div>
+          <div>descriptionEncryptedContent: {urlDescriptionEncrypted}</div>
+          <div>amountLocked: {item.amountLocked}</div>
+          <div>rewardAmount: {item.rewardAmount}</div>
+          <div>timeoutLocked: {item.timeoutLocked}</div>
+          <div>claims: {item.claimIDs}</div>
           <div>Private Key: {privateKey}</div>
           <h2>
             Link:{' '}
             {`https://recover.to/contract/${
               process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
-            }/goods/${props.goodID_Pk}`}
+            }/contract/${props.contract}/items/${props.itemID_Pk}`}
           </h2>
           <h2>Qr code</h2>
           <QRCode
-            value={`https://recover.netlify.com/goods/${props.goodID_Pk}`}
+            value={`https://recover.to/contract/${props.contract}/items/${
+              props.itemID_Pk
+            }`}
           />
         </>
       ) : (
-        <p>Loading good...</p>
+        <p>Loading item...</p>
       )}
 
-      <h2>Claim this good</h2>
+      <h2>Claim this item</h2>
       <Formik
         initialValues={{
           finder: '',
@@ -181,7 +204,9 @@ export default props => {
                 </Button>
               </div>
             </Form>
-            {statusClaim && statusClaim == 'pending' && <p>Transaction pending</p>}
+            {statusClaim && statusClaim == 'pending' && (
+              <p>Transaction pending</p>
+            )}
             {statusClaim && statusClaim !== 'pending' && (
               <>
                 <p>Transaction ongoing</p>
@@ -196,29 +221,32 @@ export default props => {
 
       <h2>List Claims</h2>
 
-      {claims && claims.map((claim,i) =>
-        <div key={i}>
-          <p>ID: {claim && claim.ID}</p>
-          <p>Finder: {claim && claim.finder}</p>
-          <p>Description: {claim && claim.descriptionLink}</p>
+      {claims &&
+        claims.map((claim, i) => (
+          <div key={i}>
+            <p>ID: {claim && claim.ID}</p>
+            <p>Finder: {claim && claim.finder}</p>
+            <p>Description: {claim && claim.descriptionLink}</p>
 
-          {claim && good && good.rewardAmount && (
-            <button 
-              onClick={() => sendAcceptClaim(goodID, claim.ID, {value: good.rewardAmount})}
-            >
-              Accept Claim
-            </button>
-          )}
+            {claim && item && item.rewardAmount && (
+              <button
+                onClick={() =>
+                  sendAcceptClaim(itemID, claim.ID, {
+                    value: item.rewardAmount
+                  })
+                }
+              >
+                Accept Claim
+              </button>
+            )}
 
-          {claim && good && good.amountLocked > 0 && (
-            <button 
-              onClick={() => sendPay(goodID, good.amountLocked)}
-            >
-              Pay the finder
-            </button>
-          )}
-        </div>
-      )}
+            {claim && item && item.amountLocked > 0 && (
+              <button onClick={() => sendPay(itemID, item.amountLocked)}>
+                Pay the finder
+              </button>
+            )}
+          </div>
+        ))}
 
       <p>Version: {version}</p>
     </>

@@ -15,23 +15,20 @@ import { ReactComponent as Logo } from '../assets/images/logo.svg'
 import '../components/theme.css'
 
 const Main = ({ children }) => (
-  <div className='App'>
-    <header className='App-header'>
+  <div className="App">
+    <header className="App-header">
       <nav>
         <ul>
           <li>Recover</li>
           <li onClick={() => navigate('/')}>Home</li>
-          <li onClick={() => navigate('/')}>My Goods</li>
-          <li onClick={() => navigate('/')}>Add a Good</li>
+          <li onClick={() => navigate('/')}>My Items</li>
+          <li onClick={() => navigate('/')}>Add an Iten</li>
         </ul>
       </nav>
     </header>
-    <main>
-      {children}
-    </main>
+    <main>{children}</main>
   </div>
 )
-
 
 const StyledMain = styled(Main)`
   left: 50%;
@@ -52,8 +49,8 @@ const Home = loadable(
     fallback: <BeatLoader />
   }
 )
-const MyGood = loadable(
-  () => import(/* webpackPrefetch: true */ '../containers/my-good'),
+const Item = loadable(
+  () => import(/* webpackPrefetch: true */ '../containers/item'),
   {
     // TODO: load the good
     fallback: <BeatLoader />
@@ -79,7 +76,7 @@ export default () => (
           <Router>
             <Main path="/">
               <Home path="/" />
-              <MyGood path="/goods/:goodID_Pk" />
+              <Item path="contract/:contract/items/:itemID_Pk" />
               <C404 default />
             </Main>
           </Router>
@@ -90,6 +87,7 @@ export default () => (
 )
 
 register({
-  onUpdate: () =>
+  onUpdate: () => (
     <p>An update is ready to be installed. Please restart the application.</p>
+  )
 })

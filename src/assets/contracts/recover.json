@@ -3,31 +3,16 @@
   "abi": [
     {
       "constant": true,
-      "inputs": [
-        {
-          "name": "",
-          "type": "address"
-        }
-      ],
+      "inputs": [{ "name": "", "type": "address" }],
       "name": "owners",
-      "outputs": [
-        {
-          "name": "description",
-          "type": "string"
-        }
-      ],
+      "outputs": [{ "name": "description", "type": "string" }],
       "payable": false,
       "stateMutability": "view",
       "type": "function"
     },
     {
       "constant": false,
-      "inputs": [
-        {
-          "name": "_goodID",
-          "type": "bytes32"
-        }
-      ],
+      "inputs": [{ "name": "_itemID", "type": "bytes32" }],
       "name": "payArbitrationFeeByOwner",
       "outputs": [],
       "payable": true,
@@ -35,13 +20,17 @@
       "type": "function"
     },
     {
+      "constant": true,
+      "inputs": [{ "name": "", "type": "bytes32" }],
+      "name": "itemIDtoClaimAcceptedID",
+      "outputs": [{ "name": "", "type": "uint256" }],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "constant": false,
-      "inputs": [
-        {
-          "name": "_goodID",
-          "type": "bytes32"
-        }
-      ],
+      "inputs": [{ "name": "_itemID", "type": "bytes32" }],
       "name": "timeOutByOwner",
       "outputs": [],
       "payable": false,
@@ -51,14 +40,8 @@
     {
       "constant": false,
       "inputs": [
-        {
-          "name": "_goodID",
-          "type": "bytes32"
-        },
-        {
-          "name": "_claimID",
-          "type": "uint256"
-        }
+        { "name": "_itemID", "type": "bytes32" },
+        { "name": "_claimID", "type": "uint256" }
       ],
       "name": "acceptClaim",
       "outputs": [],
@@ -68,39 +51,9 @@
     },
     {
       "constant": true,
-      "inputs": [
-        {
-          "name": "_goodID",
-          "type": "bytes32"
-        },
-        {
-          "name": "_finder",
-          "type": "address"
-        },
-        {
-          "name": "_descriptionLink",
-          "type": "string"
-        },
-        {
-          "name": "v",
-          "type": "uint8"
-        },
-        {
-          "name": "r",
-          "type": "bytes32"
-        },
-        {
-          "name": "s",
-          "type": "bytes32"
-        }
-      ],
-      "name": "validateClaimMetaTransaction",
-      "outputs": [
-        {
-          "name": "errorReason",
-          "type": "string"
-        }
-      ],
+      "inputs": [{ "name": "_itemID", "type": "bytes32" }],
+      "name": "isItemExist",
+      "outputs": [{ "name": "", "type": "bool" }],
       "payable": false,
       "stateMutability": "view",
       "type": "function"
@@ -108,14 +61,8 @@
     {
       "constant": false,
       "inputs": [
-        {
-          "name": "_disputeID",
-          "type": "uint256"
-        },
-        {
-          "name": "_ruling",
-          "type": "uint256"
-        }
+        { "name": "_disputeID", "type": "uint256" },
+        { "name": "_ruling", "type": "uint256" }
       ],
       "name": "rule",
       "outputs": [],
@@ -126,14 +73,8 @@
     {
       "constant": false,
       "inputs": [
-        {
-          "name": "_goodID",
-          "type": "bytes32"
-        },
-        {
-          "name": "_rewardAmount",
-          "type": "uint256"
-        }
+        { "name": "_itemID", "type": "bytes32" },
+        { "name": "_rewardAmount", "type": "uint256" }
       ],
       "name": "changeRewardAmount",
       "outputs": [],
@@ -142,47 +83,26 @@
       "type": "function"
     },
     {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_goodID",
-          "type": "bytes32"
-        },
-        {
-          "name": "_finder",
-          "type": "address"
-        },
-        {
-          "name": "_descriptionLink",
-          "type": "string"
-        },
-        {
-          "name": "v",
-          "type": "uint8"
-        },
-        {
-          "name": "r",
-          "type": "bytes32"
-        },
-        {
-          "name": "s",
-          "type": "bytes32"
-        }
+      "constant": true,
+      "inputs": [{ "name": "", "type": "bytes32" }],
+      "name": "items",
+      "outputs": [
+        { "name": "owner", "type": "address" },
+        { "name": "rewardAmount", "type": "uint256" },
+        { "name": "addressForEncryption", "type": "address" },
+        { "name": "descriptionEncryptedLink", "type": "string" },
+        { "name": "amountLocked", "type": "uint256" },
+        { "name": "timeoutLocked", "type": "uint256" },
+        { "name": "ownerFee", "type": "uint256" },
+        { "name": "exists", "type": "bool" }
       ],
-      "name": "claimMetaTransaction",
-      "outputs": [],
       "payable": false,
-      "stateMutability": "nonpayable",
+      "stateMutability": "view",
       "type": "function"
     },
     {
       "constant": false,
-      "inputs": [
-        {
-          "name": "_goodID",
-          "type": "bytes32"
-        }
-      ],
+      "inputs": [{ "name": "_itemID", "type": "bytes32" }],
       "name": "payArbitrationFeeByFinder",
       "outputs": [],
       "payable": true,
@@ -192,18 +112,9 @@
     {
       "constant": false,
       "inputs": [
-        {
-          "name": "_goodID",
-          "type": "bytes32"
-        },
-        {
-          "name": "_addressForEncryption",
-          "type": "address"
-        },
-        {
-          "name": "_descriptionEncryptedLink",
-          "type": "string"
-        }
+        { "name": "_itemID", "type": "bytes32" },
+        { "name": "_addressForEncryption", "type": "address" },
+        { "name": "_descriptionEncryptedLink", "type": "string" }
       ],
       "name": "changeAddressAndDescriptionEncrypted",
       "outputs": [],
@@ -213,12 +124,7 @@
     },
     {
       "constant": false,
-      "inputs": [
-        {
-          "name": "_goodID",
-          "type": "bytes32"
-        }
-      ],
+      "inputs": [{ "name": "_itemID", "type": "bytes32" }],
       "name": "resetClaims",
       "outputs": [],
       "payable": false,
@@ -227,108 +133,16 @@
     },
     {
       "constant": true,
-      "inputs": [
-        {
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "name": "goods",
-      "outputs": [
-        {
-          "name": "owner",
-          "type": "address"
-        },
-        {
-          "name": "rewardAmount",
-          "type": "uint256"
-        },
-        {
-          "name": "addressForEncryption",
-          "type": "address"
-        },
-        {
-          "name": "descriptionEncryptedLink",
-          "type": "string"
-        },
-        {
-          "name": "amountLocked",
-          "type": "uint256"
-        },
-        {
-          "name": "timeoutLocked",
-          "type": "uint256"
-        },
-        {
-          "name": "ownerFee",
-          "type": "uint256"
-        },
-        {
-          "name": "exists",
-          "type": "bool"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "_goodID",
-          "type": "bytes32"
-        }
-      ],
-      "name": "getClaimsByGoodID",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256[]"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
+      "inputs": [{ "name": "", "type": "uint256" }],
       "name": "claims",
       "outputs": [
-        {
-          "name": "goodID",
-          "type": "bytes32"
-        },
-        {
-          "name": "finder",
-          "type": "address"
-        },
-        {
-          "name": "descriptionLink",
-          "type": "string"
-        },
-        {
-          "name": "lastInteraction",
-          "type": "uint256"
-        },
-        {
-          "name": "finderFee",
-          "type": "uint256"
-        },
-        {
-          "name": "disputeID",
-          "type": "uint256"
-        },
-        {
-          "name": "status",
-          "type": "uint8"
-        }
+        { "name": "itemID", "type": "bytes32" },
+        { "name": "finder", "type": "address" },
+        { "name": "descriptionLink", "type": "string" },
+        { "name": "lastInteraction", "type": "uint256" },
+        { "name": "finderFee", "type": "uint256" },
+        { "name": "disputeID", "type": "uint256" },
+        { "name": "status", "type": "uint8" }
       ],
       "payable": false,
       "stateMutability": "view",
@@ -337,14 +151,8 @@
     {
       "constant": false,
       "inputs": [
-        {
-          "name": "_goodID",
-          "type": "bytes32"
-        },
-        {
-          "name": "_amountReimbursed",
-          "type": "uint256"
-        }
+        { "name": "_itemID", "type": "bytes32" },
+        { "name": "_amountReimbursed", "type": "uint256" }
       ],
       "name": "reimburse",
       "outputs": [],
@@ -356,12 +164,7 @@
       "constant": true,
       "inputs": [],
       "name": "feeTimeout",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
+      "outputs": [{ "name": "", "type": "uint256" }],
       "payable": false,
       "stateMutability": "view",
       "type": "function"
@@ -369,18 +172,9 @@
     {
       "constant": false,
       "inputs": [
-        {
-          "name": "_goodID",
-          "type": "bytes32"
-        },
-        {
-          "name": "_finder",
-          "type": "address"
-        },
-        {
-          "name": "_descriptionLink",
-          "type": "string"
-        }
+        { "name": "_itemID", "type": "bytes32" },
+        { "name": "_finder", "type": "address" },
+        { "name": "_descriptionLink", "type": "string" }
       ],
       "name": "claim",
       "outputs": [],
@@ -391,14 +185,8 @@
     {
       "constant": false,
       "inputs": [
-        {
-          "name": "_goodID",
-          "type": "bytes32"
-        },
-        {
-          "name": "_timeoutLocked",
-          "type": "uint256"
-        }
+        { "name": "_itemID", "type": "bytes32" },
+        { "name": "_timeoutLocked", "type": "uint256" }
       ],
       "name": "changeTimeoutLocked",
       "outputs": [],
@@ -407,13 +195,17 @@
       "type": "function"
     },
     {
+      "constant": true,
+      "inputs": [{ "name": "_itemID", "type": "bytes32" }],
+      "name": "getClaimsByItemID",
+      "outputs": [{ "name": "", "type": "uint256[]" }],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "constant": false,
-      "inputs": [
-        {
-          "name": "_goodID",
-          "type": "bytes32"
-        }
-      ],
+      "inputs": [{ "name": "_itemID", "type": "bytes32" }],
       "name": "executeTransaction",
       "outputs": [],
       "payable": false,
@@ -422,12 +214,7 @@
     },
     {
       "constant": false,
-      "inputs": [
-        {
-          "name": "_goodID",
-          "type": "bytes32"
-        }
-      ],
+      "inputs": [{ "name": "_itemID", "type": "bytes32" }],
       "name": "timeOutByFinder",
       "outputs": [],
       "payable": false,
@@ -437,14 +224,8 @@
     {
       "constant": false,
       "inputs": [
-        {
-          "name": "_goodID",
-          "type": "bytes32"
-        },
-        {
-          "name": "_amount",
-          "type": "uint256"
-        }
+        { "name": "_itemID", "type": "bytes32" },
+        { "name": "_amount", "type": "uint256" }
       ],
       "name": "pay",
       "outputs": [],
@@ -453,69 +234,10 @@
       "type": "function"
     },
     {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_goodID",
-          "type": "bytes32"
-        },
-        {
-          "name": "_addressForEncryption",
-          "type": "address"
-        },
-        {
-          "name": "_descriptionEncryptedLink",
-          "type": "string"
-        },
-        {
-          "name": "_rewardAmount",
-          "type": "uint256"
-        },
-        {
-          "name": "_timeoutLocked",
-          "type": "uint256"
-        }
-      ],
-      "name": "addGood",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
       "constant": true,
-      "inputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
+      "inputs": [{ "name": "", "type": "uint256" }],
       "name": "disputeIDtoClaimAcceptedID",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "_goodID",
-          "type": "bytes32"
-        }
-      ],
-      "name": "isGoodExist",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool"
-        }
-      ],
+      "outputs": [{ "name": "", "type": "uint256" }],
       "payable": false,
       "stateMutability": "view",
       "type": "function"
@@ -523,14 +245,8 @@
     {
       "constant": false,
       "inputs": [
-        {
-          "name": "_goodID",
-          "type": "bytes32"
-        },
-        {
-          "name": "_claimID",
-          "type": "uint256"
-        }
+        { "name": "_itemID", "type": "bytes32" },
+        { "name": "_claimID", "type": "uint256" }
       ],
       "name": "removeClaim",
       "outputs": [],
@@ -540,12 +256,7 @@
     },
     {
       "constant": false,
-      "inputs": [
-        {
-          "name": "_goodID",
-          "type": "bytes32"
-        }
-      ],
+      "inputs": [{ "name": "_itemID", "type": "bytes32" }],
       "name": "appeal",
       "outputs": [],
       "payable": true,
@@ -555,14 +266,23 @@
     {
       "constant": false,
       "inputs": [
-        {
-          "name": "_goodID",
-          "type": "bytes32"
-        },
-        {
-          "name": "_evidence",
-          "type": "string"
-        }
+        { "name": "_itemID", "type": "bytes32" },
+        { "name": "_addressForEncryption", "type": "address" },
+        { "name": "_descriptionEncryptedLink", "type": "string" },
+        { "name": "_rewardAmount", "type": "uint256" },
+        { "name": "_timeoutLocked", "type": "uint256" }
+      ],
+      "name": "addItem",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        { "name": "_itemID", "type": "bytes32" },
+        { "name": "_evidence", "type": "string" }
       ],
       "name": "submitEvidence",
       "outputs": [],
@@ -571,38 +291,10 @@
       "type": "function"
     },
     {
-      "constant": true,
       "inputs": [
-        {
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "name": "goodIDtoClaimAcceptedID",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "name": "_arbitrator",
-          "type": "address"
-        },
-        {
-          "name": "_arbitratorExtraData",
-          "type": "bytes"
-        },
-        {
-          "name": "_feeTimeout",
-          "type": "uint256"
-        }
+        { "name": "_arbitrator", "type": "address" },
+        { "name": "_arbitratorExtraData", "type": "bytes" },
+        { "name": "_feeTimeout", "type": "uint256" }
       ],
       "payable": false,
       "stateMutability": "nonpayable",
@@ -611,16 +303,8 @@
     {
       "anonymous": false,
       "inputs": [
-        {
-          "indexed": true,
-          "name": "_transactionID",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "name": "_party",
-          "type": "uint8"
-        }
+        { "indexed": true, "name": "_transactionID", "type": "uint256" },
+        { "indexed": false, "name": "_party", "type": "uint8" }
       ],
       "name": "HasToPayFee",
       "type": "event"
@@ -628,38 +312,28 @@
     {
       "anonymous": false,
       "inputs": [
-        {
-          "indexed": true,
-          "name": "goodID",
-          "type": "bytes32"
-        },
-        {
-          "indexed": true,
-          "name": "finder",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "name": "claimID",
-          "type": "uint256"
-        }
+        { "indexed": true, "name": "_itemID", "type": "bytes32" },
+        { "indexed": false, "name": "_party", "type": "uint8" },
+        { "indexed": false, "name": "_amount", "type": "uint256" }
       ],
-      "name": "GoodClaimed",
+      "name": "Fund",
       "type": "event"
     },
     {
       "anonymous": false,
       "inputs": [
-        {
-          "indexed": true,
-          "name": "_metaEvidenceID",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "name": "_evidence",
-          "type": "string"
-        }
+        { "indexed": true, "name": "itemID", "type": "bytes32" },
+        { "indexed": true, "name": "finder", "type": "address" },
+        { "indexed": false, "name": "claimID", "type": "uint256" }
+      ],
+      "name": "ItemClaimed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "name": "_metaEvidenceID", "type": "uint256" },
+        { "indexed": false, "name": "_evidence", "type": "string" }
       ],
       "name": "MetaEvidence",
       "type": "event"
@@ -667,26 +341,10 @@
     {
       "anonymous": false,
       "inputs": [
-        {
-          "indexed": true,
-          "name": "_arbitrator",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "name": "_disputeID",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "name": "_metaEvidenceID",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "name": "_evidenceGroupID",
-          "type": "uint256"
-        }
+        { "indexed": true, "name": "_arbitrator", "type": "address" },
+        { "indexed": true, "name": "_disputeID", "type": "uint256" },
+        { "indexed": false, "name": "_metaEvidenceID", "type": "uint256" },
+        { "indexed": false, "name": "_evidenceGroupID", "type": "uint256" }
       ],
       "name": "Dispute",
       "type": "event"
@@ -694,26 +352,10 @@
     {
       "anonymous": false,
       "inputs": [
-        {
-          "indexed": true,
-          "name": "_arbitrator",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "name": "_evidenceGroupID",
-          "type": "uint256"
-        },
-        {
-          "indexed": true,
-          "name": "_party",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "name": "_evidence",
-          "type": "string"
-        }
+        { "indexed": true, "name": "_arbitrator", "type": "address" },
+        { "indexed": true, "name": "_evidenceGroupID", "type": "uint256" },
+        { "indexed": true, "name": "_party", "type": "address" },
+        { "indexed": false, "name": "_evidence", "type": "string" }
       ],
       "name": "Evidence",
       "type": "event"
@@ -721,21 +363,9 @@
     {
       "anonymous": false,
       "inputs": [
-        {
-          "indexed": true,
-          "name": "_arbitrator",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "name": "_disputeID",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "name": "_ruling",
-          "type": "uint256"
-        }
+        { "indexed": true, "name": "_arbitrator", "type": "address" },
+        { "indexed": true, "name": "_disputeID", "type": "uint256" },
+        { "indexed": false, "name": "_ruling", "type": "uint256" }
       ],
       "name": "Ruling",
       "type": "event"

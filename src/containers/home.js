@@ -23,17 +23,17 @@ export default () => {
       drizzleState.accountBalances[drizzleState.accounts[0]]
     )
   }))
-  const { send, status } = useCacheSend('Recover', 'addGood')
-  const addGood = useCallback(
+  const { send, status } = useCacheSend('Recover', 'addItem')
+  const addItem = useCallback(
     ({
-      goodID,
+      itemID,
       addressForEncryption,
       descriptionEncryptedIpfsUrl,
       rewardAmount,
       timeoutLocked
     }) =>
       send(
-        goodID,
+        itemID,
         addressForEncryption,
         descriptionEncryptedIpfsUrl,
         drizzle.web3.utils.toWei(rewardAmount, 'ether'),
@@ -54,9 +54,6 @@ export default () => {
           timeoutLocked: 604800 // Locked for one week
         }}
         validate={values => {
-          {
-            /* TODO use Yup */
-          }
           let errors = {}
           if (values.description.length > 1000000)
             errors.description =
@@ -94,7 +91,7 @@ export default () => {
             ipfsHashMetaEvidenceObj[1].hash
           }${ipfsHashMetaEvidenceObj[0].path}`
 
-          values.goodID = drizzle.web3.utils.fromAscii(
+          values.itemID = drizzle.web3.utils.fromAscii(
             (Math.floor(Math.random() * 9000000) + 1000000).toString()
           )
 
@@ -102,7 +99,7 @@ export default () => {
             identity.publicKey
           )
 
-          addGood(values)
+          addItem(values)
         })}
       >
         {({
@@ -184,7 +181,9 @@ export default () => {
                 <p>Transaction ongoing</p>
                 {status === 'success'
                   ? window.location.replace(
-                      `/goods/${values.goodID}-${identity.privateKey}`
+                      `/contract/${
+                        process.env.REACT_APP_ARBITRATOR_KOVAN_ADDRESS
+                      }/items/${values.itemID}-${identity.privateKey}`
                     )
                   : 'Error during the transaction.'}
               </>
