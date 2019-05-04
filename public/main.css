@@ -1,6 +1,5 @@
 body {
   font-family: Roboto;
-  min-height: 1000vh;
-  min-width: 100vw;
-  background: linear-gradient(47.62deg, #a6ffcb -29.15%, #12c2e9 83.36%);
+  min-height: 100vh;
+  background: linear-gradient(47.62deg, #a6ffcb -29.15%, #12c2e9 83.36%) no-repeat;
 }

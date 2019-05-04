@@ -42,6 +42,7 @@ const Main = ({ className, children }) => (
 )
 
 const StyledMain = styled(Main)`
+  min-height: calc(100vh - 120px);
   padding-top: 120px;
 `
 

@@ -11,9 +11,6 @@ import ETHAmount from '../components/eth-amount'
 
 import ipfsPublish from './api/ipfs-publish'
 
-const StyledDiv = styled.div`
-  max-width: 90%;
-`
 export default () => {
   const [identity] = useState(EthCrypto.createIdentity())
   const { drizzle, useCacheCall, useCacheSend } = useDrizzle()
@@ -174,7 +171,7 @@ export default () => {
                 </Button>
               </div>
             </Form>
-            <p>Private Key for encryption and recover: {identity.privateKey}</p>
+            {/* <p>Private Key for encryption and recover: {identity.privateKey}</p> */}
             {status && status == 'pending' && <p>Transaction pending</p>}
             {status && status !== 'pending' && (
               <>
