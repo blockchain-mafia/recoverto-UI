@@ -22,8 +22,7 @@
     "cz": "kathari cz",
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "build:analyze": "source-map-explorer build/static/js/main.*",
-    "build:theme": "lessc --js ./src/components/theme.less ./src/components/theme.css"
+    "build:analyze": "source-map-explorer build/static/js/main.*"
   },
   "commitlint": {
     "extends": [
@@ -45,7 +44,6 @@
   "devDependencies": {
     "@kleros/kathari": "^0.21.0",
     "husky": "^1.1.4",
-    "less": "^3.8.1",
     "source-map-explorer": "^1.6.0",
     "standard-version": "^4.4.0"
   },
@@ -68,6 +66,7 @@
     "qrcode.react": "^0.9.3",
     "react": "16.7.0-alpha.2",
     "react-blockies": "^1.4.0",
+    "react-burger-menu": "^2.6.10",
     "react-dom": "16.7.0-alpha.2",
     "react-helmet": "^5.2.0",
     "react-markdown": "^4.0.4",

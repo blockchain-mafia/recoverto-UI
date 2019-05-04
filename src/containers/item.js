@@ -132,9 +132,6 @@ export default props => {
         }}
         validate={values => {
           let errors = {}
-          {
-            /* TODO use Yup */
-          }
           if (!drizzle.web3.utils.isAddress(values.finder))
             errors.finder = 'Valid Address Required'
           if (values.descriptionLink.length > 1000000)

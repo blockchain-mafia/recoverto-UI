@@ -4,6 +4,7 @@ import loadable from '@loadable/component'
 import { Router, navigate } from '@reach/router'
 import styled from 'styled-components/macro'
 import { BeatLoader } from 'react-spinners'
+import { slide as Menu } from 'react-burger-menu'
 
 import drizzle from './drizzle'
 import { register } from './service-worker'
@@ -12,29 +13,36 @@ import { DrizzleProvider, Initializer } from '../temp/drizzle-react-hooks'
 import Identicon from '../components/identicon'
 import { ReactComponent as Logo } from '../assets/images/logo.svg'
 
-import '../components/theme.css'
+const Nav = () => (
+  <nav>
+    <div className="App-header-menu-logo">RECOVER</div>
+    <Menu right>
+      <a onClick={() => navigate('/')} className="menu-item">
+        HOME
+      </a>
+      <a onClick={() => navigate('/')} className="menu-item">
+        ADD ITEM
+      </a>
+      <a
+        className="menu-item"
+        href="https://t.me/joinchat/FHLxh03ifcIUaiFAu8DE0g"
+        target="_blank"
+      >
+        TELEGRAM
+      </a>
+    </Menu>
+  </nav>
+)
 
-const Main = ({ children }) => (
-  <div className="App">
-    <header className="App-header">
-      <nav>
-        <ul>
-          <li>Recover</li>
-          <li onClick={() => navigate('/')}>Home</li>
-          <li onClick={() => navigate('/')}>My Items</li>
-          <li onClick={() => navigate('/')}>Add an Iten</li>
-        </ul>
-      </nav>
-    </header>
-    <main>{children}</main>
-  </div>
+const Main = ({ className, children }) => (
+  <>
+    <Nav />
+    <main className={className}>{children}</main>
+  </>
 )
 
 const StyledMain = styled(Main)`
-  left: 50%;
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  padding-top: 120px;
 `
 
 const C404 = loadable(
@@ -74,11 +82,11 @@ export default () => (
       >
         <ArchonInitializer>
           <Router>
-            <Main path="/">
+            <StyledMain path="/">
               <Home path="/" />
               <Item path="contract/:contract/items/:itemID_Pk" />
               <C404 default />
-            </Main>
+            </StyledMain>
           </Router>
         </ArchonInitializer>
       </Initializer>
