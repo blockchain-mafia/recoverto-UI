@@ -20,7 +20,7 @@ export default () => {
   const drizzleState = useDrizzleState(drizzleState => ({
     account: drizzleState.accounts[0],
     balance: drizzle.web3.utils.toBN(
-      drizzleState.accountBalances[drizzleState.accounts[0]]
+     drizzleState.accountBalances[drizzleState.accounts[0]] || 0
     )
   }))
   const { send, status } = useCacheSend('Recover', 'addItem')
