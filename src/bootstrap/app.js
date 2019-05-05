@@ -85,7 +85,8 @@ export default () => (
           <Router>
             <StyledMain path="/">
               <Home path="/" />
-              <Item path="contract/:contract/items/:itemID_Pk" />
+              <Item path="contract/:contract/items/:itemID_Pk" /> 
+              {/* move to contract/:contract/items/:itemID?privateKey= */}
               <C404 default />
             </StyledMain>
           </Router>
