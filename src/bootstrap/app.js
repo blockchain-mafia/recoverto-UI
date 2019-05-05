@@ -52,8 +52,8 @@ const C404 = loadable(
     fallback: <BeatLoader />
   }
 )
-const Home = loadable(
-  () => import(/* webpackPrefetch: true */ '../containers/home'),
+const New = loadable(
+  () => import(/* webpackPrefetch: true */ '../containers/new'),
   {
     fallback: <BeatLoader />
   }
@@ -84,9 +84,8 @@ export default () => (
         <ArchonInitializer>
           <Router>
             <StyledMain path="/">
-              <Home path="/" />
-              <Item path="contract/:contract/items/:itemID_Pk" /> 
-              {/* move to contract/:contract/items/:itemID?privateKey= */}
+              <New path="/new" />
+              <Item path="/contract/:contract/items/:itemID_Pk" /> 
               <C404 default />
             </StyledMain>
           </Router>

@@ -18,12 +18,6 @@ const StyledDiv = styled.div`
 export default props => {
   const [urlDescriptionEncrypted, setUrlDescriptionEncrypted] = useState()
   const { drizzle, useCacheCall, useCacheSend } = useDrizzle()
-  const drizzleState = useDrizzleState(drizzleState => ({
-    account: drizzleState.accounts[0],
-    balance: drizzle.web3.utils.toBN(
-      drizzleState.accountBalances[drizzleState.accounts[0]]
-    )
-  }))
 
   const { send: sendClaim, status: statusClaim } = useCacheSend(
     'Recover',
@@ -35,37 +29,31 @@ export default props => {
   )
   const { send: sendPay, status: statusPay } = useCacheSend('Recover', 'pay')
 
-  const [itemID, privateKey] = props.itemID_Pk.split('-')
+  const [itemID, privateKey] = props.itemID_Pk.split('-privateKey=')
 
   // TODO: remove metaTx
   // use api infura
-  const claim = useCallback(({ useMetaTx, finder, descriptionLink }) => {
-    if (!useMetaTx) {
-      if (itemID && finder && descriptionLink)
-        sendClaim(itemID, finder, descriptionLink)
-    } else {
-      const claimerAccount = drizzle.web3.eth.accounts.privateKeyToAccount(
-        privateKey
-      )
-      console.log('!!!! claimerAccount address', claimerAccount.address)
-      const msg = drizzle.web3.eth.abi.encodeParameters(
-        ['bytes32', 'address', 'string'],
-        [itemID, finder, descriptionLink]
-      )
-      const msgHash = drizzle.web3.utils.sha3(msg)
-      const sig = claimerAccount.sign(msgHash)
-      fetch(process.env.REACT_APP_METATX_URL, {
-        method: 'post',
-        body: JSON.stringify({
-          itemID: itemID,
-          finder: finder,
-          descriptionLink: descriptionLink,
-          sig: { v: sig.v, r: sig.r, s: sig.s }
-        })
+  const claim = useCallback(({ finder, descriptionLink }) => {
+    const claimerAccount = drizzle.web3.eth.accounts.privateKeyToAccount(
+      privateKey
+    )
+    const msg = drizzle.web3.eth.abi.encodeParameters(
+      ['bytes32', 'address', 'string'],
+      [itemID, finder, descriptionLink]
+    )
+    const msgHash = drizzle.web3.utils.sha3(msg)
+    const sig = claimerAccount.sign(msgHash)
+    fetch(process.env.REACT_APP_METATX_URL, {
+      method: 'post',
+      body: JSON.stringify({
+        itemID: itemID,
+        finder: finder,
+        descriptionLink: descriptionLink,
+        sig: { v: sig.v, r: sig.r, s: sig.s }
       })
-        .then(async res => console.log(await res.json()))
-        .catch(console.error)
-    }
+    })
+      .then(async res => console.log(await res.json()))
+      .catch(console.error)
   })
 
   const descriptionLinkContentFn = useCallback(() =>
@@ -109,13 +97,13 @@ export default props => {
           <div>Private Key: {privateKey}</div>
           <h2>
             Link:{' '}
-            {`https://recover.to/contract/${
+            {`https://app.recover.to/contract/${
               process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
             }/contract/${props.contract}/items/${props.itemID_Pk}`}
           </h2>
           <h2>Qr code</h2>
           <QRCode
-            value={`https://recover.to/contract/${props.contract}/items/${
+            value={`https://app.recover.to/contract/${props.contract}/items/${
               props.itemID_Pk
             }`}
           />
@@ -178,17 +166,6 @@ export default props => {
                   name="descriptionLink"
                   component="div"
                   className=""
-                />
-              </div>
-              <div>
-                <label htmlFor="useMetaTx" className="">
-                  Use Meta Transaction
-                </label>
-                <Field
-                  name="useMetaTx"
-                  type="checkbox"
-                  className=""
-                  placeholder=""
                 />
               </div>
               <div className="">
