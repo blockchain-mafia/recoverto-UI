@@ -7,19 +7,13 @@ import Textarea from 'react-textarea-autosize'
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import { version } from '../../package.json'
 import Button from '../components/button'
-import ETHAmount from '../components/eth-amount'
 
 import ipfsPublish from './api/ipfs-publish'
 
 export default () => {
   const [identity] = useState(EthCrypto.createIdentity())
   const { drizzle, useCacheCall, useCacheSend } = useDrizzle()
-  const drizzleState = useDrizzleState(drizzleState => ({
-    account: drizzleState.accounts[0],
-    balance: drizzle.web3.utils.toBN(
-     drizzleState.accountBalances[drizzleState.accounts[0]] || 0
-    )
-  }))
+
   const { send, status } = useCacheSend('Recover', 'addItem')
   const addItem = useCallback(
     ({
@@ -40,10 +34,6 @@ export default () => {
 
   return (
     <>
-      <p>
-        Hello you have <ETHAmount amount={drizzleState.balance} decimals={4} />{' '}
-        ETH
-      </p>
       <Formik
         initialValues={{
           description: '',
