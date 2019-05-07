@@ -188,7 +188,7 @@ export default () => {
                 {(status === 'success' && isMetaEvidencePublish)
                   ? window.location.replace(
                       `/contract/${
-                        process.env.REACT_APP_ARBITRATOR_KOVAN_ADDRESS
+                        process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
                       }/items/${values.itemID}-privateKey=${identity.privateKey}`
                     )
                   : 'Error during the transaction.'}

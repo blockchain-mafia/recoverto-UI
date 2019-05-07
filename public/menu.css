@@ -8,8 +8,8 @@
   position: fixed;
   width: 36px;
   height: 30px;
-  right: 34px;
-  top: 36px;
+  right: 20px;
+  top: 14px;
 }
 
 /* Color/shape of burger icon bars */
@@ -77,12 +77,34 @@ Note: Beware of modifying this element as it can break the animations - you shou
   background: rgba(0, 0, 0, 0.3);
 }
 
+/* Menu */
+
+.App-header-menu {
+  position: fixed;
+  top: 0;
+  background: #14213D;
+  top: 0px;
+  width: 100vw;
+  color: #fff;
+  z-index: 100;
+  height: 60px;;
+  -webkit-transition: background-color 100ms linear;
+  -ms-transition: background-color 100ms linear;
+  transition: background-color 100ms linear;
+}
+
+.App-header-menu__isTop {
+  background: transparent;
+}
+
 /* Name brand */
 .App-header-menu-logo {
   position: fixed;
+  top: 0;
   font-family: RadnikaBold;
-  left: 34px;
-  top: 16px;
+  padding-left: 20px;
+  line-height: 60px;
   color: #fff;
-  font-size: 30px;
+  font-size: 36px;
+  z-index: 100;
 }

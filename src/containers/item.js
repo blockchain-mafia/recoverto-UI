@@ -68,15 +68,17 @@ export default props => {
 
   const item = useCacheCall('Recover', 'items', itemID)
 
-  const claimsIDs = useCacheCall('Recover', 'getClaimsByItemID', itemID)
+  const owner = useCacheCall('Recover', 'owners', '0x580B9ca15035B8C99bda7B959EAB185b40b19704')
+
+  const claimIDs = useCacheCall('Recover', 'getClaimsByItemID', itemID)
 
   let claims = []
 
   if (item !== undefined && item.descriptionEncryptedLink !== undefined)
     descriptionLinkContentFn()
 
-  if (claimsIDs && claimsIDs.length > 0)
-    claimsIDs.map(claimID => {
+  if (claimIDs && claimIDs.length > 0)
+    claimIDs.map(claimID => {
       const claim = useCacheCall('Recover', 'claims', claimID)
       claims.push({ ...claim, ID: claimID })
     })
@@ -196,8 +198,8 @@ export default props => {
       <h2>List Claims</h2>
 
       {claims &&
-        claims.map((claim, i) => (
-          <div key={i}>
+        claims.map((claim, index) => (
+          <div key={index}>
             <p>ID: {claim && claim.ID}</p>
             <p>Finder: {claim && claim.finder}</p>
             <p>Description: {claim && claim.descriptionLink}</p>

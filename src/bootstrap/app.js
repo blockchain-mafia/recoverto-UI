@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
 import loadable from '@loadable/component'
 import { Router, navigate } from '@reach/router'
@@ -13,26 +13,40 @@ import { DrizzleProvider, Initializer } from '../temp/drizzle-react-hooks'
 import Identicon from '../components/identicon'
 import { ReactComponent as Logo } from '../assets/images/logo.svg'
 
-const Nav = () => (
-  <nav>
-    <div className="App-header-menu-logo">RECOVER</div>
-    <Menu right>
-      <a onClick={() => navigate('/')} className="menu-item">
-        HOME
-      </a>
-      <a onClick={() => navigate('/')} className="menu-item">
-        ADD ITEM
-      </a>
-      <a
-        className="menu-item"
-        href="https://t.me/joinchat/FHLxh03ifcIUaiFAu8DE0g"
-        target="_blank"
-      >
-        TELEGRAM
-      </a>
-    </Menu>
-  </nav>
-)
+const Nav = () => {
+  const [isTop, setTop] = useState(true)
+
+  useEffect(() => {
+    document.addEventListener('scroll', () => {
+      if (window.scrollY <= 0 !== isTop) {
+        setTop(false)
+      } else {
+        setTop(true)
+      }
+    })
+  }, [])
+
+  return (
+    <div className={`App-header-menu ${isTop ? 'App-header-menu__isTop' : ''}`}>
+      <div className="App-header-menu-logo">RECOVER</div>
+      <Menu right>
+        <a onClick={() => navigate('/')} className="menu-item">
+          HOME
+        </a>
+        <a onClick={() => navigate('/')} className="menu-item">
+          ADD ITEM
+        </a>
+        <a
+          className="menu-item"
+          href="https://t.me/joinchat/FHLxh03ifcIUaiFAu8DE0g"
+          target="_blank"
+        >
+          TELEGRAM
+        </a>
+      </Menu>
+    </div>
+  )
+}
 
 const Main = ({ className, children }) => (
   <>
@@ -48,6 +62,12 @@ const StyledMain = styled(Main)`
 
 const C404 = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/404'),
+  {
+    fallback: <BeatLoader />
+  }
+)
+const Home = loadable(
+  () => import(/* webpackPrefetch: true */ '../containers/home'),
   {
     fallback: <BeatLoader />
   }
@@ -84,6 +104,7 @@ export default () => (
         <ArchonInitializer>
           <Router>
             <StyledMain path="/">
+              <Home path="/" />
               <New path="/new" />
               <Item path="/contract/:contract/items/:itemID_Pk" /> 
               <C404 default />
