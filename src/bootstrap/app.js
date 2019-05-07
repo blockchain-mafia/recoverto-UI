@@ -33,7 +33,7 @@ const Nav = () => {
         <a onClick={() => navigate('/')} className="menu-item">
           HOME
         </a>
-        <a onClick={() => navigate('/')} className="menu-item">
+        <a onClick={() => navigate('/new')} className="menu-item">
           ADD ITEM
         </a>
         <a
