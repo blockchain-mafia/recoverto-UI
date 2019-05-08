@@ -100,16 +100,14 @@ export default () => {
             ipfsHashMetaEvidenceObj[1].hash
           }${ipfsHashMetaEvidenceObj[0].path}`
 
-          values.itemID = drizzle.web3.utils.fromAscii(
-            (Math.floor(Math.random() * 9000000) + 1000000).toString() // or a custom itemID
-          )
+          values.itemID = drizzle.web3.utils.randomHex(32)
 
           values.addressForEncryption = EthCrypto.publicKey.toAddress(
             identity.publicKey
           )
 
           window.localStorage.setItem('recover', JSON.stringify({
-            ...localStorage.recover,
+            ...JSON.parse(localStorage.getItem('recover') || '{}'),
             [values.itemID]: {
               owner: drizzleState.account,
               privateKey: identity.privateKey
