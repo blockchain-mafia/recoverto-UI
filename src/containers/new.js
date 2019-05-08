@@ -28,6 +28,9 @@ export default () => {
   const [identity] = useState(EthCrypto.createIdentity())
   const [isMetaEvidencePublish, setIsMetaEvidencePublish] = useState(false)
   const { drizzle, useCacheSend } = useDrizzle()
+  const drizzleState = useDrizzleState(drizzleState => ({	
+    account: drizzleState.accounts[0],	
+  }))
 
   const { send, status } = useCacheSend('Recover', 'addItem')
   
@@ -104,6 +107,14 @@ export default () => {
           values.addressForEncryption = EthCrypto.publicKey.toAddress(
             identity.publicKey
           )
+
+          window.localStorage.setItem('recover', JSON.stringify({
+            ...localStorage.recover,
+            [values.itemID]: {
+              owner: drizzleState.account,
+              privateKey: identity.privateKey
+            }
+          }));
 
           addItem(values)
         })}
