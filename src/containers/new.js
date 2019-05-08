@@ -98,7 +98,7 @@ export default () => {
           }${ipfsHashMetaEvidenceObj[0].path}`
 
           values.itemID = drizzle.web3.utils.fromAscii(
-            (Math.floor(Math.random() * 9000000) + 1000000).toString()
+            (Math.floor(Math.random() * 9000000) + 1000000).toString() // or a custom itemID
           )
 
           values.addressForEncryption = EthCrypto.publicKey.toAddress(

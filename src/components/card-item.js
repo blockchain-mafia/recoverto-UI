@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 const CardItem = ({
   children,
   newItem,
+  encrypted,
   onClick,
   status,
   className,
@@ -33,6 +34,7 @@ CardItem.propTypes = {
   // Modifiers
   newItem: PropTypes.bool,
   className: PropTypes.string,
+  encrypted: PropTypes.bool
 }
 
 CardItem.defaultProps = {
@@ -41,7 +43,8 @@ CardItem.defaultProps = {
 
   // Modifiers
   newItem: false,
-  className: ''
+  className: '',
+  encrypted: true
 }
 
 export default CardItem

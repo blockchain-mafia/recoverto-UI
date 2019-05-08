@@ -60,15 +60,13 @@ export default props => {
     fetch(`https://ipfs.kleros.io/${item.descriptionEncryptedLink}`)
       .then(async res => EthCrypto.cipher.parse(await res.text()))
       .then(
-        async msgEncrypted =>
-          await EthCrypto.decryptWithPrivateKey(privateKey, msgEncrypted)
+        async data =>
+          await EthCrypto.decryptWithPrivateKey(privateKey, data)
       )
       .then(dataDecrypt => setUrlDescriptionEncrypted(dataDecrypt))
   )
 
   const item = useCacheCall('Recover', 'items', itemID)
-
-  const owner = useCacheCall('Recover', 'owners', '0x580B9ca15035B8C99bda7B959EAB185b40b19704')
 
   const claimIDs = useCacheCall('Recover', 'getClaimsByItemID', itemID)
 
