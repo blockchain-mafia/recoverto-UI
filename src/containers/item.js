@@ -89,7 +89,9 @@ export default props => {
           <div>Owner: {item.owner}</div>
           <div>addressForEncryption: {item.addressForEncryption}</div>
           <div>descriptionEncryptedLink: {item.descriptionEncryptedLink}</div>
-          <div>descriptionEncryptedContent: {urlDescriptionEncrypted}</div>
+          <div>type: {JSON.parse(urlDescriptionEncrypted || '{"type": ""}').type}</div>
+          <div>description: {JSON.parse(urlDescriptionEncrypted || '{"description": ""}').description}</div>
+          <div>contact information: {JSON.parse(urlDescriptionEncrypted || '{"contactInformation": ""}').contactInformation}</div>
           <div>amountLocked: {item.amountLocked}</div>
           <div>rewardAmount: {item.rewardAmount}</div>
           <div>timeoutLocked: {item.timeoutLocked}</div>

@@ -1,14 +1,24 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components/macro'
+import { navigate } from '@reach/router'
 
 import { ReactComponent as Plus } from '../assets/images/plus.svg'
 
 const Item = styled.div`
-  border-radius: 3px;
-  color: #4a4a4a;
+  color: #14213d;
   background: #fff;
   overflow: hidden;
+  font-style: Nunito;
+  padding 47px 0 0 44px;
+  box-shadow: 0px 4px 50px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  font-family: Nunito;
+  &:hover {
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    transform: translate(0, -5px);
+  }
 `
 
 const ItemNew = styled.div`
@@ -26,6 +36,15 @@ const ItemNew = styled.div`
   align-items: center;
   text-align: center;
   color: #fff;
+  &:hover {
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    transform: translate(0, -5px);
+  }
+`
+
+const ItemTitle = styled.div`
+  padding: 67px 0 35px 0;
 `
 
 const CardItem = ({
@@ -39,8 +58,8 @@ const CardItem = ({
 }) => (
   <>
     {newItem ? (
-      <ItemNew>
-        <div style={{padding: '67px 0 35px 0'}}>Add Item</div>
+      <ItemNew onClick={() => navigate('/new')}>
+        <ItemTitle>Add Item</ItemTitle>
         <div><Plus /></div>
       </ItemNew>
     ) : (

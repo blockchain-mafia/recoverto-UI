@@ -56,15 +56,22 @@ export default () => {
       <Title>New Item</Title>
       <Formik
         initialValues={{
+          type: '',
+          contactInformation: '',
           description: '',
           rewardAmount: 0,
           timeoutLocked: 604800 // Locked for one week
         }}
         validate={values => {
           let errors = {}
-          if (values.description.length > 1000000)
+          if (values.type  === '')
+            errors.type = 'Type Required'
+          if (values.description.length > 100000)
             errors.description =
-              'The maximum numbers of the characters for the description is 1,000,000 characters.'
+              'The maximum numbers of the characters for the description is 100,000 characters.'
+          if (values.description.length > 100000)
+            errors.description =
+              'The maximum numbers of the characters for the description is 100,000 characters.'
           if (!values.rewardAmount)
             errors.rewardAmount = 'Amount reward required'
           if (isNaN(values.rewardAmount))
@@ -83,7 +90,13 @@ export default () => {
         onSubmit={useCallback(async values => {
           const messageEncrypted = await EthCrypto.encryptWithPublicKey(
             identity.publicKey,
-            values.description
+            JSON.stringify({
+              type: values.type,
+              description: values.description,
+              contactInformation: values.contactInformation,
+              rewardAmount: values.rewardAmount,
+              timeoutLocked: values.timeoutLocked
+            })
           )
 
           const enc = new TextEncoder()
@@ -100,7 +113,7 @@ export default () => {
             ipfsHashMetaEvidenceObj[1].hash
           }${ipfsHashMetaEvidenceObj[0].path}`
 
-          values.itemID = drizzle.web3.utils.randomHex(32)
+          values.itemID = drizzle.web3.utils.randomHex(16)
 
           values.addressForEncryption = EthCrypto.publicKey.toAddress(
             identity.publicKey
@@ -108,7 +121,7 @@ export default () => {
 
           window.localStorage.setItem('recover', JSON.stringify({
             ...JSON.parse(localStorage.getItem('recover') || '{}'),
-            [values.itemID]: {
+            [values.itemID.padEnd(65, '0')]: {
               owner: drizzleState.account,
               privateKey: identity.privateKey
             }
@@ -128,23 +141,20 @@ export default () => {
           <>
             <Form>
               <div>
-                <label htmlFor="rewardAmount" className="">
-                  Amount (ETH)
+                <label htmlFor="type">
+                  Type
                 </label>
                 <Field
-                  name="rewardAmount"
-                  className=""
-                  placeholder="Amount reward"
+                  name="type"
+                  placeholder="Type"
                 />
                 <ErrorMessage
-                  name="rewardAmount"
+                  name="type"
                   component="div"
-                  className=""
                 />
               </div>
-
               <div>
-                <label htmlFor="description" className="">
+                <label htmlFor="description">
                   Description
                 </label>
                 <Field
@@ -153,7 +163,6 @@ export default () => {
                   render={({ field, form }) => (
                     <Textarea
                       {...field}
-                      className=""
                       minRows={10}
                       onChange={e => {
                         handleChange(e)
@@ -162,25 +171,55 @@ export default () => {
                     />
                   )}
                 />
-                <ErrorMessage name="description" component="div" className="" />
+                <ErrorMessage name="description" component="div" />
               </div>
               <div>
-                <label htmlFor="timeoutLocked" className="">
+                <label htmlFor="contactInformation">
+                  Contact Information
+                </label>
+                <Field
+                  name="contactInformation"
+                  value={values.contactInformation}
+                  render={({ field, form }) => (
+                    <Textarea
+                      {...field}
+                      minRows={10}
+                      onChange={e => {
+                        handleChange(e)
+                        form.setFieldValue('contactInformation', e.target.value)
+                      }}
+                    />
+                  )}
+                />
+                <ErrorMessage name="contactInformation" component="div" />
+              </div>
+              <div>
+                <label htmlFor="rewardAmount">
+                  Amount (ETH)
+                </label>
+                <Field
+                  name="rewardAmount"
+                  placeholder="Amount reward"
+                />
+                <ErrorMessage
+                  name="rewardAmount"
+                  component="div"
+                />
+              </div>
+              <div>
+                <label htmlFor="timeoutLocked">
                   Time Locked
                 </label>
                 <Field
                   name="timeoutLocked"
-                  className=""
                   placeholder="Timeout locked"
                 />
                 <ErrorMessage
                   name="timeoutLocked"
                   component="div"
-                  className=""
                 />
               </div>
-
-              <div className="">
+              <div>
                 <Button
                   type="submit"
                   disabled={Object.entries(errors).length > 0}
