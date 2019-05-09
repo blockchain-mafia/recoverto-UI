@@ -13,9 +13,63 @@ import ETHAmount from '../components/eth-amount'
 
 import ipfsPublish from './api/ipfs-publish'
 
+const Container = styled.div`
+  font-family: Nunito;
+  color: #444;
+  margin: 0 126px;
+  padding: 77px 104px;
+  background: #fff;
+  border-radius: 20px; 
+  box-shadow: 0px 4px 50px rgba(0, 0, 0, 0.1);
+`
+
+const Title = styled.h2`
+  font-family: Nunito;
+  font-size: 40px;
+  color: #14213d;
+  margin-botton: 30px;
+  padding-bottom: 50px;
+`
+
+const SubTitle = styled.h3`
+  font-family: Nunito;
+  font-size: 30px;
+  color: #14213d;
+  margin: 30px 0;
+`
+
 const StyledDiv = styled.div`
   max-width: 90%;
 `
+
+const StyledField = styled(Field)`
+  line-height: 50px;
+  padding-left: 20px;
+  margin: 20px 0 40px 0;
+  width: 100%;
+  display: block;
+  background: #FFFFFF;
+  border: 1px solid #CCCCCC;
+  box-sizing: border-box;
+  border-radius: 5px;
+`
+
+const StyledTextarea = styled(Textarea)`
+  padding: 20px 0 0 20px;
+  margin: 20px 0 40px 0;
+  width: 100%;
+  display: block;
+  background: #FFFFFF;
+  border: 1px solid #CCCCCC;
+  box-sizing: border-box;
+  border-radius: 5px;
+`
+
+const StyledForm = styled(Form)`
+  display: flex;
+  flex-direction: column;
+`
+
 export default props => {
   const [urlDescriptionEncrypted, setUrlDescriptionEncrypted] = useState()
   const { drizzle, useCacheCall, useCacheSend } = useDrizzle()
@@ -64,39 +118,31 @@ export default props => {
     })
 
   return (
-    <>
-      <h1>My item</h1>
+    <Container>
+      <Title>My item</Title>
       {item ? (
         <>
-          <div>Owner: {item.owner}</div>
-          <div>addressForEncryption: {item.addressForEncryption}</div>
-          <div>descriptionEncryptedLink: {item.descriptionEncryptedLink}</div>
-          <div>type: {JSON.parse(urlDescriptionEncrypted || '{"type": ""}').type}</div>
-          <div>description: {JSON.parse(urlDescriptionEncrypted || '{"description": ""}').description}</div>
-          <div>contact information: {JSON.parse(urlDescriptionEncrypted || '{"contactInformation": ""}').contactInformation}</div>
-          <div>amountLocked: {item.amountLocked}</div>
-          <div>rewardAmount: {item.rewardAmount}</div>
-          <div>timeoutLocked: {item.timeoutLocked}</div>
-          <div>claims: {item.claimIDs}</div>
-          <div>Private Key: {privateKey}</div>
-          <h2>
-            Link:{' '}
-            {`https://app.recover.to/contract/${
-              process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
-            }/contract/${props.contract}/items/${props.itemID_Pk}`}
-          </h2>
-          <h2>Qr code</h2>
-          <QRCode
-            value={`https://app.recover.to/contract/${props.contract}/items/${
-              props.itemID_Pk
-            }`}
-          />
+          <div style={{padding: '10px 0'}}>Owner: {item.owner}</div>
+          <div style={{padding: '10px 0'}}>type: {JSON.parse(urlDescriptionEncrypted || '{"type": ""}').type}</div>
+          <div style={{padding: '10px 0'}}>description: {JSON.parse(urlDescriptionEncrypted || '{"description": ""}').description}</div>
+          <div style={{padding: '10px 0'}}>contact information: {JSON.parse(urlDescriptionEncrypted || '{"contactInformation": ""}').contactInformation}</div>
+          <div style={{padding: '10px 0'}}>amountLocked: {item.amountLocked}</div>
+          <div style={{padding: '10px 0'}}>rewardAmount: {item.rewardAmount} ETH</div>
+          <div style={{padding: '10px 0'}}>Private Key: {privateKey}</div>
+          <SubTitle>Qr code</SubTitle>
+          <div style={{textAlign: 'center', padding: '50px'}}>
+            <QRCode
+              value={`https://app.recover.to/contract/${props.contract}/items/${
+                props.itemID_Pk
+              }`}
+            />
+          </div>
         </>
       ) : (
         <p>Loading item...</p>
       )}
 
-      <h2>Claim this item</h2>
+      <SubTitle>Claim this item</SubTitle>
       <Formik
         initialValues={{
           finder: '',
@@ -116,12 +162,12 @@ export default props => {
       >
         {({ errors, values, handleChange }) => (
           <>
-            <Form>
+            <StyledForm>
               <div>
                 <label htmlFor="finder" className="">
                   Finder Address
                 </label>
-                <Field
+                <StyledField
                   name="finder"
                   className=""
                   placeholder="Finder Address"
@@ -131,11 +177,11 @@ export default props => {
                 <label htmlFor="descriptionLink" className="">
                   Description
                 </label>
-                <Field
+                <StyledField
                   name="description"
                   value={values.descriptionLink}
                   render={({ field, form }) => (
-                    <Textarea
+                    <StyledTextarea
                       {...field}
                       className=""
                       minRows={10}
@@ -152,8 +198,9 @@ export default props => {
                   className=""
                 />
               </div>
-              <div className="">
+              <div style={{textAlign: 'right'}}>
                 <Button
+                  style={{padding: '0 30px', textAlign: 'center', lineHeight: '50px', border: '1px solid #14213D', borderRadius: '10px'}}
                   type="submit"
                   onClick={claim}
                   disabled={Object.entries(errors).length > 0}
@@ -161,7 +208,7 @@ export default props => {
                   Claim
                 </Button>
               </div>
-            </Form>
+            </StyledForm>
             {statusClaim && statusClaim == 'pending' && (
               <p><BounceLoader color={'#12D8FA'} size={30} style={{display: 'inline'}}/> {' '}Transaction pending</p>
             )}
@@ -177,17 +224,18 @@ export default props => {
         )}
       </Formik>
 
-      <h2>List Claims</h2>
+      <SubTitle>List Claims</SubTitle>
 
       {claims &&
         claims.map((claim, index) => (
           <div key={index}>
-            <p>ID: {claim && claim.ID}</p>
-            <p>Finder: {claim && claim.finder}</p>
-            <p>Description: {claim && claim.descriptionLink}</p>
+            <p style={{padding: '10px 0'}}>ID: {claim && claim.ID}</p>
+            <p style={{padding: '10px 0'}}>Finder: {claim && claim.finder}</p>
+            <p style={{padding: '10px 0 40px 0'}}>Description: {claim && claim.descriptionLink}</p>
 
             {claim && item && item.rewardAmount && (
               <button
+                style={{padding: '0 30px', textAlign: 'center', lineHeight: '50px', border: '1px solid #14213D', borderRadius: '10px'}}
                 onClick={() =>
                   sendAcceptClaim(itemID, claim.ID, {
                     value: item.rewardAmount
@@ -198,15 +246,17 @@ export default props => {
               </button>
             )}
 
+            {' '}
+
             {claim && item && item.amountLocked > 0 && (
-              <button onClick={() => sendPay(itemID, item.amountLocked)}>
+              <button style={{padding: '0 30px', textAlign: 'center', lineHeight: '50px', border: '1px solid #14213D', borderRadius: '10px'}} onClick={() => sendPay(itemID, item.amountLocked)}>
                 Pay the finder
               </button>
             )}
           </div>
         ))}
 
-      <p>Version: {version}</p>
-    </>
+        {claims && claims.length === 0 && 'No claim'}
+    </Container>
   )
 }
