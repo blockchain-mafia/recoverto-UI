@@ -23,10 +23,9 @@ const Grid = styled.div`
 `
 
 export default () => {
-  let recover = JSON.parse(localStorage.getItem('recover') || '{}')
-  if (recover === {}) {
-    // decode
-  }
+
+
+  const [recover, setRecover] = useState(JSON.parse(localStorage.getItem('recover') || '{}'))
 
   const { useCacheCall } = useDrizzle()
   const [urlDescriptionsByItem, setUrlDescriptionsByItem] = useState([])
@@ -60,7 +59,7 @@ export default () => {
         arr.push({...item, itemID})
       })
 
-    return arr
+    return arr.reverse()
   })
 
   return (
@@ -70,8 +69,15 @@ export default () => {
         <CardItem 
           key={index}
           encrypted={false}
+          onClick={
+            () => window.location.replace(
+              `/contract/${
+                process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
+              }/items/${item.itemID}-privateKey=${recover[item.itemID].privateKey}`
+            )
+          }
         >
-          <p>{item !== undefined && item.itemID }</p>
+          <p>Item: {++index}</p>
         </CardItem>
       ))}
     </Grid>

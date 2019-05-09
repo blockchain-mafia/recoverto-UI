@@ -3,6 +3,7 @@ import EthCrypto from 'eth-crypto'
 import styled from 'styled-components/macro'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import Textarea from 'react-textarea-autosize'
+import { BounceLoader } from 'react-spinners'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import { version } from '../../package.json'
@@ -11,6 +12,8 @@ import Button from '../components/button'
 import ipfsPublish from './api/ipfs-publish'
 
 const Container = styled.div`
+  font-family: Nunito;
+  color: #444;
   margin: 0 126px;
   padding: 77px 104px;
   background: #fff;
@@ -22,6 +25,36 @@ const Title = styled.h2`
   font-family: Nunito;
   font-size: 40px;
   color: #14213d;
+  margin-botton: 30px;
+  padding-bottom: 50px;
+`
+
+const StyledField = styled(Field)`
+  line-height: 50px;
+  padding-left: 20px;
+  margin: 20px 0 40px 0;
+  width: 100%;
+  display: block;
+  background: #FFFFFF;
+  border: 1px solid #CCCCCC;
+  box-sizing: border-box;
+  border-radius: 5px;
+`
+
+const StyledTextarea = styled(Textarea)`
+  padding: 20px 0 0 20px;
+  margin: 20px 0 40px 0;
+  width: 100%;
+  display: block;
+  background: #FFFFFF;
+  border: 1px solid #CCCCCC;
+  box-sizing: border-box;
+  border-radius: 5px;
+`
+
+const StyledForm = styled(Form)`
+  display: flex;
+  flex-direction: column;
 `
 
 export default () => {
@@ -139,12 +172,12 @@ export default () => {
           handleChange
         }) => (
           <>
-            <Form>
+            <StyledForm>
               <div>
                 <label htmlFor="type">
                   Type
                 </label>
-                <Field
+                <StyledField
                   name="type"
                   placeholder="Type"
                 />
@@ -157,11 +190,11 @@ export default () => {
                 <label htmlFor="description">
                   Description
                 </label>
-                <Field
+                <StyledField
                   name="description"
                   value={values.description}
                   render={({ field, form }) => (
-                    <Textarea
+                    <StyledTextarea
                       {...field}
                       minRows={10}
                       onChange={e => {
@@ -177,11 +210,11 @@ export default () => {
                 <label htmlFor="contactInformation">
                   Contact Information
                 </label>
-                <Field
+                <StyledField
                   name="contactInformation"
                   value={values.contactInformation}
                   render={({ field, form }) => (
-                    <Textarea
+                    <StyledTextarea
                       {...field}
                       minRows={10}
                       onChange={e => {
@@ -197,7 +230,7 @@ export default () => {
                 <label htmlFor="rewardAmount">
                   Amount (ETH)
                 </label>
-                <Field
+                <StyledField
                   name="rewardAmount"
                   placeholder="Amount reward"
                 />
@@ -210,7 +243,7 @@ export default () => {
                 <label htmlFor="timeoutLocked">
                   Time Locked
                 </label>
-                <Field
+                <StyledField
                   name="timeoutLocked"
                   placeholder="Timeout locked"
                 />
@@ -219,17 +252,18 @@ export default () => {
                   component="div"
                 />
               </div>
-              <div>
+              <div style={{textAlign: 'right'}}>
                 <Button
                   type="submit"
                   disabled={Object.entries(errors).length > 0}
+                  style={{padding: '0 30px', textAlign: 'center', lineHeight: '50px', border: '1px solid #14213D', borderRadius: '10px'}}
                 >
-                  Save Transaction
+                  Save Transaction →
                 </Button>
               </div>
-            </Form>
+            </StyledForm>
             {/* <p>Private Key for encryption and recover: {identity.privateKey}</p> */}
-            {status && status == 'pending' && <p>Transaction pending</p>}
+            {status && status == 'pending' && <p><BounceLoader color={'#12D8FA'} size={30} style={{display: 'inline'}}/> {' '}Transaction pending</p>}
             {status && status !== 'pending' && (
               <>
                 <p>Transaction ongoing</p>
@@ -245,7 +279,6 @@ export default () => {
           </>
         )}
       </Formik>
-      <p>Version: {version}</p>
     </Container>
   )
 }

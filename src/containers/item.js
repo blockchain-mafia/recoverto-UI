@@ -4,6 +4,7 @@ import styled from 'styled-components/macro'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import QRCode from 'qrcode.react'
 import Textarea from 'react-textarea-autosize'
+import { BounceLoader } from 'react-spinners'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import { version } from '../../package.json'
@@ -31,29 +32,10 @@ export default props => {
 
   const [itemID, privateKey] = props.itemID_Pk.split('-privateKey=')
 
-  // TODO: remove metaTx
   // use api infura
   const claim = useCallback(({ finder, descriptionLink }) => {
-    const claimerAccount = drizzle.web3.eth.accounts.privateKeyToAccount(
-      privateKey
-    )
-    const msg = drizzle.web3.eth.abi.encodeParameters(
-      ['bytes32', 'address', 'string'],
-      [itemID, finder, descriptionLink]
-    )
-    const msgHash = drizzle.web3.utils.sha3(msg)
-    const sig = claimerAccount.sign(msgHash)
-    fetch(process.env.REACT_APP_METATX_URL, {
-      method: 'post',
-      body: JSON.stringify({
-        itemID: itemID,
-        finder: finder,
-        descriptionLink: descriptionLink,
-        sig: { v: sig.v, r: sig.r, s: sig.s }
-      })
-    })
-      .then(async res => console.log(await res.json()))
-      .catch(console.error)
+    if(itemID && finder && descriptionLink)
+        sendClaim(itemID, finder, descriptionLink)
   })
 
   const descriptionLinkContentFn = useCallback(() =>
@@ -181,7 +163,7 @@ export default props => {
               </div>
             </Form>
             {statusClaim && statusClaim == 'pending' && (
-              <p>Transaction pending</p>
+              <p><BounceLoader color={'#12D8FA'} size={30} style={{display: 'inline'}}/> {' '}Transaction pending</p>
             )}
             {statusClaim && statusClaim !== 'pending' && (
               <>

@@ -14,6 +14,7 @@ const Item = styled.div`
   box-shadow: 0px 4px 50px rgba(0, 0, 0, 0.1);
   border-radius: 20px;
   font-family: Nunito;
+  font-size: 16px;
   &:hover {
     cursor: pointer;
     transition: all 0.2s ease-in-out;

@@ -28,7 +28,7 @@ const Nav = () => {
 
   return (
     <div className={`App-header-menu ${isTop ? 'App-header-menu__isTop' : ''}`}>
-      <div className="App-header-menu-logo">RECOVER</div>
+      <div onClick={() => navigate('/')} style={{cursor: 'pointer'}} className="App-header-menu-logo">RECOVER</div>
       <Menu right>
         <a onClick={() => navigate('/')} className="menu-item">
           HOME
@@ -57,7 +57,7 @@ const Main = ({ className, children }) => (
 
 const StyledMain = styled(Main)`
   min-height: calc(100vh - 120px);
-  padding-top: 120px;
+  padding: 120px 0 100px 0;
   margin: 0 auto;
   width: calc(100vw - 2em);
   max-width: 1200px;
@@ -66,26 +66,26 @@ const StyledMain = styled(Main)`
 const C404 = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/404'),
   {
-    fallback: <BeatLoader />
+    fallback: <BeatLoader color={'#fff'} css={{color: '#fff', position: 'absolute', top: '50%', left: '50%'}}/>
   }
 )
 const Home = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/home'),
   {
-    fallback: <BeatLoader />
+    fallback: <BeatLoader color={'#fffff'} css={{color: '#fff', position: 'absolute', top: '50%', left: '50%'}}/>
   }
 )
 const New = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/new'),
   {
-    fallback: <BeatLoader />
+    fallback: <BeatLoader color={'#fff'} css={{color: '#fff', position: 'absolute', top: '50%', left: '50%'}}/>
   }
 )
 const Item = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/item'),
   {
     // TODO: load the good
-    fallback: <BeatLoader />
+    fallback: <BeatLoader color={'#fff'} css={{color: '#fff', position: 'absolute', top: '50%', left: '50%'}}/>
   }
 )
 
@@ -102,7 +102,7 @@ export default () => (
       <Initializer
         error={<C404 Web3 />}
         loadingContractsAndAccounts={<C404 Web3 />}
-        loadingWeb3={<BeatLoader />}
+        loadingWeb3={<BeatLoader color={'#fff'} css={{color: '#fff', position: 'absolute', top: '50%', left: '50%'}}/>}
       >
         <ArchonInitializer>
           <Router>
