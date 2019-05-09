@@ -58,6 +58,9 @@ const Main = ({ className, children }) => (
 const StyledMain = styled(Main)`
   min-height: calc(100vh - 120px);
   padding-top: 120px;
+  margin: 0 auto;
+  width: calc(100vw - 2em);
+  max-width: 1200px;
 `
 
 const C404 = loadable(

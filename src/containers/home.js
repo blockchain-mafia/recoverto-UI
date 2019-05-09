@@ -5,6 +5,13 @@ import styled from 'styled-components/macro'
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import CardItem from '../components/card-item'
 
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 70px;
+  grid-auto-rows: 290px;
+`
+
 export default () => {
   let recover = JSON.parse(localStorage.getItem('recover') || '{}')
   if (recover === {}) {
@@ -61,7 +68,7 @@ export default () => {
     })
 
   return (
-    <>
+    <Grid>
       <CardItem newItem={true} />
       {items && items.map((item, index) => (
         <CardItem 
@@ -72,6 +79,6 @@ export default () => {
           <p>{item !== undefined && item.addressForEncryption}</p> 
         </CardItem>
       ))}
-    </>
+    </Grid>
   )
 }
