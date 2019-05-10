@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import Dataloader from 'dataloader'
+import EthCrypto from 'eth-crypto'
 import archon from './archon'
 
 const funcs = {
@@ -41,6 +42,13 @@ const funcs = {
         ...options
       })
       .then(res => res.file)
+      .catch(() => null),
+  getDescription: (descriptionEncryptedLink, privateKey) =>
+    fetch(`https://ipfs.kleros.io/${descriptionEncryptedLink}`)
+      .then(res => EthCrypto.cipher.parse(res.text()))
+      .then(
+        msgEncrypted => EthCrypto.decryptWithPrivateKey(privateKey, msgEncrypted)
+      )
       .catch(() => null)
 }
 export const dataloaders = Object.keys(funcs).reduce((acc, f) => {
