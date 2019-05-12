@@ -10,6 +10,7 @@ import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import { version } from '../../package.json'
 import Button from '../components/button'
 import ETHAmount from '../components/eth-amount'
+import { useDataloader } from '../bootstrap/dataloader'
 
 import ipfsPublish from './api/ipfs-publish'
 
@@ -71,7 +72,6 @@ const StyledForm = styled(Form)`
 `
 
 export default props => {
-  const [urlDescriptionEncrypted, setUrlDescriptionEncrypted] = useState()
   const { drizzle, useCacheCall, useCacheSend } = useDrizzle()
 
   const { send: sendClaim, status: statusClaim } = useCacheSend(
@@ -89,33 +89,40 @@ export default props => {
   // use api infura
   const claim = useCallback(({ finder, descriptionLink }) => {
     if(itemID && finder && descriptionLink)
-        sendClaim(itemID, finder, descriptionLink)
+      sendClaim(itemID, finder, descriptionLink) // TODO: encrypt the data of the descriptionLink with public key of the owner
   })
-
-  const descriptionLinkContentFn = useCallback(() =>
-    fetch(`https://ipfs.kleros.io/${item.descriptionEncryptedLink}`)
-      .then(async res => EthCrypto.cipher.parse(await res.text()))
-      .then(
-        async data =>
-          await EthCrypto.decryptWithPrivateKey(privateKey, data)
-      )
-      .then(dataDecrypt => setUrlDescriptionEncrypted(dataDecrypt))
-  )
 
   const item = useCacheCall('Recover', 'items', itemID)
 
   const claimIDs = useCacheCall('Recover', 'getClaimsByItemID', itemID)
 
-  let claims = []
+  const loadDescription = useDataloader.getDescription()
 
-  if (item !== undefined && item.descriptionEncryptedLink !== undefined)
-    descriptionLinkContentFn()
+  if (item !== undefined && item.descriptionEncryptedLink !== undefined) {
+    const contentDecrypted = loadDescription(
+      item.descriptionEncryptedLink, 
+      privateKey
+    )
+    if (contentDecrypted) item.content = JSON.parse(contentDecrypted)
+  }
 
-  if (claimIDs && claimIDs.length > 0)
-    claimIDs.map(claimID => {
-      const claim = useCacheCall('Recover', 'claims', claimID)
-      claims.push({ ...claim, ID: claimID })
-    })
+  const claims = useCacheCall(['Recover'], call =>
+    claimIDs
+      ? claimIDs.reduce(
+          (acc, d) => {
+            const claim = call('Recover', 'claims', d)
+            if(claim)
+              acc.data.push({ ...claim, ID: d })
+            // TODO: decrypt details information
+            return acc
+          },
+          {
+            data: [],
+            loading: false
+          }
+        )
+      : { loading: true }
+  )
 
   return (
     <Container>
@@ -123,12 +130,10 @@ export default props => {
       {item ? (
         <>
           <div style={{padding: '10px 0'}}>Owner: {item.owner}</div>
-          <div style={{padding: '10px 0'}}>type: {JSON.parse(urlDescriptionEncrypted || '{"type": ""}').type}</div>
-          <div style={{padding: '10px 0'}}>description: {JSON.parse(urlDescriptionEncrypted || '{"description": ""}').description}</div>
-          <div style={{padding: '10px 0'}}>contact information: {JSON.parse(urlDescriptionEncrypted || '{"contactInformation": ""}').contactInformation}</div>
           <div style={{padding: '10px 0'}}>amountLocked: {item.amountLocked}</div>
           <div style={{padding: '10px 0'}}>rewardAmount: {item.rewardAmount} ETH</div>
           <div style={{padding: '10px 0'}}>Private Key: {privateKey}</div>
+          <div style={{padding: '10px 0'}}>Content: {item.content && item.content.description}</div>
           <SubTitle>Qr code</SubTitle>
           <div style={{textAlign: 'center', padding: '50px'}}>
             <QRCode
@@ -195,7 +200,6 @@ export default props => {
                 <ErrorMessage
                   name="descriptionLink"
                   component="div"
-                  className=""
                 />
               </div>
               <div style={{textAlign: 'right'}}>
@@ -225,10 +229,9 @@ export default props => {
       </Formik>
 
       <SubTitle>List Claims</SubTitle>
-
-      {claims &&
-        claims.map((claim, index) => (
-          <div key={index}>
+      {
+        !claims.loading && claims.data.map(claim => (
+          <div key={claim.ID}>
             <p style={{padding: '10px 0'}}>ID: {claim && claim.ID}</p>
             <p style={{padding: '10px 0'}}>Finder: {claim && claim.finder}</p>
             <p style={{padding: '10px 0 40px 0'}}>Description: {claim && claim.descriptionLink}</p>
@@ -254,9 +257,10 @@ export default props => {
               </button>
             )}
           </div>
-        ))}
+        ))
+      }
 
-        {claims && claims.length === 0 && 'No claim'}
+      {!claims.loading && claims.data.length === 0 && 'No claim'}
     </Container>
   )
 }

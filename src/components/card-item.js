@@ -51,6 +51,7 @@ const ItemTitle = styled.div`
 const CardItem = ({
   children,
   newItem,
+  loadingItem,
   encrypted,
   onClick,
   status,
@@ -63,6 +64,10 @@ const CardItem = ({
         <ItemTitle>Add Item</ItemTitle>
         <div><Plus /></div>
       </ItemNew>
+    ) : loadingItem ? (
+      <Item>
+        Loading...
+      </Item>
     ) : (
       <Item
           onClick={onClick}
