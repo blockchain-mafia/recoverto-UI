@@ -56,7 +56,7 @@ export default () => {
     <Grid>
       <CardItem newItem={true} />
       {
-        !items.loading ? items.data.reverse().map(item => (
+        !items.loading && items.data.reverse().map(item => (
           <CardItem 
             key={item.ID}
             encrypted={false}
@@ -71,7 +71,7 @@ export default () => {
             <p>Item: {item.ID}</p>
             <p>Item: {item.content && item.content}</p>
           </CardItem>
-        )) : <CardItem loadingItem={true} />
+        ))
       }
     </Grid>
   )
