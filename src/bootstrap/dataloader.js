@@ -51,7 +51,7 @@ const funcs = {
           privateKey,
           EthCrypto.cipher.parse(data.dataEncrypted)
         )
-        return {...data, dataEncrypted: JSON.parse(dataDecrypted)}
+        return {...data, dataDecrypted: JSON.parse(dataDecrypted)}
       })
       .catch(() => null)
 }

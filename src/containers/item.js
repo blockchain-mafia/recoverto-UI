@@ -134,7 +134,7 @@ export default props => {
             } ETH
           </div>
           <div style={{padding: '10px 0'}}>Private Key: {privateKey}</div>
-          <div style={{padding: '10px 0'}}>Content: {item.content && item.content.dataEncrypted.type}</div>
+          <div style={{padding: '10px 0'}}>Content: {item.content && item.content.dataDecrypted.type}</div>
           <SubTitle>Qr code</SubTitle>
           <div style={{textAlign: 'center', padding: '50px'}}>
             <QRCode
