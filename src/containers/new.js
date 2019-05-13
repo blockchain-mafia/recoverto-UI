@@ -30,13 +30,20 @@ const Title = styled.h2`
 `
 
 const FieldContainer = styled.div`
-  margin: 10px 0;
+  margin: 20px 0;
 `
 
 const Error  = styled.div`
   color: red;
   font-family: Roboto;
   font-size: 14px;
+`
+
+const StyledLabel  = styled.label`
+  font-family: Roboto;
+  color: #5c5c5c;
+  font-size: 16px;
+  line-height: 19px;
 `
 
 const StyledField = styled(Field)`
@@ -207,9 +214,9 @@ export default () => {
           <>
             <StyledForm>
               <FieldContainer>
-                <label htmlFor="type">
+                <StyledLabel htmlFor="type">
                   Type
-                </label>
+                </StyledLabel>
                 <StyledField
                   name="type"
                   placeholder="Type"
@@ -220,9 +227,9 @@ export default () => {
                 />
               </FieldContainer>
               <FieldContainer>
-                <label htmlFor="description">
+                <StyledLabel htmlFor="description">
                   Description
-                </label>
+                </StyledLabel>
                 <StyledField
                   name="description"
                   value={values.description}
@@ -240,9 +247,9 @@ export default () => {
                 <ErrorMessage name="description" component={Error} />
               </FieldContainer>
               <FieldContainer>
-                <label htmlFor="contactInformation">
+                <StyledLabel htmlFor="contactInformation">
                   Contact Information
-                </label>
+                </StyledLabel>
                 <StyledField
                   name="contactInformation"
                   value={values.contactInformation}
@@ -260,9 +267,9 @@ export default () => {
                 <ErrorMessage name="contactInformation" component={Error} />
               </FieldContainer>
               <FieldContainer>
-                <label htmlFor="rewardAmount">
+                <StyledLabel htmlFor="rewardAmount">
                   Amount (ETH)
-                </label>
+                </StyledLabel>
                 <StyledField
                   name="rewardAmount"
                   placeholder="Amount reward"
@@ -273,9 +280,9 @@ export default () => {
                 />
               </FieldContainer>
               <FieldContainer>
-                <label htmlFor="timeoutLocked">
+                <StyledLabel htmlFor="timeoutLocked">
                   Time Locked
-                </label>
+                </StyledLabel>
                 <StyledField
                   name="timeoutLocked"
                   placeholder="Timeout locked"
@@ -286,9 +293,9 @@ export default () => {
                 />
               </FieldContainer>
               <FieldContainer>
-                <label htmlFor="fundClaimAmount">
+                <StyledLabel htmlFor="fundClaimAmount">
                   Fund Claim Amount (ETH)
-                </label>
+                </StyledLabel>
                 <StyledField
                   name="fundClaimAmount"
                   placeholder="Fund Claim Call"

@@ -12,8 +12,6 @@ import Button from '../components/button'
 import ETHAmount from '../components/eth-amount'
 import { useDataloader } from '../bootstrap/dataloader'
 
-import ipfsPublish from './api/ipfs-publish'
-
 const Container = styled.div`
   font-family: Nunito;
   color: #444;

@@ -32,12 +32,17 @@ export default () => {
             const item = call('Recover', 'items', d)
             if(item) {
               const itemID = d.replace(/0x0/gi, '0x').substring(0, 65)
+              item.content = {
+                dataDecrypted: {type: 'loading...'}
+              }
               if(recover[itemID] && recover[itemID].privateKey) {
                 const metaEvidence = loadDescription(
                   item.descriptionEncryptedLink,
                   recover[itemID].privateKey
                 )
                 if (metaEvidence) item.content = metaEvidence
+              } else item.content = {
+                dataDecrypted: {type: 'Data Encrypted'}
               }
               item.ID = itemID
               acc.data.push(item)
@@ -68,8 +73,8 @@ export default () => {
               )
             }
           >
-            <p>Item: {item.ID}</p>
-            <p>Type: {item.content && item.content.dataDecrypted.type}</p>
+            <p>{item.content && item.content.dataDecrypted.type}</p>
+            <p>{item.content && item.content.dataDecrypted.description}</p>
           </CardItem>
         ))
       }
