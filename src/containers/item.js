@@ -99,11 +99,9 @@ export default props => {
   const loadDescription = useDataloader.getDescription()
 
   if (item !== undefined && item.descriptionEncryptedLink !== undefined) {
-    const contentDecrypted = loadDescription(
-      item.descriptionEncryptedLink, 
-      privateKey
-    )
-    if (contentDecrypted) item.content = JSON.parse(contentDecrypted)
+    const metaEvidence = loadDescription(item.descriptionEncryptedLink, privateKey)
+    if (metaEvidence)
+      item.content = metaEvidence
   }
 
   const claims = useCacheCall(['Recover'], call =>
@@ -131,9 +129,12 @@ export default props => {
         <>
           <div style={{padding: '10px 0'}}>Owner: {item.owner}</div>
           <div style={{padding: '10px 0'}}>amountLocked: {item.amountLocked}</div>
-          <div style={{padding: '10px 0'}}>rewardAmount: {item.rewardAmount} ETH</div>
+          <div style={{padding: '10px 0'}}>rewardAmount: {
+              ETHAmount({amount: item.rewardAmount, decimals: 2})
+            } ETH
+          </div>
           <div style={{padding: '10px 0'}}>Private Key: {privateKey}</div>
-          <div style={{padding: '10px 0'}}>Content: {item.content && item.content.description}</div>
+          <div style={{padding: '10px 0'}}>Content: {item.content && item.content.dataEncrypted.type}</div>
           <SubTitle>Qr code</SubTitle>
           <div style={{textAlign: 'center', padding: '50px'}}>
             <QRCode

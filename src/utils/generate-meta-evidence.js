@@ -1,44 +1,14 @@
 export default ({
   arbitrableAddress,
   owner,
-  finder,
-  title,
-  nameDescription,
-  emailDescription,
-  telegramDescription,
-  twitterDescription,
-  facebookDescription,
-  telephoneDescription,
-  homeLocationDescription,
-  noteDescription,
-  typeItemDescription,
-  descriptionItemDescription,
-  fileURI,
-  fileHash,
-  amount,
+  dataEncrypted,
   timeout,
   arbitrator
 }) => ({
   category: 'Escrow',
   subCategory: 'Lost & Found Service',
   arbitrableAddress,
-  title,
-  description: {
-    nameDescription,
-    emailDescription,
-    telegramDescription,
-    twitterDescription,
-    facebookDescription,
-    telephoneDescription,
-    homeLocationDescription,
-    noteDescription,
-    item: {
-      type: typeItemDescription,
-      description: descriptionItemDescription
-    }
-  },
-  fileURI,
-  fileHash,
+  dataEncrypted,
   question: 'Which party abided by terms of the contract?',
   rulingOptions: {
     titles: ['Refund Owner', 'Pay Finder'],
@@ -48,13 +18,10 @@ export default ({
     ]
   },
   aliases: {
-    [owner]: 'owner',
-    [finder]: 'finder'
+    [owner]: 'owner'
   },
   evidenceDisplayInterfaceURI: '',
   owner,
-  finder,
-  amount,
   timeout,
   arbitrator
 })

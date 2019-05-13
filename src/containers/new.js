@@ -6,10 +6,10 @@ import Textarea from 'react-textarea-autosize'
 import { BounceLoader } from 'react-spinners'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
-import { version } from '../../package.json'
 import Button from '../components/button'
 
 import ipfsPublish from './api/ipfs-publish'
+import generateMetaEvidence from '../utils/generate-meta-evidence';
 
 const Container = styled.div`
   font-family: Nunito;
@@ -29,10 +29,20 @@ const Title = styled.h2`
   padding-bottom: 50px;
 `
 
+const FieldContainer = styled.div`
+  margin: 10px 0;
+`
+
+const Error  = styled.div`
+  color: red;
+  font-family: Roboto;
+  font-size: 14px;
+`
+
 const StyledField = styled(Field)`
   line-height: 50px;
   padding-left: 20px;
-  margin: 20px 0 40px 0;
+  margin: 10px 0;
   width: 100%;
   display: block;
   background: #FFFFFF;
@@ -43,7 +53,7 @@ const StyledField = styled(Field)`
 
 const StyledTextarea = styled(Textarea)`
   padding: 20px 0 0 20px;
-  margin: 20px 0 40px 0;
+  margin: 10px 0;
   width: 100%;
   display: block;
   background: #FFFFFF;
@@ -57,12 +67,18 @@ const StyledForm = styled(Form)`
   flex-direction: column;
 `
 
+const Submit = styled.div`
+  margin-top: 30px;
+  text-align: right;
+`
+
 export default () => {
   const [identity] = useState(EthCrypto.createIdentity())
   const [isMetaEvidencePublish, setIsMetaEvidencePublish] = useState(false)
   const { drizzle, useCacheSend } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({	
-    account: drizzleState.accounts[0],	
+    account: drizzleState.accounts[0],
+    balance: drizzleState.accountBalances[drizzleState.accounts[0]]
   }))
 
   const { send, status } = useCacheSend('Recover', 'addItem')
@@ -73,14 +89,16 @@ export default () => {
       addressForEncryption,
       descriptionEncryptedIpfsUrl,
       rewardAmount,
-      timeoutLocked
+      timeoutLocked,
+      value
     }) =>
       send(
         itemID,
         addressForEncryption,
         descriptionEncryptedIpfsUrl,
         drizzle.web3.utils.toWei(rewardAmount, 'ether'),
-        Number(timeoutLocked)
+        Number(timeoutLocked),
+        { value }
       )
   )
 
@@ -90,9 +108,10 @@ export default () => {
       <Formik
         initialValues={{
           type: '',
-          contactInformation: '',
           description: '',
+          contactInformation: '',
           rewardAmount: 0,
+          fundClaimAmount: 0.005,
           timeoutLocked: 604800 // Locked for one week
         }}
         validate={values => {
@@ -102,15 +121,19 @@ export default () => {
           if (values.description.length > 100000)
             errors.description =
               'The maximum numbers of the characters for the description is 100,000 characters.'
-          if (values.description.length > 100000)
-            errors.description =
-              'The maximum numbers of the characters for the description is 100,000 characters.'
+          if (values.contactInformation.length > 100000)
+              errors.contactInformation =
+                'The maximum numbers of the characters for the contact information is 100,000 characters.'
           if (!values.rewardAmount)
             errors.rewardAmount = 'Amount reward required'
           if (isNaN(values.rewardAmount))
             errors.rewardAmount = 'Number Required'
           if (values.rewardAmount <= 0)
             errors.rewardAmount = 'Amount required must be positive.'
+          if (isNaN(values.fundClaimAmount))
+            errors.fundClaimAmount = 'Number Required'
+          if (Number(values.fundClaimAmount) > drizzle.web3.utils.fromWei(drizzleState.balance))
+            errors.fundClaimAmount = 'Amount must be less than your wallet amount.'
           if (!values.timeoutLocked)
             errors.timeoutLocked = 'Timeout locked reward required'
           if (isNaN(values.timeoutLocked))
@@ -121,14 +144,12 @@ export default () => {
           return errors
         }}
         onSubmit={useCallback(async values => {
-          const messageEncrypted = await EthCrypto.encryptWithPublicKey(
+          const dataEncrypted = await EthCrypto.encryptWithPublicKey(
             identity.publicKey,
             JSON.stringify({
               type: values.type,
               description: values.description,
-              contactInformation: values.contactInformation,
-              rewardAmount: values.rewardAmount,
-              timeoutLocked: values.timeoutLocked
+              contactInformation: values.contactInformation
             })
           )
 
@@ -137,7 +158,13 @@ export default () => {
           // Upload the description encrypted to IPFS
           const ipfsHashMetaEvidenceObj = await ipfsPublish(
             'metaEvidence.json',
-            enc.encode(EthCrypto.cipher.stringify(messageEncrypted).toString())
+            enc.encode(JSON.stringify(generateMetaEvidence({
+              arbitrableAddress: process.env.REACT_APP_RECOVER_KOVAN_ADDRESS,
+              owner: drizzleState.account,
+              dataEncrypted: EthCrypto.cipher.stringify(dataEncrypted).toString(),
+              timeout: values.timeoutLocked,
+              arbitrator: process.env.REACT_APP_ARBITRATOR_KOVAN_ADDRESS
+            })))
           )
 
           await setIsMetaEvidencePublish(true)
@@ -151,6 +178,12 @@ export default () => {
           values.addressForEncryption = EthCrypto.publicKey.toAddress(
             identity.publicKey
           )
+
+          values.value = drizzle.web3.utils.toWei(
+            typeof values.fundClaimAmount === 'string'
+              ? values.fundClaimAmount
+              : String(values.fundClaimAmount)
+            )
 
           window.localStorage.setItem('recover', JSON.stringify({
             ...JSON.parse(localStorage.getItem('recover') || '{}'),
@@ -173,7 +206,7 @@ export default () => {
         }) => (
           <>
             <StyledForm>
-              <div>
+              <FieldContainer>
                 <label htmlFor="type">
                   Type
                 </label>
@@ -183,10 +216,10 @@ export default () => {
                 />
                 <ErrorMessage
                   name="type"
-                  component="div"
+                  component={Error}
                 />
-              </div>
-              <div>
+              </FieldContainer>
+              <FieldContainer>
                 <label htmlFor="description">
                   Description
                 </label>
@@ -204,9 +237,9 @@ export default () => {
                     />
                   )}
                 />
-                <ErrorMessage name="description" component="div" />
-              </div>
-              <div>
+                <ErrorMessage name="description" component={Error} />
+              </FieldContainer>
+              <FieldContainer>
                 <label htmlFor="contactInformation">
                   Contact Information
                 </label>
@@ -224,9 +257,9 @@ export default () => {
                     />
                   )}
                 />
-                <ErrorMessage name="contactInformation" component="div" />
-              </div>
-              <div>
+                <ErrorMessage name="contactInformation" component={Error} />
+              </FieldContainer>
+              <FieldContainer>
                 <label htmlFor="rewardAmount">
                   Amount (ETH)
                 </label>
@@ -236,10 +269,10 @@ export default () => {
                 />
                 <ErrorMessage
                   name="rewardAmount"
-                  component="div"
+                  component={Error}
                 />
-              </div>
-              <div>
+              </FieldContainer>
+              <FieldContainer>
                 <label htmlFor="timeoutLocked">
                   Time Locked
                 </label>
@@ -249,10 +282,23 @@ export default () => {
                 />
                 <ErrorMessage
                   name="timeoutLocked"
-                  component="div"
+                  component={Error}
                 />
-              </div>
-              <div style={{textAlign: 'right'}}>
+              </FieldContainer>
+              <FieldContainer>
+                <label htmlFor="fundClaimAmount">
+                  Fund Claim Amount (ETH)
+                </label>
+                <StyledField
+                  name="fundClaimAmount"
+                  placeholder="Fund Claim Call"
+                />
+                <ErrorMessage
+                  name="fundClaimAmount"
+                  component={Error}
+                />
+              </FieldContainer>
+              <Submit>
                 <Button
                   type="submit"
                   disabled={Object.entries(errors).length > 0}
@@ -260,7 +306,7 @@ export default () => {
                 >
                   Save Transaction →
                 </Button>
-              </div>
+              </Submit>
             </StyledForm>
             {/* <p>Private Key for encryption and recover: {identity.privateKey}</p> */}
             {status && status == 'pending' && <p><BounceLoader color={'#12D8FA'} size={30} style={{display: 'inline'}}/> {' '}Transaction pending</p>}

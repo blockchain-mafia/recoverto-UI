@@ -45,10 +45,14 @@ const funcs = {
       .catch(() => null),
   getDescription: (descriptionEncryptedLink, privateKey) =>
     fetch(`https://ipfs.kleros.io/${descriptionEncryptedLink}`)
-      .then(res => EthCrypto.cipher.parse(res.text()))
-      .then(
-        msgEncrypted => EthCrypto.decryptWithPrivateKey(privateKey, msgEncrypted)
-      )
+      .then(res => res.json())
+      .then(async data => {
+        const dataDecrypted = await EthCrypto.decryptWithPrivateKey(
+          privateKey,
+          EthCrypto.cipher.parse(data.dataEncrypted)
+        )
+        return {...data, dataEncrypted: JSON.parse(dataDecrypted)}
+      })
       .catch(() => null)
 }
 export const dataloaders = Object.keys(funcs).reduce((acc, f) => {
