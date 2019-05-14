@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
 import loadable from '@loadable/component'
-import { Router, navigate } from '@reach/router'
+import { Router, navigate, Link } from '@reach/router'
 import styled from 'styled-components/macro'
 import { BeatLoader } from 'react-spinners'
 import { slide as Menu } from 'react-burger-menu'
@@ -10,15 +10,13 @@ import drizzle from './drizzle'
 import { register } from './service-worker'
 import { ArchonInitializer } from './archon'
 import { DrizzleProvider, Initializer } from '../temp/drizzle-react-hooks'
-import Identicon from '../components/identicon'
-import { ReactComponent as Logo } from '../assets/images/logo.svg'
 
 const Nav = () => {
   const [isTop, setTop] = useState(true)
 
   useEffect(() => {
     document.addEventListener('scroll', () => {
-      if (window.scrollY <= 0 !== isTop) {
+      if (window.scrollY >= 1 && true === isTop) {
         setTop(false)
       } else {
         setTop(true)
@@ -30,16 +28,17 @@ const Nav = () => {
     <div className={`App-header-menu ${isTop ? 'App-header-menu__isTop' : ''}`}>
       <div onClick={() => navigate('/')} style={{cursor: 'pointer'}} className="App-header-menu-logo">RECOVER</div>
       <Menu right>
-        <a onClick={() => navigate('/')} className="menu-item">
+        <Link to='/' className="menu-item">
           HOME
-        </a>
-        <a onClick={() => navigate('/new')} className="menu-item">
+        </Link>
+        <Link to='/new' className="menu-item">
           ADD ITEM
-        </a>
+        </Link>
         <a
           className="menu-item"
           href="https://t.me/joinchat/FHLxh03ifcIUaiFAu8DE0g"
           target="_blank"
+          rel="noopener noreferrer"
         >
           TELEGRAM
         </a>
@@ -48,11 +47,11 @@ const Nav = () => {
   )
 }
 
-const Main = ({ className, children }) => (
-  <>
+const Main = ({ children }) => (
+  <StyledMain>
     <Nav />
-    <main className={className}>{children}</main>
-  </>
+    <main>{children}</main>
+  </StyledMain>
 )
 
 const StyledMain = styled(Main)`
@@ -63,29 +62,35 @@ const StyledMain = styled(Main)`
   max-width: 1200px;
 `
 
+const ContainerLoader = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+`
+
 const C404 = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/404'),
   {
-    fallback: <BeatLoader color={'#fff'} css={{color: '#fff', position: 'absolute', top: '50%', left: '50%'}}/>
+    fallback: <ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>
   }
 )
 const Home = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/home'),
   {
-    fallback: <BeatLoader color={'#fff'} css={{color: '#fff', position: 'absolute', top: '50%', left: '50%'}}/>
+    fallback: <ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>
   }
 )
 const New = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/new'),
   {
-    fallback: <BeatLoader color={'#fff'} css={{color: '#fff', position: 'absolute', top: '50%', left: '50%'}}/>
+    fallback: <ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>
   }
 )
 const Item = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/item'),
   {
     // TODO: load the good
-    fallback: <BeatLoader color={'#fff'} css={{color: '#fff', position: 'absolute', top: '50%', left: '50%'}}/>
+    fallback: <ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>
   }
 )
 
@@ -102,16 +107,16 @@ export default () => (
       <Initializer
         error={<C404 Web3 />}
         loadingContractsAndAccounts={<C404 Web3 />}
-        loadingWeb3={<BeatLoader color={'#fff'} css={{color: '#fff', position: 'absolute', top: '50%', left: '50%'}}/>}
+        loadingWeb3={<ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>}
       >
         <ArchonInitializer>
           <Router>
-            <StyledMain path="/">
+            <Main path="/">
               <Home path="/" />
               <New path="/new" />
               <Item path="/contract/:contract/items/:itemID_Pk" /> 
               <C404 default />
-            </StyledMain>
+            </Main>
           </Router>
         </ArchonInitializer>
       </Initializer>

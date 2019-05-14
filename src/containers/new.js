@@ -3,7 +3,6 @@ import EthCrypto from 'eth-crypto'
 import styled from 'styled-components/macro'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import Textarea from 'react-textarea-autosize'
-import { BounceLoader } from 'react-spinners'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import Button from '../components/button'
@@ -88,8 +87,6 @@ export default () => {
     balance: drizzleState.accountBalances[drizzleState.accounts[0]],
     transactions: drizzleState.transactions
   }))
-
-  console.log(Object.keys(drizzleState.transactions)[0])
 
   const { send, status } = useCacheSend('Recover', 'addItem')
   

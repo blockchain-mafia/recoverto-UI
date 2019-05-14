@@ -1,10 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components/macro'
-import { FadeLoader, BounceLoader } from 'react-spinners'
-import { navigate } from '@reach/router'
+import { BounceLoader } from 'react-spinners'
 
-import { ReactComponent as Plus } from '../assets/images/plus.svg'
 import etherscanBg from '../assets/images/etherscan-bg.png';
 
 const Box = styled.div`

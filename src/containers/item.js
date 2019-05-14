@@ -1,5 +1,4 @@
-import React, { useState, useCallback } from 'react'
-import EthCrypto from 'eth-crypto'
+import React, { useCallback } from 'react'
 import styled from 'styled-components/macro'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import QRCode from 'qrcode.react'
@@ -7,7 +6,6 @@ import Textarea from 'react-textarea-autosize'
 import { BounceLoader } from 'react-spinners'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
-import { version } from '../../package.json'
 import Button from '../components/button'
 import ETHAmount from '../components/eth-amount'
 import { useDataloader } from '../bootstrap/dataloader'
@@ -26,8 +24,7 @@ const Title = styled.h2`
   font-family: Nunito;
   font-size: 40px;
   color: #14213d;
-  margin-botton: 30px;
-  padding-bottom: 50px;
+  padding-bottom: 20px;
 `
 
 const SubTitle = styled.h3`
@@ -37,8 +34,15 @@ const SubTitle = styled.h3`
   margin: 30px 0;
 `
 
-const StyledDiv = styled.div`
-  max-width: 90%;
+const Label = styled.div`
+  margin-top: 24px;
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 200;
+  font-size: 16px;
+  line-height: 19px;
+
+  color: #5C5C5C;
 `
 
 const StyledField = styled(Field)`
@@ -122,17 +126,18 @@ export default props => {
 
   return (
     <Container>
-      <Title>My item</Title>
       {item ? (
         <>
-          <div style={{padding: '10px 0'}}>Owner: {item.owner}</div>
-          <div style={{padding: '10px 0'}}>amountLocked: {item.amountLocked}</div>
-          <div style={{padding: '10px 0'}}>rewardAmount: {
+          <Title>{item.content ? item.content.dataDecrypted.type : 'Item'}</Title>
+          <Label>Description</Label>
+          <div style={{padding: '10px 0'}}>{item.content && item.content.dataDecrypted.description}</div>
+          <Label>Contact Information</Label>
+          <div style={{padding: '10px 0'}}>{item.content && item.content.dataDecrypted.contactInformation}</div>
+          <Label>Reward</Label>
+          <div style={{padding: '10px 0'}}>{
               ETHAmount({amount: item.rewardAmount, decimals: 2})
             } ETH
           </div>
-          <div style={{padding: '10px 0'}}>Private Key: {privateKey}</div>
-          <div style={{padding: '10px 0'}}>Content: {item.content && item.content.dataDecrypted.type}</div>
           <SubTitle>Qr code</SubTitle>
           <div style={{textAlign: 'center', padding: '50px'}}>
             <QRCode
@@ -143,9 +148,8 @@ export default props => {
           </div>
         </>
       ) : (
-        <p>Loading item...</p>
+        <Title>Loading Item...</Title>
       )}
-
       <SubTitle>Claim this item</SubTitle>
       <Formik
         initialValues={{
@@ -212,7 +216,7 @@ export default props => {
                 </Button>
               </div>
             </StyledForm>
-            {statusClaim && statusClaim == 'pending' && (
+            {statusClaim && statusClaim === 'pending' && (
               <p><BounceLoader color={'#12D8FA'} size={30} style={{display: 'inline'}}/> {' '}Transaction pending</p>
             )}
             {statusClaim && statusClaim !== 'pending' && (
