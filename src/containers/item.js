@@ -1,9 +1,10 @@
-import React, { useCallback } from 'react'
+import React, { Component, useCallback, useRef } from 'react'
 import styled from 'styled-components/macro'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import QRCode from 'qrcode.react'
 import Textarea from 'react-textarea-autosize'
 import { BounceLoader } from 'react-spinners'
+import ReactToPrint from 'react-to-print'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import Button from '../components/button'
@@ -41,7 +42,6 @@ const Label = styled.div`
   font-weight: 200;
   font-size: 16px;
   line-height: 19px;
-
   color: #5C5C5C;
 `
 
@@ -73,7 +73,30 @@ const StyledForm = styled(Form)`
   flex-direction: column;
 `
 
+const StyledPrint = styled.div`
+  display: none;
+  @media print {
+    display: block;
+    margin: 40px;
+  }
+`
+
+class ComponentToPrint extends Component {
+  render() {
+    return (
+      <StyledPrint>
+        <QRCode
+          value={`https://app.recover.to/contract/${this.props.contract}/items/${
+            this.props.itemID_Pk
+          }`}
+        />
+      </StyledPrint>
+    )
+  }
+}
+
 export default props => {
+  const componentRef = useRef()
   const { drizzle, useCacheCall, useCacheSend } = useDrizzle()
 
   const { send: sendClaim, status: statusClaim } = useCacheSend(
@@ -139,12 +162,17 @@ export default props => {
             } ETH
           </div>
           <SubTitle>Qr code</SubTitle>
-          <div style={{textAlign: 'center', padding: '50px'}}>
+          <div style={{textAlign: 'center', margin: '10px'}}>
             <QRCode
               value={`https://app.recover.to/contract/${props.contract}/items/${
                 props.itemID_Pk
               }`}
             />
+            <ReactToPrint
+              trigger={() => <button>Print Qr Code</button>}
+              content={() => componentRef.current}
+            />
+            <ComponentToPrint contract={props.contract} itemID_Pk={props.itemID_Pk} ref={componentRef} />
           </div>
         </>
       ) : (
