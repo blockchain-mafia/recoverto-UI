@@ -72,7 +72,7 @@ const C404 = loadable(
 const Home = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/home'),
   {
-    fallback: <BeatLoader color={'#fffff'} css={{color: '#fff', position: 'absolute', top: '50%', left: '50%'}}/>
+    fallback: <BeatLoader color={'#fff'} css={{color: '#fff', position: 'absolute', top: '50%', left: '50%'}}/>
   }
 )
 const New = loadable(

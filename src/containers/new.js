@@ -7,7 +7,7 @@ import { BounceLoader } from 'react-spinners'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import Button from '../components/button'
-
+import MessageBoxTx from '../components/message-box-tx'
 import ipfsPublish from './api/ipfs-publish'
 import generateMetaEvidence from '../utils/generate-meta-evidence';
 
@@ -85,8 +85,11 @@ export default () => {
   const { drizzle, useCacheSend } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({	
     account: drizzleState.accounts[0],
-    balance: drizzleState.accountBalances[drizzleState.accounts[0]]
+    balance: drizzleState.accountBalances[drizzleState.accounts[0]],
+    transactions: drizzleState.transactions
   }))
+
+  console.log(Object.keys(drizzleState.transactions)[0])
 
   const { send, status } = useCacheSend('Recover', 'addItem')
   
@@ -125,9 +128,13 @@ export default () => {
           let errors = {}
           if (values.type  === '')
             errors.type = 'Type Required'
+          if (values.description  === '')
+            errors.description = 'Description Required'
           if (values.description.length > 100000)
             errors.description =
               'The maximum numbers of the characters for the description is 100,000 characters.'
+          if (values.contactInformation  === '')
+            errors.contactInformation = 'Contact information Required'
           if (values.contactInformation.length > 100000)
               errors.contactInformation =
                 'The maximum numbers of the characters for the contact information is 100,000 characters.'
@@ -308,18 +315,30 @@ export default () => {
               <Submit>
                 <Button
                   type="submit"
-                  disabled={Object.entries(errors).length > 0}
-                  style={{padding: '0 30px', textAlign: 'center', lineHeight: '50px', border: '1px solid #14213D', borderRadius: '10px'}}
+                  disabled={Object.entries(errors).length > 0 || (status && status === 'pending')}
                 >
                   Save Transaction →
                 </Button>
               </Submit>
             </StyledForm>
-            {/* <p>Private Key for encryption and recover: {identity.privateKey}</p> */}
-            {status && status == 'pending' && <p><BounceLoader color={'#12D8FA'} size={30} style={{display: 'inline'}}/> {' '}Transaction pending</p>}
+            {status && status === 'pending' && (
+              <MessageBoxTx
+                pending={true}
+                onClick={() => window.open(
+                  `https://kovan.etherscan.io/tx/${Object.keys(drizzleState.transactions)[0]}`,
+                  '_blank'
+                )}
+              />
+            )}
             {status && status !== 'pending' && (
               <>
-                <p>Transaction ongoing</p>
+                <MessageBoxTx 
+                  ongoing={true}
+                  onClick={() => window.open(
+                    `https://kovan.etherscan.io/tx/${Object.keys(drizzleState.transactions)[0]}`,
+                    '_blank'
+                  )}
+                />
                 {(status === 'success' && isMetaEvidencePublish)
                   ? window.location.replace(
                       `/contract/${

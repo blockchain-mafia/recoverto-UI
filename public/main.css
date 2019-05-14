@@ -7,3 +7,23 @@ body {
   background: linear-gradient(47.62deg, #a6ffcb -29.15%, #12c2e9 83.36%) no-repeat;
   width: 100vw;
 }
+
+button {
+  display: inline-block;
+  height: 50px;
+  padding: 0 30px; 
+  text-align: center; 
+  line-height: 50px; 
+  border: 1px solid #14213d; 
+  border-radius: 10px;
+}
+
+button:hover {
+  background: #a6ffcb;
+}
+
+button:disabled, button[disabled] {
+  color: #444;
+  background: #efefef;
+  border-color: #444;
+}
