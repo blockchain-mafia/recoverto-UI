@@ -8,6 +8,14 @@ body {
   width: 100vw;
 }
 
+main {
+  min-height: calc(100vh - 120px);
+  padding: 120px 0 100px 0;
+  margin: 0 auto;
+  width: calc(100vw - 2em);
+  max-width: 1200px;
+}
+
 button {
   display: inline-block;
   height: 50px;

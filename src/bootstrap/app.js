@@ -48,19 +48,11 @@ const Nav = () => {
 }
 
 const Main = ({ children }) => (
-  <StyledMain>
+  <>
     <Nav />
     <main>{children}</main>
-  </StyledMain>
+  </>
 )
-
-const StyledMain = styled(Main)`
-  min-height: calc(100vh - 120px);
-  padding: 120px 0 100px 0;
-  margin: 0 auto;
-  width: calc(100vw - 2em);
-  max-width: 1200px;
-`
 
 const ContainerLoader = styled.div`
   position: absolute;
