@@ -12597,6 +12597,13 @@ react-dom@16.7.0-alpha.2:
     prop-types "^15.6.2"
     scheduler "^0.12.0-alpha.2"
 
+react-dotdotdot@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/react-dotdotdot/-/react-dotdotdot-1.3.0.tgz#a8208bcc819019241dbfbf45cc7440d0bf954e7b"
+  integrity sha512-yW/Dyfjv8B3FSMPEQ9JAt3o0DGacxcmbzb7UPj1NnIK9Nh9TzCNDZpOLZ6U/KGRHjFruQi3PokmhTj7XpyaBSA==
+  dependencies:
+    object.pick "^1.3.0"
+
 react-error-overlay@^5.1.0:
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/react-error-overlay/-/react-error-overlay-5.1.0.tgz#c516995a5652e7bfbed8b497910d5280df74a7e8"

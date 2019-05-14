@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import EthCrypto from 'eth-crypto'
 import styled from 'styled-components/macro'
+import Dotdotdot from 'react-dotdotdot'
 
 import { useDataloader } from '../bootstrap/dataloader'
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
@@ -11,6 +12,21 @@ const Grid = styled.div`
   grid-template-columns: repeat(3, 1fr);
   grid-gap: 70px;
   grid-auto-rows: 290px;
+`
+
+const Type = styled.div`
+  font-family: Nunito;
+  font-weight: 600;
+  font-size: 30px;
+  color: #14213d;
+  margin-bottom: 25px;
+`
+
+const Description = styled(Dotdotdot)`
+  font-family: Nunito;
+  font-size: 20px;
+  color: #14213d;
+  font-weight: 100;
 `
 
 export default () => {
@@ -73,8 +89,10 @@ export default () => {
               )
             }
           >
-            <p>{item.content && item.content.dataDecrypted.type}</p>
-            <p>{item.content && item.content.dataDecrypted.description}</p>
+            <Type>{item.content && item.content.dataDecrypted.type}</Type>
+            <Description clamp={5}>
+              {item.content && item.content.dataDecrypted.description}
+            </Description>
           </CardItem>
         ))
       }

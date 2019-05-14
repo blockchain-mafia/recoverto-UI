@@ -10,7 +10,7 @@ const Item = styled.div`
   background: #fff;
   overflow: hidden;
   font-style: Nunito;
-  padding 47px 0 0 44px;
+  padding 47px 44px 0 44px;
   box-shadow: 0px 4px 50px rgba(0, 0, 0, 0.1);
   border-radius: 20px;
   font-family: Nunito;
