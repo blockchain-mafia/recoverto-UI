@@ -340,7 +340,7 @@ export default () => {
                   ? window.location.replace(
                       `/contract/${
                         process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
-                      }/items/${values.itemID}-privateKey=${identity.privateKey}`
+                      }/items/${values.itemID}-privateKey=${identity.privateKey}/owner`
                     )
                   : 'Error during the transaction.'}
               </>

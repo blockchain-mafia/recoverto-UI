@@ -99,52 +99,25 @@ class ComponentToPrint extends Component {
 export default props => {
   const componentRef = useRef()
   const { drizzle, useCacheCall, useCacheSend } = useDrizzle()
-  const [isClaim, setClaim] = useState(false)
-  const [isSendClaim, setSendClaim] = useState('')
-
-
 
   const { send: sendAcceptClaim, status: statusAcceptClaim } = useCacheSend(
     'Recover',
     'acceptClaim'
   )
   const { send: sendPay, status: statusPay } = useCacheSend('Recover', 'pay')
+  const { send: sendReimburse, status: statusReimburse } = useCacheSend('Recover', 'reimburse')
+  const { send: sendPayArbitrationFeeByOwner, status: statusPayArbitrationFeeByOwner } = useCacheSend(
+    'Recover',
+    'payArbitrationFeeByOwner'
+  )
+  const { send: sendPayArbitrationFeeByFinder, status: statusPayArbitrationFeeByFinder } = useCacheSend(
+    'Recover',
+    'payArbitrationFeeByFinder'
+  )
 
-  const [itemID, privateKey] = props.itemID_Pk.split('-privateKey=')
+  const [itemIDHex, privateKey] = props.itemID_Pk.split('-privateKey=')
 
-  const claim = useCallback(({finder, descriptionLink}) => {
-    const web3 = new Web3(new Web3.providers.HttpProvider('https://kovan.infura.io/v3/846256afe0ee40f0971d902ea8d36266'),
-      {
-        defaultBlock: "latest",
-        transactionConfirmationBlocks: 1,
-        transactionBlockTimeout: 5
-      }
-    )
-    if(!isClaim) {
-      setClaim(true)
-      setSendClaim('pending')
-
-      const encodedABI = drizzle.contracts.Recover.methods.claim(itemID, finder, descriptionLink).encodeABI()
-      web3.eth.accounts.signTransaction({
-            to: drizzle.contracts.Recover.address,
-            gas: 255201, // TODO: compute the gas cost before
-            data: encodedABI
-          }, 
-          privateKey
-        ).then(
-          signTransaction => {
-            web3.eth.sendSignedTransaction(signTransaction.rawTransaction.toString('hex'))
-              .on('transactionHash', txHash => {
-                console.log('on transactionHash', txHash) // etherscan message box setHash => redirect direct and post msg to airtable
-              })
-              .on('confirmation', confirmationNumber => {
-                if(confirmationNumber === 1)
-                  setSendClaim('success')
-              })//redirect also on error
-          }
-        )
-    }
-  })
+  const itemID = itemIDHex.replace(/0+$/, '')
 
   const item = useCacheCall('Recover', 'items', itemID)
 
@@ -182,9 +155,9 @@ export default props => {
         <>
           <Title>{item.content ? item.content.dataDecrypted.type : 'Item'}</Title>
           <Label>Description</Label>
-          <div style={{padding: '10px 0'}}>{item.content && item.content.dataDecrypted.description}</div>
+          <div style={{padding: '10px 0'}}>{item.content ? item.content.dataDecrypted.description : '...'}</div>
           <Label>Contact Information</Label>
-          <div style={{padding: '10px 0'}}>{item.content && item.content.dataDecrypted.contactInformation}</div>
+          <div style={{padding: '10px 0'}}>{item.content ? item.content.dataDecrypted.contactInformation : '...'}</div>
           <Label>Reward</Label>
           <div style={{padding: '10px 0'}}>{
               ETHAmount({amount: item.rewardAmount, decimals: 2})
@@ -207,83 +180,6 @@ export default props => {
       ) : (
         <Title>Loading Item...</Title>
       )}
-      <SubTitle>Claim this item</SubTitle>
-      <Formik
-        initialValues={{
-          finder: '',
-          descriptionLink: ''
-        }}
-        validate={values => {
-          let errors = {}
-          if (!drizzle.web3.utils.isAddress(values.finder))
-            errors.finder = 'Valid Address Required'
-          if (values.descriptionLink.length > 1000000)
-            errors.descriptionLink =
-              'The maximum numbers of the characters for the description is 1,000,000 characters.'
-
-          return errors
-        }}
-        onSubmit={claim}
-      >
-        {({ errors, values, handleChange }) => (
-          <>
-            <StyledForm>
-              <div>
-                <label htmlFor="finder" className="">
-                  Finder Address
-                </label>
-                <StyledField
-                  name="finder"
-                  className=""
-                  placeholder="Finder Address"
-                />
-              </div>
-              <div>
-                <label htmlFor="descriptionLink" className="">
-                  Description
-                </label>
-                <StyledField
-                  name="descriptionLink"
-                  value={values.descriptionLink}
-                  render={({ field, form }) => (
-                    <StyledTextarea
-                      {...field}
-                      className=""
-                      minRows={10}
-                      onChange={e => {
-                        handleChange(e)
-                        form.setFieldValue('descriptionLink', e.target.value)
-                      }}
-                    />
-                  )}
-                />
-                <ErrorMessage
-                  name="descriptionLink"
-                  component="div"
-                />
-              </div>
-              <div style={{textAlign: 'right'}}>
-                <Button
-                  style={{padding: '0 30px', textAlign: 'center', lineHeight: '50px', border: '1px solid #14213D', borderRadius: '10px'}}
-                  type="submit"
-                  disabled={Object.entries(errors).length > 0}
-                >
-                  Claim
-                </Button>
-              </div>
-            </StyledForm>
-            {isSendClaim && isSendClaim === 'pending' && (
-              <div><BounceLoader color={'#12D8FA'} size={30} style={{display: 'inline'}}/> {' '}Transaction pending</div>
-            )}
-            {isSendClaim && isSendClaim === 'success' && (
-              <p>
-                Claim Saved
-              </p>
-            )}
-          </>
-        )}
-      </Formik>
-
       <SubTitle>List Claims</SubTitle>
       {
         !claims.loading && claims.data.map(claim => (

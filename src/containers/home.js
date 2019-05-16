@@ -33,7 +33,7 @@ export default () => {
 
   const loadDescription = useDataloader.getDescription()
 
-  const { useCacheCall } = useDrizzle()
+  const { drizzle, useCacheCall } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({	
     account: drizzleState.accounts[0],	
   }))
@@ -84,7 +84,9 @@ export default () => {
               () => window.location.replace(
                 `/contract/${
                   process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
-                }/items/${item.ID}-privateKey=${recover[item.ID] ? recover[item.ID].privateKey : ''}`
+                }/items/${item.ID}-privateKey=${
+                  recover[item.ID] ? recover[item.ID].privateKey : ''
+                }/owner`
               )
             }
           >

@@ -81,7 +81,12 @@ const New = loadable(
 const Item = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/item'),
   {
-    // TODO: load the good
+    fallback: <ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>
+  }
+)
+const Finder = loadable(
+  () => import(/* webpackPrefetch: true */ '../containers/finder'),
+  {
     fallback: <ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>
   }
 )
@@ -106,7 +111,8 @@ export default () => (
             <Main path="/">
               <Home path="/" />
               <New path="/new" />
-              <Item path="/contract/:contract/items/:itemID_Pk" /> 
+              <Item path="/contract/:contract/items/:itemID_Pk/owner" /> 
+              <Finder path="/contract/:contract/items/:itemID_Pk" /> 
               <C404 default />
             </Main>
           </Router>
