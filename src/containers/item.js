@@ -1,10 +1,11 @@
-import React, { Component, useCallback, useRef } from 'react'
+import React, { Component, useCallback, useRef, useState } from 'react'
 import styled from 'styled-components/macro'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import QRCode from 'qrcode.react'
 import Textarea from 'react-textarea-autosize'
 import { BounceLoader } from 'react-spinners'
 import ReactToPrint from 'react-to-print'
+import Web3 from 'web3'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import Button from '../components/button'
@@ -98,11 +99,11 @@ class ComponentToPrint extends Component {
 export default props => {
   const componentRef = useRef()
   const { drizzle, useCacheCall, useCacheSend } = useDrizzle()
+  const [isClaim, setClaim] = useState(false)
+  const [isSendClaim, setSendClaim] = useState('')
 
-  const { send: sendClaim, status: statusClaim } = useCacheSend(
-    'Recover',
-    'claim'
-  )
+
+
   const { send: sendAcceptClaim, status: statusAcceptClaim } = useCacheSend(
     'Recover',
     'acceptClaim'
@@ -111,10 +112,38 @@ export default props => {
 
   const [itemID, privateKey] = props.itemID_Pk.split('-privateKey=')
 
-  // use api infura
-  const claim = useCallback(({ finder, descriptionLink }) => {
-    if(itemID && finder && descriptionLink)
-      sendClaim(itemID, finder, descriptionLink) // TODO: encrypt the data of the descriptionLink with public key of the owner
+  const claim = useCallback(({finder, descriptionLink}) => {
+    const web3 = new Web3(new Web3.providers.HttpProvider('https://kovan.infura.io/v3/846256afe0ee40f0971d902ea8d36266'),
+      {
+        defaultBlock: "latest",
+        transactionConfirmationBlocks: 1,
+        transactionBlockTimeout: 5
+      }
+    )
+    if(!isClaim) {
+      setClaim(true)
+      setSendClaim('pending')
+
+      const encodedABI = drizzle.contracts.Recover.methods.claim(itemID, finder, descriptionLink).encodeABI()
+      web3.eth.accounts.signTransaction({
+            to: drizzle.contracts.Recover.address,
+            gas: 255201, // TODO: compute the gas cost before
+            data: encodedABI
+          }, 
+          privateKey
+        ).then(
+          signTransaction => {
+            web3.eth.sendSignedTransaction(signTransaction.rawTransaction.toString('hex'))
+              .on('transactionHash', txHash => {
+                console.log('on transactionHash', txHash) // etherscan message box setHash => redirect direct and post msg to airtable
+              })
+              .on('confirmation', confirmationNumber => {
+                if(confirmationNumber === 1)
+                  setSendClaim('success')
+              })//redirect also on error
+          }
+        )
+    }
   })
 
   const item = useCacheCall('Recover', 'items', itemID)
@@ -214,7 +243,7 @@ export default props => {
                   Description
                 </label>
                 <StyledField
-                  name="description"
+                  name="descriptionLink"
                   value={values.descriptionLink}
                   render={({ field, form }) => (
                     <StyledTextarea
@@ -237,23 +266,19 @@ export default props => {
                 <Button
                   style={{padding: '0 30px', textAlign: 'center', lineHeight: '50px', border: '1px solid #14213D', borderRadius: '10px'}}
                   type="submit"
-                  onClick={claim}
                   disabled={Object.entries(errors).length > 0}
                 >
                   Claim
                 </Button>
               </div>
             </StyledForm>
-            {statusClaim && statusClaim === 'pending' && (
-              <p><BounceLoader color={'#12D8FA'} size={30} style={{display: 'inline'}}/> {' '}Transaction pending</p>
+            {isSendClaim && isSendClaim === 'pending' && (
+              <div><BounceLoader color={'#12D8FA'} size={30} style={{display: 'inline'}}/> {' '}Transaction pending</div>
             )}
-            {statusClaim && statusClaim !== 'pending' && (
-              <>
-                <p>Transaction ongoing</p>
-                {statusClaim === 'success'
-                  ? 'Claim Saved'
-                  : 'Error during the transaction.'}
-              </>
+            {isSendClaim && isSendClaim === 'success' && (
+              <p>
+                Claim Saved
+              </p>
             )}
           </>
         )}
@@ -284,7 +309,7 @@ export default props => {
 
             {claim && item && item.amountLocked > 0 && (
               <button style={{padding: '0 30px', textAlign: 'center', lineHeight: '50px', border: '1px solid #14213D', borderRadius: '10px'}} onClick={() => sendPay(itemID, item.amountLocked)}>
-                Pay the finder
+                Pay the finder {item.amountLocked}
               </button>
             )}
           </div>
