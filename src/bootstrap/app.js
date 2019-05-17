@@ -84,8 +84,14 @@ const Item = loadable(
     fallback: <ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>
   }
 )
-const Finder = loadable(
-  () => import(/* webpackPrefetch: true */ '../containers/finder'),
+const Claim = loadable(
+  () => import(/* webpackPrefetch: true */ '../containers/claim'),
+  {
+    fallback: <ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>
+  }
+)
+const ClaimSuccess = loadable(
+  () => import(/* webpackPrefetch: true */ '../containers/claim-success'),
   {
     fallback: <ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>
   }
@@ -111,8 +117,9 @@ export default () => (
             <Main path="/">
               <Home path="/" />
               <New path="/new" />
-              <Item path="/contract/:contract/items/:itemID_Pk/owner" /> 
-              <Finder path="/contract/:contract/items/:itemID_Pk" /> 
+              <Item path="/contract/:contract/items/:itemID_Pk/owner" />
+              <ClaimSuccess path="/contract/:contract/items/:itemID_Pk/claim-success" />
+              <Claim path="/contract/:contract/items/:itemID_Pk" />
               <C404 default />
             </Main>
           </Router>

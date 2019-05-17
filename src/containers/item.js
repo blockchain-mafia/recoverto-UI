@@ -121,6 +121,10 @@ export default props => {
 
   const item = useCacheCall('Recover', 'items', itemID)
 
+  // TODO: get the arbitratorExtraData
+  // const arbitratorExtraData = useCacheCall('Recover', 'arbitratorExtraData')
+  // const arbitrationCost = useCacheCall('Arbitrator', 'arbitrationCost', arbitratorExtraData)
+
   const claimIDs = useCacheCall('Recover', 'getClaimsByItemID', itemID)
 
   const loadDescription = useDataloader.getDescription()
@@ -164,14 +168,14 @@ export default props => {
             } ETH
           </div>
           <SubTitle>Qr code</SubTitle>
-          <div style={{textAlign: 'center', margin: '10px'}}>
+          <div style={{textAlign: 'center'}}>
             <QRCode
               value={`https://app.recover.to/contract/${props.contract}/items/${
                 props.itemID_Pk
               }`}
             />
             <ReactToPrint
-              trigger={() => <button>Print Qr Code</button>}
+              trigger={() => <div style={{paddingTop: '20px'}}><button>Print Qr Code</button></div>}
               content={() => componentRef.current}
             />
             <ComponentToPrint contract={props.contract} itemID_Pk={props.itemID_Pk} ref={componentRef} />
@@ -203,8 +207,13 @@ export default props => {
 
             {' '}
 
-            {claim && item && item.amountLocked > 0 && (
+            {item && item.amountLocked > 0 && (
               <button style={{padding: '0 30px', textAlign: 'center', lineHeight: '50px', border: '1px solid #14213D', borderRadius: '10px'}} onClick={() => sendPay(itemID, item.amountLocked)}>
+                Pay the finder
+              </button>
+            )}
+            {item && item.amountLocked > 0 && (
+              <button style={{padding: '0 30px', textAlign: 'center', lineHeight: '50px', border: '1px solid #14213D', borderRadius: '10px'}} onClick={() => sendPayArbitrationFeeByOwner(itemID, item.amountLocked)}>
                 Pay the finder {item.amountLocked}
               </button>
             )}

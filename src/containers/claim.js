@@ -34,6 +34,46 @@ const SubTitle = styled.h3`
   margin: 30px 0;
 `
 
+const Message = styled.div`
+  font-family: Nunito;
+  font-size: 30px;
+  line-height: 41px;
+  color: #000000;
+  text-align: center;
+  padding: 60px 0;
+`
+
+const Box = styled.div`
+  font-family: Roboto;
+  color: #444;
+  background: #A6FFCB;
+  border-radius: 5px;
+  padding: 45px 0;
+  font-size: 40px;
+  text-align: center;
+  margin-bottom: 60px;
+`
+
+const TitleBox = styled.div`
+  font-weight: bold;
+  font-size: 40px;
+  line-height: 60px;
+  color: #444;
+  font-weight: bold;
+`
+
+const TypeBox = styled.div`
+  font-size: 24px;
+  color: #000000;
+  line-height: 40px;
+  padding: 10px 0;
+  color: #444;
+`
+
+const DescriptionBox = styled.div`
+  font-size: 20px;
+`
+
 const Label = styled.div`
   margin-top: 24px;
   font-family: Roboto;
@@ -116,7 +156,7 @@ export default props => {
                 window.location.replace(
                   `/contract/${
                     process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
-                  }/items/${itemID}-privateKey=${privateKey}`
+                  }/items/${itemID}-privateKey=${privateKey}/claim-success`
                 )
               })
           }
@@ -136,23 +176,20 @@ export default props => {
 
   return (
     <Container>
+      <Title>Discovered Item</Title>
+      <Message>
+        Congratulations! You find a lost item.
+        <br />Claim the discovered to get the reward!
+      </Message>
       {item ? (
-        <>
-          <Title>{item.content ? item.content.dataDecrypted.type : 'Item'}</Title>
-          <Label>Description</Label>
-          <div style={{padding: '10px 0'}}>{item.content ? item.content.dataDecrypted.description : '...'}</div>
-          <Label>Contact Information</Label>
-          <div style={{padding: '10px 0'}}>{item.content ? item.content.dataDecrypted.contactInformation : '...'}</div>
-          <Label>Reward</Label>
-          <div style={{padding: '10px 0'}}>{
-              ETHAmount({amount: item.rewardAmount, decimals: 2})
-            } ETH
-          </div>
-        </>
+        <Box>
+          <TitleBox>{ETHAmount({amount: item.rewardAmount, decimals: 2})} ETH</TitleBox>
+          <TypeBox>{item.content ? item.content.dataDecrypted.type : '...'}</TypeBox>
+          <DescriptionBox>{item.content ? item.content.dataDecrypted.description : '...'}</DescriptionBox>
+        </Box>
       ) : (
         <Title>Loading Item...</Title>
       )}
-      <SubTitle>Claim this item</SubTitle>
       <Formik
         initialValues={{
           finder: '',
@@ -173,26 +210,26 @@ export default props => {
           <>
             <StyledForm>
               <div>
-                <label htmlFor="finder" className="">
+                <label htmlFor="finder">
                   Finder Address
                 </label>
                 <StyledField
                   name="finder"
-                  className=""
-                  placeholder="Finder Address"
+                  placeholder="Your Ethereum Address to get the Reward 0x123..."
                 />
               </div>
               <div>
-                <label htmlFor="descriptionLink" className="">
-                  Description
+                <label htmlFor="descriptionLink">
+                  Message
                 </label>
                 <StyledField
                   name="descriptionLink"
+                  placeholder="Message for the owner"
                   value={values.descriptionLink}
                   render={({ field, form }) => (
                     <StyledTextarea
                       {...field}
-                      className=""
+                      placeholder="Message for the owner"
                       minRows={10}
                       onChange={e => {
                         handleChange(e)
@@ -212,7 +249,7 @@ export default props => {
                   type="submit"
                   disabled={Object.entries(errors).length > 0}
                 >
-                  Claim
+                  Claim Discovered →
                 </Button>
               </div>
             </StyledForm>
