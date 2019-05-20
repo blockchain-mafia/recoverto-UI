@@ -118,7 +118,7 @@ export default props => {
   const [dropdownHidden, setDropdownHidden] = useState(true)
   const { useCacheCall, useCacheSend } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({	
-    account: drizzleState.accounts[0]
+    account: drizzleState.accounts[0] || '0x00'
   }))
 
   const { send: sendReimburse, status: statusReimburse } = useCacheSend('Recover', 'reimburse')

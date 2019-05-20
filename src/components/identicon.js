@@ -88,7 +88,7 @@ Identicon.propTypes = {
 }
 
 Identicon.defaultProps = {
-  account: null,
+  account: '0x00',
   className: null,
   large: false,
   pinakion: false

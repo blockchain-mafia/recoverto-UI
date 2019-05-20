@@ -35,7 +35,7 @@ export default () => {
 
   const { drizzle, useCacheCall } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({	
-    account: drizzleState.accounts[0],	
+    account: drizzleState.accounts[0] || '0x00'
   }))
 
   const itemIDs = useCacheCall('Recover', 'getItemIDsByOwner', drizzleState.account)

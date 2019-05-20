@@ -185,6 +185,7 @@ export default props => {
         <Title>Loading Item...</Title>
       )}
       <SubTitle>List Claims</SubTitle>
+      {/* TODO: only if the drizzle account is the owner */}
       {
         !claims.loading && claims.data.map(claim => (
           <div key={claim.ID}>

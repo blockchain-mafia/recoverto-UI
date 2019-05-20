@@ -123,7 +123,7 @@ const StyledPrint = styled.div`
 export default props => {
   const { drizzle, useCacheCall, useCacheSend } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({	
-    account: drizzleState.accounts[0]
+    account: drizzleState.accounts[0] || '0x00'
   }))
   const [isClaim, setClaim] = useState(false)
   const [isSendClaim, setSendClaim] = useState('')

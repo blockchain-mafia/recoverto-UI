@@ -83,7 +83,7 @@ export default () => {
   const [isMetaEvidencePublish, setIsMetaEvidencePublish] = useState(false)
   const { drizzle, useCacheSend } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({	
-    account: drizzleState.accounts[0],
+    account: drizzleState.accounts[0] || '0x00',
     balance: drizzleState.accountBalances[drizzleState.accounts[0]],
     transactions: drizzleState.transactions
   }))
