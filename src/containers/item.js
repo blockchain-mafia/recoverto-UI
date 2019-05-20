@@ -7,7 +7,7 @@ import { BounceLoader } from 'react-spinners'
 import ReactToPrint from 'react-to-print'
 import Web3 from 'web3'
 
-import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
+import { useDrizzle } from '../temp/drizzle-react-hooks'
 import Button from '../components/button'
 import ETHAmount from '../components/eth-amount'
 import { useDataloader } from '../bootstrap/dataloader'
@@ -98,7 +98,7 @@ class ComponentToPrint extends Component {
 
 export default props => {
   const componentRef = useRef()
-  const { drizzle, useCacheCall, useCacheSend } = useDrizzle()
+  const { useCacheCall, useCacheSend } = useDrizzle()
 
   const { send: sendAcceptClaim, status: statusAcceptClaim } = useCacheSend(
     'Recover',
@@ -142,7 +142,7 @@ export default props => {
             const claim = call('Recover', 'claims', d)
             if(claim)
               acc.data.push({ ...claim, ID: d })
-            // TODO: decrypt details information
+              // TODO: decrypt details information
             return acc
           },
           {
@@ -220,7 +220,6 @@ export default props => {
           </div>
         ))
       }
-
       {!claims.loading && claims.data.length === 0 && 'No claim'}
     </Container>
   )

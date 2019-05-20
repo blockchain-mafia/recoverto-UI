@@ -202,7 +202,7 @@ export default () => {
               owner: drizzleState.account,
               privateKey: identity.privateKey
             }
-          }));
+          }))
 
           addItem(values)
         })}

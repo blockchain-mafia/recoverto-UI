@@ -4,7 +4,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik'
 import Textarea from 'react-textarea-autosize'
 import Web3 from 'web3'
 
-import { useDrizzle } from '../temp/drizzle-react-hooks'
+import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import Button from '../components/button'
 import ETHAmount from '../components/eth-amount'
 import { useDataloader } from '../bootstrap/dataloader'
@@ -122,6 +122,9 @@ const StyledPrint = styled.div`
 
 export default props => {
   const { drizzle, useCacheCall, useCacheSend } = useDrizzle()
+  const drizzleState = useDrizzleState(drizzleState => ({	
+    account: drizzleState.accounts[0]
+  }))
   const [isClaim, setClaim] = useState(false)
   const [isSendClaim, setSendClaim] = useState('')
 
@@ -140,6 +143,15 @@ export default props => {
     if(!isClaim) {
       setClaim(true)
       setSendClaim('pending')
+
+      // TODO: do this only if the private is not registered
+      window.localStorage.setItem('recover', JSON.stringify({
+        ...JSON.parse(localStorage.getItem('recover') || '{}'),
+        [itemIDHex.padEnd(65, '0')]: {
+          finder: drizzleState.account,
+          privateKey
+        }
+      }))
 
       const encodedABI = drizzle.contracts.Recover.methods.claim(itemID, finder, descriptionLink).encodeABI()
       web3.eth.accounts.signTransaction({
