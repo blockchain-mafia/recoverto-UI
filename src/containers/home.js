@@ -125,9 +125,9 @@ export default () => {
               () => window.location.replace(
                 `/contract/${
                   process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
-                }/items/${claim.itemID}-privateKey=${
+                }/claims/${claim.ID}-privateKey=${
                   recover[claim.itemID] ? recover[claim.itemID].privateKey : ''
-                }/owner`
+                }`
               )
             }
           >
