@@ -5,12 +5,19 @@ import QRCode from 'qrcode.react'
 import Textarea from 'react-textarea-autosize'
 import { BounceLoader } from 'react-spinners'
 import ReactToPrint from 'react-to-print'
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownDivider
+} from 'styled-dropdown-component'
 import Web3 from 'web3'
 
-import { useDrizzle } from '../temp/drizzle-react-hooks'
+import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import Button from '../components/button'
 import ETHAmount from '../components/eth-amount'
 import { useDataloader } from '../bootstrap/dataloader'
+import { ReactComponent as Settings } from '../assets/images/settings.svg'
 
 const Container = styled.div`
   font-family: Nunito;
@@ -82,30 +89,46 @@ const StyledPrint = styled.div`
   }
 `
 
-class ComponentToPrint extends Component {
-  render() {
-    return (
-      <StyledPrint>
-        <QRCode
-          value={`https://app.recover.to/contract/${this.props.contract}/items/${
-            this.props.itemID_Pk
-          }`}
-        />
-      </StyledPrint>
-    )
+const DropdownStyled = styled(Dropdown)`
+  float: right;
+  top: -10px;
+`
+
+const StyledSettings = styled(Settings)`
+  &:hover {
+    cursor: pointer;
   }
-}
+`
+
+const DropdownMenuStyled = styled(DropdownMenu)`
+  float: right;
+  left: auto;
+  right: 0;
+`
+
+const DropdownItemStyled = styled(DropdownItem)`
+  line-height: 24px;
+  &:hover {
+    cursor: pointer;
+  }
+`
 
 export default props => {
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
-  const componentRef = useRef()
+  const [dropdownHidden, setDropdownHidden] = useState(true)
   const { useCacheCall, useCacheSend } = useDrizzle()
+  const drizzleState = useDrizzleState(drizzleState => ({	
+    account: drizzleState.accounts[0]
+  }))
 
   const { send: sendReimburse, status: statusReimburse } = useCacheSend('Recover', 'reimburse')
   const { send: sendPayArbitrationFeeByFinder, status: statusPayArbitrationFeeByFinder } = useCacheSend(
     'Recover',
     'payArbitrationFeeByFinder'
   )
+
+  // TODO: add partial reimburse
+  const reimburse = useCallback(({ itemID, amount }) => sendReimburse(itemID, amount))
 
   const [claimIDHex, privateKey] = props.claimID_Pk.split('-privateKey=')
 
@@ -147,8 +170,25 @@ export default props => {
 
   return (
     <Container>
-      {item ? (
+      {claim && item ? (
         <>
+          {claim.finder === drizzleState.account && (
+            <DropdownStyled>
+              <StyledSettings 
+                onClick={() => setDropdownHidden(!dropdownHidden)}
+              />
+              <DropdownMenuStyled hidden={dropdownHidden}>
+                <DropdownItemStyled 
+                  onClick={() => reimburse({ itemID: item.itemID, amount: item.rewardAmount})}
+                >
+                  Reimburse
+                </DropdownItemStyled>
+                <DropdownDivider />
+                {/* TODO: call sendPayArbitrationFeeByFinder */}
+                <DropdownItemStyled>Raise a Dispute (WIP)</DropdownItemStyled>
+              </DropdownMenuStyled>
+            </DropdownStyled>
+          )}
           <Title>{item.content ? item.content.dataDecrypted.type : 'Item'}</Title>
           <Label>Description</Label>
           <div style={{padding: '10px 0'}}>{item.content ? item.content.dataDecrypted.description : '...'}</div>

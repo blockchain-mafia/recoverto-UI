@@ -81,6 +81,7 @@
     "react-to-print": "^2.1.2",
     "shallowequal": "^1.1.0",
     "styled-components": "^4.1.1",
+    "styled-dropdown-component": "^3.0.1",
     "web3": "^1.0.0-beta.53"
   }
 }
