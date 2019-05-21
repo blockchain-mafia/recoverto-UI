@@ -24,8 +24,7 @@ const Title = styled.h2`
   font-family: Nunito;
   font-size: 40px;
   color: #14213d;
-  margin-botton: 30px;
-  padding-bottom: 50px;
+  padding-bottom: 20px;
 `
 
 const FieldContainer = styled.div`

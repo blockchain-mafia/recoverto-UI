@@ -53,50 +53,17 @@ const Label = styled.div`
   color: #5C5C5C;
 `
 
-const StyledField = styled(Field)`
-  line-height: 50px;
-  padding-left: 20px;
-  margin: 20px 0 40px 0;
-  width: 100%;
-  display: block;
-  background: #FFFFFF;
-  border: 1px solid #CCCCCC;
-  box-sizing: border-box;
-  border-radius: 5px;
-`
-
-const StyledTextarea = styled(Textarea)`
-  padding: 20px 0 0 20px;
-  margin: 20px 0 40px 0;
-  width: 100%;
-  display: block;
-  background: #FFFFFF;
-  border: 1px solid #CCCCCC;
-  box-sizing: border-box;
-  border-radius: 5px;
-`
-
-const StyledForm = styled(Form)`
-  display: flex;
-  flex-direction: column;
-`
-
-const StyledPrint = styled.div`
-  display: none;
-  @media print {
-    display: block;
-    margin: 40px;
-  }
-`
-
 const DropdownStyled = styled(Dropdown)`
   float: right;
   top: -10px;
 `
 
 const StyledSettings = styled(Settings)`
+  padding: 10px;
+  border-radius: 50%;
   &:hover {
     cursor: pointer;
+    background: #efefef;
   }
 `
 
@@ -174,12 +141,16 @@ export default props => {
         <>
           {claim.finder === drizzleState.account && (
             <DropdownStyled>
-              <StyledSettings 
+              <StyledSettings
+                style={!dropdownHidden ? {background: '#efefef'} : {}}
                 onClick={() => setDropdownHidden(!dropdownHidden)}
               />
               <DropdownMenuStyled hidden={dropdownHidden}>
                 <DropdownItemStyled 
-                  onClick={() => reimburse({ itemID: item.itemID, amount: item.rewardAmount})}
+                  onClick={() => {
+                    reimburse({ itemID: item.itemID, amount: item.rewardAmount})
+                    setDropdownHidden(!dropdownHidden)
+                  }}
                 >
                   Reimburse
                 </DropdownItemStyled>

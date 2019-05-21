@@ -34,13 +34,16 @@ const Nav = () => {
         <Link to='/new' className="menu-item">
           ADD ITEM
         </Link>
+        <Link to='/settings' className="menu-item">
+          SETTINGS
+        </Link>
         <a
           className="menu-item"
           href="https://t.me/joinchat/FHLxh03ifcIUaiFAu8DE0g"
           target="_blank"
           rel="noopener noreferrer"
         >
-          TELEGRAM
+          SUPPORT
         </a>
       </Menu>
     </div>
@@ -102,6 +105,12 @@ const Finder = loadable(
     fallback: <ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>
   }
 )
+const Settings = loadable(
+  () => import(/* webpackPrefetch: true */ '../containers/settings'),
+  {
+    fallback: <ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>
+  }
+)
 
 export default () => (
   <>
@@ -123,6 +132,7 @@ export default () => (
             <Main path="/">
               <Home path="/" />
               <New path="/new" />
+              <Settings path="/settings" />
               <Item path="/contract/:contract/items/:itemID_Pk/owner" />
               <Finder path="/contract/:contract/claims/:claimID_Pk" />
               <ClaimSuccess path="/contract/:contract/items/:itemID_Pk/claim-success" />
