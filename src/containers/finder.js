@@ -27,6 +27,7 @@ const Container = styled.div`
   background: #fff;
   border-radius: 20px; 
   box-shadow: 0px 4px 50px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 `
 
 const Title = styled.h2`

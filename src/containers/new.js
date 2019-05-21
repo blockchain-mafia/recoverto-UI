@@ -78,6 +78,8 @@ const Submit = styled.div`
 `
 
 export default () => {
+  const recover = JSON.parse(localStorage.getItem('recover') || '{}')
+
   const [identity] = useState(EthCrypto.createIdentity())
   const [isMetaEvidencePublish, setIsMetaEvidencePublish] = useState(false)
   const { drizzle, useCacheSend } = useDrizzle()
@@ -117,8 +119,7 @@ export default () => {
           description: '',
           contactInformation: '',
           rewardAmount: 0,
-          fundClaimAmount: 0.005,
-          timeoutLocked: 604800 // Locked for one week
+          fundClaimAmount: 0.005
         }}
         validate={values => {
           let errors = {}
@@ -144,12 +145,6 @@ export default () => {
             errors.fundClaimAmount = 'Number Required'
           if (Number(values.fundClaimAmount) > drizzle.web3.utils.fromWei(drizzleState.balance))
             errors.fundClaimAmount = 'Amount must be less than your wallet amount.'
-          if (!values.timeoutLocked)
-            errors.timeoutLocked = 'Timeout locked reward required'
-          if (isNaN(values.timeoutLocked))
-            errors.timeoutLocked = 'Number Required'
-          if (values.timeoutLocked <= 0)
-            errors.timeoutLocked = 'Timeout locked must be positive.'
 
           return errors
         }}
@@ -202,6 +197,8 @@ export default () => {
               privateKey: identity.privateKey
             }
           }))
+
+          values.timeoutLocked = recover[drizzleState.account].timeoutLocked || 604800
 
           addItem(values)
         })}
@@ -279,19 +276,6 @@ export default () => {
                 />
                 <ErrorMessage
                   name="rewardAmount"
-                  component={Error}
-                />
-              </FieldContainer>
-              <FieldContainer>
-                <StyledLabel htmlFor="timeoutLocked">
-                  Time Locked
-                </StyledLabel>
-                <StyledField
-                  name="timeoutLocked"
-                  placeholder="Timeout locked"
-                />
-                <ErrorMessage
-                  name="timeoutLocked"
                   component={Error}
                 />
               </FieldContainer>

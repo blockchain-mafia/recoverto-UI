@@ -115,7 +115,7 @@ const Settings = loadable(
 export default () => (
   <>
     <Helmet>
-      <title>Recover.to · Lost and Found service</title>
+      <title>RECOVER · Lost and Found service</title>
       <link
         href="https://fonts.googleapis.com/css?family=Roboto:400,400i,500,500i,700,700i"
         rel="stylesheet"

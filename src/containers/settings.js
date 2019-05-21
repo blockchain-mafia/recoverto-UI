@@ -31,6 +31,7 @@ const Container = styled.div`
   background: #fff;
   border-radius: 20px; 
   box-shadow: 0px 4px 50px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 `
 
 const Title = styled.h2`
@@ -96,8 +97,8 @@ export default () => {
       <Title>Settings</Title>
       <Formik
         initialValues={{
-          email: recover[drizzleState.account].email || '',
-          timeoutLocked: recover[drizzleState.account].timeoutLocked || 604800
+          email: (recover[drizzleState.account] && recover[drizzleState.account].email) || '',
+          timeoutLocked: (recover[drizzleState.account] && recover[drizzleState.account].timeoutLocked) || 604800
         }}
         validate={values => {
           let errors = {}
