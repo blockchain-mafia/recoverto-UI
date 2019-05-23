@@ -1,6 +1,8 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components/macro'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
+import ReactPhoneInput from 'react-phone-input-2'
+import 'react-phone-input-2/dist/style.css'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import Button from '../components/button'
@@ -64,8 +66,8 @@ const StyledField = styled(Field)`
   margin: 10px 0;
   width: 100%;
   display: block;
-  background: #FFFFFF;
-  border: 1px solid #CCCCCC;
+  background: #fff;
+  border: 1px solid #ccc;
   box-sizing: border-box;
   border-radius: 5px;
 `
@@ -98,6 +100,8 @@ export default () => {
       <Formik
         initialValues={{
           email: (recover[drizzleState.account] && recover[drizzleState.account].email) || '',
+          phoneNumber: (recover[drizzleState.account] && recover[drizzleState.account].phoneNumber) || '',
+          fundClaims: (recover[drizzleState.account] && recover[drizzleState.account].fundClaims) || 0.005,
           timeoutLocked: (recover[drizzleState.account] && recover[drizzleState.account].timeoutLocked) || 604800
         }}
         validate={values => {
@@ -107,6 +111,10 @@ export default () => {
             !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)
           )
             errors.email = 'Invalid email address'
+          if (isNaN(values.fundClaims))
+            errors.fundClaims = 'Number Required'
+          if (values.fundClaims <= 0)
+            errors.fundClaims = 'Amount of the fund claims must be positive.'
           if (isNaN(values.timeoutLocked))
             errors.timeoutLocked = 'Number Required'
           if (values.timeoutLocked <= 0)
@@ -119,6 +127,8 @@ export default () => {
             ...JSON.parse(localStorage.getItem('recover') || '{}'),
             [drizzleState.account]: {
               email: values.email,
+              phoneNumber: values.phoneNumber,
+              fundClaims: values.fundClaims,
               timeoutLocked: values.timeoutLocked
             }
           }))
@@ -132,13 +142,19 @@ export default () => {
           touched,
           isSubmitting,
           values,
-          handleChange
+          handleChange,
+          form
         }) => (
           <>
             <StyledForm>
               <FieldContainer>
-                <StyledLabel htmlFor="type">
-                  Email
+                <StyledLabel htmlFor="email">
+                  <span 
+                    className="info"
+                    aria-label="Your email to be notified if there is a claim on one of your items."
+                  >
+                    Email
+                  </span>
                 </StyledLabel>
                 <StyledField
                   name="email"
@@ -150,8 +166,73 @@ export default () => {
                 />
               </FieldContainer>
               <FieldContainer>
+                <StyledLabel htmlFor="phoneNumber">
+                  <span 
+                    className="info"
+                    aria-label="Your phone number to be notified by SMS if there is a claim on one of your items."
+                  >
+                    Phone Number
+                  </span>
+                </StyledLabel>
+                <ReactPhoneInput
+                  value={values.phoneNumber} 
+                  onChange={phoneNumber => setFieldValue('phoneNumber', phoneNumber)}
+                  containerStyle={{
+                    margin: '10px 0',
+                    lineHeight: '50px',
+                    boxSizing: 'border-box',
+                    border: '1px solid #ccc !important',
+
+                  }}
+                  inputStyle={{
+                    height: '52px',
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    color: '#222',
+                    font: '400 15px system-ui'
+                  }}
+                  inputExtraProps={{
+                    name: 'phoneNumber'
+                  }}
+
+                />
+                <ErrorMessage
+                  name="phoneNumber"
+                  component={Error}
+                />
+              </FieldContainer>
+              <FieldContainer>
+                <StyledLabel htmlFor="fundClaims">
+                  <span 
+                    className="info"
+                    aria-label="
+                      The amount sent to the wallet finder to pay the gas to claim without ETH. 
+                      It's a small amount of ETH.
+                    "
+                  >
+                    Fund Claims
+                  </span>
+                </StyledLabel>
+                <StyledField
+                  name="fundClaims"
+                  placeholder="PreFund Gas Cost to Claim"
+                />
+                <ErrorMessage
+                  name="fundClaims"
+                  component={Error}
+                />
+              </FieldContainer>
+              <FieldContainer>
                 <StyledLabel htmlFor="timeoutLocked">
-                  Time Locked
+                  <span 
+                    className="info"
+                    aria-label="
+                      Time after which the finder from whom his claim was accepted 
+                      may force the payment of the reward if there is no dispute flow.
+                    "
+                  >
+                    Time Locked
+                  </span>
                 </StyledLabel>
                 <StyledField
                   name="timeoutLocked"
@@ -177,7 +258,7 @@ export default () => {
       {
         isSaved && (
           <Box>
-            Settings saved
+            Settings updated
           </Box>
         )
       }

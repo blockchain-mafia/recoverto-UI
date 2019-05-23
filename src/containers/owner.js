@@ -98,6 +98,8 @@ class ComponentToPrint extends Component {
 }
 
 export default props => {
+  const recover = JSON.parse(localStorage.getItem('recover') || '{}')
+
   const componentRef = useRef()
   const { useCacheCall, useCacheSend } = useDrizzle()
 
@@ -116,9 +118,8 @@ export default props => {
     'payArbitrationFeeByFinder'
   )
 
-  const [itemIDHex, privateKey] = props.itemID_Pk.split('-privateKey=')
-
-  const itemID = itemIDHex.replace(/0+$/, '')
+  const itemID = props.itemID
+  const privateKey = recover[itemID] ? recover[itemID].privateKey : null
 
   const item = useCacheCall('Recover', 'items', itemID)
 
@@ -130,7 +131,11 @@ export default props => {
 
   const loadDescription = useDataloader.getDescription()
 
-  if (item !== undefined && item.descriptionEncryptedLink !== undefined) {
+  if (
+    item !== undefined 
+    && item.descriptionEncryptedLink !== undefined
+    && privateKey
+  ) {
     const metaEvidence = loadDescription(item.descriptionEncryptedLink, privateKey)
     if (metaEvidence)
       item.content = metaEvidence
@@ -171,9 +176,9 @@ export default props => {
           <SubTitle>Qr code</SubTitle>
           <div style={{textAlign: 'center'}}>
             <QRCode
-              value={`https://app.recover.to/contract/${props.contract}/items/${
-                props.itemID_Pk
-              }`}
+              value={
+                `https://app.recover.to/contract/${props.contract}/items/
+                ${itemID}-privateKey=${privateKey}`}
             />
             <ReactToPrint
               trigger={() => <div style={{paddingTop: '20px'}}><button>Print Qr Code</button></div>}

@@ -67,11 +67,12 @@ const TypeBox = styled.div`
 `
 
 export default props => {
+  const recover = JSON.parse(localStorage.getItem('recover') || '{}')
+
   const { useCacheCall } = useDrizzle()
 
-  const [itemIDHex, privateKey] = props.itemID_Pk.split('-privateKey=')
-
-  const itemID = itemIDHex.replace(/0+$/, '')
+  const itemID = props.itemID.replace(/0+$/, '')
+  const privateKey = recover[itemID] ? recover[itemID] : null
 
   const item = useCacheCall('Recover', 'items', itemID)
 

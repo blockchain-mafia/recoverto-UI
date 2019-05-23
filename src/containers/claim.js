@@ -148,7 +148,7 @@ export default props => {
       // TODO: do this only if the private is not registered
       window.localStorage.setItem('recover', JSON.stringify({
         ...JSON.parse(localStorage.getItem('recover') || '{}'),
-        [itemIDHex.padEnd(65, '0')]: {
+        [itemIDHex]: {
           finder: drizzleState.account,
           privateKey
         }
@@ -156,24 +156,24 @@ export default props => {
 
       const encodedABI = drizzle.contracts.Recover.methods.claim(itemID, finder, descriptionLink).encodeABI()
       web3.eth.accounts.signTransaction({
-            to: drizzle.contracts.Recover.address,
-            gas: 255201, // TODO: compute the gas cost before
-            data: encodedABI
-          }, 
-          privateKey
-        ).then(
-          signTransaction => {
-            web3.eth.sendSignedTransaction(signTransaction.rawTransaction.toString('hex'))
-              .on('transactionHash', txHash => {
-                // TODO: post msg to airtable to be sure the tx is deployed
-                window.location.replace(
-                  `/contract/${
-                    process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
-                  }/items/${itemID}-privateKey=${privateKey}/claim-success`
-                )
-              })
-          }
-        )
+          to: drizzle.contracts.Recover.address,
+          gas: 255201, // TODO: compute the gas cost before
+          data: encodedABI
+        }, 
+        privateKey
+      ).then(
+        signTransaction => {
+          web3.eth.sendSignedTransaction(signTransaction.rawTransaction.toString('hex'))
+            .on('transactionHash', txHash => {
+              // TODO: post msg to airtable to be sure the tx is deployed
+              window.location.replace(
+                `/contract/${
+                  process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
+                }/items/${itemID}/claim-success`
+              )
+            })
+        }
+      )
     }
   })
 

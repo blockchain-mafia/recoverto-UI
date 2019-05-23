@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components/macro'
 import { BounceLoader } from 'react-spinners'
 
-import etherscanBg from '../assets/images/etherscan-bg.png';
+import etherscanBg from '../assets/images/etherscan-bg.png'
 
 const Box = styled.div`
   display: flex;

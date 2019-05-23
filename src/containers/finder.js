@@ -1,17 +1,14 @@
 import React, { Component, useCallback, useRef, useState } from 'react'
 import styled from 'styled-components/macro'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
-import QRCode from 'qrcode.react'
 import Textarea from 'react-textarea-autosize'
 import { BounceLoader } from 'react-spinners'
-import ReactToPrint from 'react-to-print'
 import {
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownDivider
 } from 'styled-dropdown-component'
-import Web3 from 'web3'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import Button from '../components/button'
@@ -83,6 +80,7 @@ const DropdownItemStyled = styled(DropdownItem)`
 
 export default props => {
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
+
   const [dropdownHidden, setDropdownHidden] = useState(true)
   const { useCacheCall, useCacheSend } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({	
@@ -98,17 +96,15 @@ export default props => {
   // TODO: add partial reimburse
   const reimburse = useCallback(({ itemID, amount }) => sendReimburse(itemID, amount))
 
-  const [claimIDHex, privateKey] = props.claimID_Pk.split('-privateKey=')
-
-  const claimID = claimIDHex.replace(/0+$/, '')
-
   // TODO: get the arbitratorExtraData
   // const arbitratorExtraData = useCacheCall('Recover', 'arbitratorExtraData')
   // const arbitrationCost = useCacheCall('Arbitrator', 'arbitrationCost', arbitratorExtraData)
 
   const loadDescription = useDataloader.getDescription()
 
-  const claim = useCacheCall('Recover', 'claims', claimID) // FIXME: d it's claimID form url
+  const claimID = props.claimID.replace(/0+$/, '')
+
+  const claim = useCacheCall('Recover', 'claims', claimID)
 
   let item
 

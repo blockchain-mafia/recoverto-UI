@@ -18,6 +18,7 @@ const Container = styled.div`
   background: #fff;
   border-radius: 20px; 
   box-shadow: 0px 4px 50px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 `
 
 const Title = styled.h2`
@@ -118,8 +119,7 @@ export default () => {
           type: '',
           description: '',
           contactInformation: '',
-          rewardAmount: 0,
-          fundClaimAmount: 0.005
+          rewardAmount: 0
         }}
         validate={values => {
           let errors = {}
@@ -140,11 +140,7 @@ export default () => {
           if (isNaN(values.rewardAmount))
             errors.rewardAmount = 'Number Required'
           if (values.rewardAmount <= 0)
-            errors.rewardAmount = 'Amount required must be positive.'
-          if (isNaN(values.fundClaimAmount))
-            errors.fundClaimAmount = 'Number Required'
-          if (Number(values.fundClaimAmount) > drizzle.web3.utils.fromWei(drizzleState.balance))
-            errors.fundClaimAmount = 'Amount must be less than your wallet amount.'
+            errors.rewardAmount = 'The reward must be positive.'
 
           return errors
         }}
@@ -184,21 +180,23 @@ export default () => {
             identity.publicKey
           )
 
-          values.value = drizzle.web3.utils.toWei(
-            typeof values.fundClaimAmount === 'string'
-              ? values.fundClaimAmount
-              : String(values.fundClaimAmount)
-            )
-
           window.localStorage.setItem('recover', JSON.stringify({
             ...JSON.parse(localStorage.getItem('recover') || '{}'),
-            [values.itemID.padEnd(65, '0')]: {
+            [values.itemID]: {
               owner: drizzleState.account,
               privateKey: identity.privateKey
             }
           }))
 
-          values.timeoutLocked = recover[drizzleState.account].timeoutLocked || 604800
+          const fundClaimsAmount = (recover[drizzleState.account] && recover[drizzleState.account].fundClaims) || '0.005'
+
+          values.value = drizzle.web3.utils.toWei(
+            typeof fundClaimsAmount === 'string'
+              ? fundClaimsAmount
+              : String(fundClaimsAmount)
+            )
+
+          values.timeoutLocked = (recover[drizzleState.account] && recover[drizzleState.account].timeoutLocked) || 604800
 
           addItem(values)
         })}
@@ -268,7 +266,7 @@ export default () => {
               </FieldContainer>
               <FieldContainer>
                 <StyledLabel htmlFor="rewardAmount">
-                  Amount (ETH)
+                  Reward Amount (ETH)
                 </StyledLabel>
                 <StyledField
                   name="rewardAmount"
@@ -276,19 +274,6 @@ export default () => {
                 />
                 <ErrorMessage
                   name="rewardAmount"
-                  component={Error}
-                />
-              </FieldContainer>
-              <FieldContainer>
-                <StyledLabel htmlFor="fundClaimAmount">
-                  Fund Claim Amount (ETH)
-                </StyledLabel>
-                <StyledField
-                  name="fundClaimAmount"
-                  placeholder="Fund Claim Call"
-                />
-                <ErrorMessage
-                  name="fundClaimAmount"
                   component={Error}
                 />
               </FieldContainer>
@@ -323,7 +308,7 @@ export default () => {
                   ? window.location.replace(
                       `/contract/${
                         process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
-                      }/items/${values.itemID}-privateKey=${identity.privateKey}/owner`
+                      }/items/${values.itemID}/owner`
                     )
                   : 'Error during the transaction.'}
               </>

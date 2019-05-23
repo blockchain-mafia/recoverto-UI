@@ -46,7 +46,8 @@ export default () => {
           (acc, d) => {
             const item = call('Recover', 'items', d)
             if(item) {
-              const itemID = d.replace(/0x0/gi, '0x').substring(0, 65)
+              const itemID = d.replace(/0x0/gi, '0x').replace(/0+$/, '')
+
               item.content = {
                 dataDecrypted: {type: 'loading...'}
               }
@@ -86,8 +87,8 @@ export default () => {
                   dataDecrypted: {type: 'loading...'}
                 }
 
-                const itemID = claim.itemID.replace(/0x0/gi, '0x').substring(0, 65)
-                
+                let itemID = claim.itemID.replace(/0x0/gi, '0x').replace(/0+$/, '')
+
                 if(recover[itemID] && recover[itemID].privateKey) {
                   const metaEvidence = loadDescription(
                     item.descriptionEncryptedLink,
@@ -125,9 +126,7 @@ export default () => {
               () => window.location.replace(
                 `/contract/${
                   process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
-                }/claims/${claim.ID}-privateKey=${
-                  recover[claim.itemID] ? recover[claim.itemID].privateKey : ''
-                }`
+                }/claims/${claim.ID}`
               )
             }
           >
@@ -148,9 +147,7 @@ export default () => {
               () => window.location.replace(
                 `/contract/${
                   process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
-                }/items/${item.ID}-privateKey=${
-                  recover[item.ID] ? recover[item.ID].privateKey : ''
-                }/owner`
+                }/items/${item.ID}/owner`
               )
             }
           >
