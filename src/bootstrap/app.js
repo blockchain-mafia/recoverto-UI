@@ -113,7 +113,7 @@ const Settings = loadable(
 )
 
 const Airtable = loadable(
-  () => import(/* webpackPrefetch: true */ '../containers/airtable'),
+  () => import(/* webpackPrefetch: true */ '../containers/air'),
   {
     fallback: <ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>
   }
@@ -138,7 +138,7 @@ export default () => (
           <Router>
             <Main path="/">
               <Home path="/" />
-              <Airtable path="/airtable" />
+              <Airtable path="/air" />
               <New path="/new" />
               <Settings path="/settings" />
               <Owner path="/contract/:contract/items/:itemID/owner" />

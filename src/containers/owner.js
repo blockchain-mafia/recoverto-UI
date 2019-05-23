@@ -221,7 +221,7 @@ export default props => {
             )}
             {item && item.amountLocked > 0 && (
               <button style={{padding: '0 30px', textAlign: 'center', lineHeight: '50px', border: '1px solid #14213D', borderRadius: '10px'}} onClick={() => sendPayArbitrationFeeByOwner(itemID, item.amountLocked)}>
-                Pay the finder {item.amountLocked}
+                Raise a dispute {item.amountLocked}
               </button>
             )}
           </div>

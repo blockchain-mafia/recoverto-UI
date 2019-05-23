@@ -3,17 +3,17 @@
   REACT_APP_RECOVER_KOVAN_ADDRESS='0xe108942a97f02c21BAe85c3e16a3e58E8be2caB9'
   REACT_APP_ARBITRATOR_KOVAN_ADDRESS='0xd1b286456978dfcd8eac84dc801d98a48634ee32'
   REACT_APP_WEB3_FALLBACK_URL='wss://kovan.infura.io/ws'
-  REACT_APP_METATX_URL='https://gdxvw60v77.execute-api.eu-central-1.amazonaws.com/dev'
-  REACT_APP_PATCH_USER_SETTINGS_URL=''
 
 [context.production.environment]
   REACT_APP_RECOVER_KOVAN_ADDRESS='0xe108942a97f02c21BAe85c3e16a3e58E8be2caB9'
   REACT_APP_ARBITRATOR_KOVAN_ADDRESS='0xd1b286456978dfcd8eac84dc801d98a48634ee32'
   REACT_APP_WEB3_FALLBACK_URL='wss://kovan.infura.io/ws'
-  REACT_APP_METATX_URL='https://gdxvw60v77.execute-api.eu-central-1.amazonaws.com/dev'
-  REACT_APP_PATCH_USER_SETTINGS_URL=''
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+[build]
+  publish = "build"
+  functions = "lambda"
