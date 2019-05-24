@@ -9,8 +9,8 @@ export function handler(event, context, callback) {
     if (err) { console.error(err); return; }
     records.forEach(record => {
       base('Claims').create({
-          "Address": "send by prod", // FIXME: finder address
-          "Item": "test Prod", // FIXME: item ID
+          "Address": "send by prod SMS", // FIXME: finder address
+          "Item": "test Prod SMS", // FIXME: item ID
           "Email Owner": "wagner.nicolas1@gmail.com", // idem
           "Owner Phone Number": "+33650334223" // idem
         }, 
