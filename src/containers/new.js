@@ -174,7 +174,7 @@ export default () => {
             ipfsHashMetaEvidenceObj[1].hash
           }${ipfsHashMetaEvidenceObj[0].path}`
 
-          values.itemID = drizzle.web3.utils.randomHex(32)
+          values.itemID = drizzle.web3.utils.randomHex(8).padEnd(64, '0')
 
           values.addressForEncryption = EthCrypto.publicKey.toAddress(
             identity.publicKey
