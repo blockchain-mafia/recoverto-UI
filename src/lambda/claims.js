@@ -1,8 +1,10 @@
 import Airtable from 'airtable'
 
-const { AIRTABLE_API_KEY, AIRTABLE_BASE } = process.env
+// const { AIRTABLE_API_KEY, AIRTABLE_BASE } = process.env
 // (TODO: add a file with this config (needed to be `mv`) and add .gitignore)
 // or in dev env
+// const AIRTABLE_API_KEY = 'keyPjXXrqq5453CsL'
+// const AIRTABLE_BASE = 'appfrSheBuNWxIvRi'
 
 // TODO: use a bot instead of a netlify function to avoid a DDOS attack
 exports.handler = async (event, context) => {
@@ -18,14 +20,16 @@ exports.handler = async (event, context) => {
   const address = params.address || "0x00"
 
   console.log('test',AIRTABLE_BASE)
+  console.error('test error',AIRTABLE_BASE)
 
   // TODO: check if the signature is valid
   // if valid send to airtable else return 401 UNAUTHORIZED
-  base('Owners').select({
+  try {
+  await base('Owners').select({
     view: 'Grid view',
     filterByFormula: `{Address} = '${address}'` // FIXME: ${drizzleState.account}
   }).firstPage((err, records) => {
-    if (err) { console.error(err); return; }
+    if (err) { console.log(err); return; }
     records.forEach(record => {
       console.log('record', record)
       base('Claims').create({
@@ -34,10 +38,11 @@ exports.handler = async (event, context) => {
           "Email Owner": "wagner.nicolas1@gmail.com", // idem
           "Phone Number Owner": "+33650334223" // idem
         }, 
-        err => { if (err) { console.error(err); return }
+        err => { if (err) { console.log(err); return }
       })
     })
   })
+} catch (error) { console.log(error)}
 
   return {
     statusCode: 200,
