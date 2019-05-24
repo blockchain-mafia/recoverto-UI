@@ -182,7 +182,7 @@ export default () => {
 
           window.localStorage.setItem('recover', JSON.stringify({
             ...JSON.parse(localStorage.getItem('recover') || '{}'),
-            [values.itemID]: {
+            [values.itemID.replace(/0+$/, '')]: {
               owner: drizzleState.account,
               privateKey: identity.privateKey
             }
