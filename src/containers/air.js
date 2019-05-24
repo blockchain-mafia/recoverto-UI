@@ -4,18 +4,24 @@ import Airtable from 'airtable'
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 
 export default () => {
-  // const base = new Airtable({ apiKey: process.env.REACT_APP_API_KEY_AIRTABLE })
-  //   .base(process.env.REACT_APP_BASE_AIRTABLE)
-
   const [emailOwner, setEmailOwner] = useState('')
 
   const [data, setData] = useState('')
 
   useEffect(() => {
     if(!data)
-      fetch('/.netlify/functions/airtable')
-        .then(res => res.text())
-        .then(data => setData(data))
+      fetch('/.netlify/functions/claims', {
+          method: 'post',
+          body: JSON.stringify({
+            address: '0x580B9ca15035B8C99bda7B959EAB185b40b19704',
+            itemID: 'the item',
+            emailOwner: 'wagner.nicolas1@gmail.com',
+            phoneNumber: '+33650334223'
+          })
+        })
+        .then(res => res.json())
+        .then(data => {setData('sent'); console.log(data);})
+        .catch(err => console.error(err))
   })
 
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
@@ -24,25 +30,6 @@ export default () => {
   const drizzleState = useDrizzleState(drizzleState => ({	
     account: drizzleState.accounts[0] || '0x00'
   }))
-
-  // if (!emailOwner)
-  //   base('Owners').select({
-  //     view: 'Grid view',
-  //     filterByFormula: `{Address} = '${drizzleState.account}'`
-  //   }).firstPage((err, records) => {
-  //     if (err) { console.error(err); return; }
-  //     records.forEach(record => {
-  //       setEmailOwner(record.getId())
-  //       base('Claims').create({
-  //           "Address": "send by prod", // FIXME: finder address
-  //           "Item": "test Prod", // FIXME: item ID
-  //           "Email Owner": "wagner.nicolas1@gmail.com", // idem
-  //           "Owner Phone Number": "+33650334223" // idem
-  //         }, 
-  //         err => { if (err) { console.error(err); return }
-  //       })
-  //     })
-  //   })
 
   return (
     <>
