@@ -1,6 +1,6 @@
 import Airtable from 'airtable'
 
-// const { AIRTABLE_API_KEY, AIRTABLE_BASE } = process.env
+const { AIRTABLE_API_KEY, AIRTABLE_BASE } = process.env
 // (TODO: add a file with this config (needed to be `mv`) and add .gitignore)
 // or in dev env
 // const AIRTABLE_API_KEY = 'keyPjXXrqq5453CsL'
