@@ -21,6 +21,7 @@ exports.handler = async (event, context) => {
 
   console.log('test',AIRTABLE_BASE)
   console.error('test error',AIRTABLE_BASE)
+  console.log(`{Address} = '${address}'`)
 
   // TODO: check if the signature is valid
   // if valid send to airtable else return 401 UNAUTHORIZED
