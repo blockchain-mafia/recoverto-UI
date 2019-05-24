@@ -3,8 +3,6 @@ import Airtable from 'airtable'
 const { AIRTABLE_API_KEY, AIRTABLE_BASE } = process.env
 // (TODO: add a file with this config (needed to be `mv`) and add .gitignore)
 // or in dev env
-// const AIRTABLE_API_KEY=
-// const AIRTABLE_BASE=
 
 // TODO: use a bot instead of a netlify function to avoid a DDOS attack
 exports.handler = async (event, context) => {
@@ -19,6 +17,8 @@ exports.handler = async (event, context) => {
   console.log("address", params.address)
   const address = params.address || "0x00"
 
+  console.log('test',AIRTABLE_BASE)
+
   // TODO: check if the signature is valid
   // if valid send to airtable else return 401 UNAUTHORIZED
   base('Owners').select({
@@ -27,6 +27,7 @@ exports.handler = async (event, context) => {
   }).firstPage((err, records) => {
     if (err) { console.error(err); return; }
     records.forEach(record => {
+      console.log('record', record)
       base('Claims').create({
           "Address Finder": "send by prod 42", // FIXME: finder address
           "Item ID": "test Prod", // FIXME: item ID
@@ -44,7 +45,7 @@ exports.handler = async (event, context) => {
       itemID: "Hello, World!",
       addressFinder: "",
       addressOwner: "",
-      mailOwner: "",
+      mailOwner: "wdqdq",
       phoneNumberOwner: ""
     })
   }
