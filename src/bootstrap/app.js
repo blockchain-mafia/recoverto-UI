@@ -112,13 +112,6 @@ const Settings = loadable(
   }
 )
 
-const Airtable = loadable(
-  () => import(/* webpackPrefetch: true */ '../containers/air'),
-  {
-    fallback: <ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>
-  }
-)
-
 export default () => (
   <>
     <Helmet>
@@ -138,13 +131,12 @@ export default () => (
           <Router>
             <Main path="/">
               <Home path="/" />
-              <Airtable path="/air" />
               <New path="/new" />
               <Settings path="/settings" />
               <Owner path="/contract/:contract/items/:itemID/owner" />
               {/* NOTE: for one item, several claims are possible */}
               <Finder path="/contract/:contract/claims/:claimID" />
-              <ClaimSuccess path="/contract/:contract/items/:itemID/claim-success" />
+              <ClaimSuccess path="/contract/:contract/items/:itemID/pk/:pk/claim-success" />
               <Claim path="/contract/:contract/items/:itemID_Pk" />
               <C404 default />
             </Main>

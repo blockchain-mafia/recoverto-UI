@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components/macro'
 import Textarea from 'react-textarea-autosize'
 
-import { useDrizzle } from '../temp/drizzle-react-hooks'
+import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import { useDataloader } from '../bootstrap/dataloader'
 
 const Container = styled.div`
@@ -71,15 +71,14 @@ export default props => {
 
   const { useCacheCall } = useDrizzle()
 
-  const itemID = props.itemID.replace(/0+$/, '')
-  const privateKey = recover[itemID] ? recover[itemID] : null
+  const { itemID, pk } = props
 
   const item = useCacheCall('Recover', 'items', itemID)
 
   const loadDescription = useDataloader.getDescription()
 
   if (item !== undefined && item.descriptionEncryptedLink !== undefined) {
-    const metaEvidence = loadDescription(item.descriptionEncryptedLink, privateKey)
+    const metaEvidence = loadDescription(item.descriptionEncryptedLink, pk)
     if (metaEvidence)
       item.content = metaEvidence
   }

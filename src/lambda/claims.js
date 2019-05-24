@@ -16,33 +16,27 @@ export function handler(event, context, callback) {
     .base(AIRTABLE_BASE)
 
   const params = JSON.parse(event.body)
-  console.log("address", params.address)
-  const address = params.address || "0x00"
+  const addressOwner = params.addressOwner || "0x00"
+  const addressFinder = params.addressFinder || "0x00"
+  const itemID = params.itemID || ""
+  const emailOwner = params.emailOwner || ""
+  const phoneNumberOwner = params.phoneNumberOwner || ""
 
-  console.log('test',AIRTABLE_BASE)
-  console.error('test error',AIRTABLE_BASE)
-  console.log(`{Address} = '${address}'`)
-
-  // TODO: check if the signature is valid
-  // if valid send to airtable else return 401 UNAUTHORIZED
   try {
     base('Owners').select({
       view: 'Grid view',
-      filterByFormula: `{Address} = '${address}'` // FIXME: ${drizzleState.account}
+      filterByFormula: `{Address} = '${addressOwner}'`
     }).firstPage((err, records) => {
-      if (err) { console.log(err); return; }
       records.forEach(record => {
-        console.log('record', record)
         base('Claims').create({
-          "Address Finder": "send by prod 42", // FIXME: finder address
-          "Item ID": "test Prod", // FIXME: item ID
-          "Email Owner": "wagner.nicolas1@gmail.com", // idem
-          "Phone Number Owner": "+33650334223" // idem
+          "Address Finder": addressFinder,
+          "Item ID": itemID,
+          "Phone Number Owner": phoneNumberOwner,
+          "Email Owner": emailOwner
         })
-        console.log(record);
         callback(null, {
           statusCode: 200,
-          body: JSON.stringify(record)
+          body: JSON.stringify({ result: "Data recorded" })
         })
       })
     })
@@ -51,15 +45,6 @@ export function handler(event, context, callback) {
     callback(null, {
       statusCode: err.response.status,
       body: JSON.stringify({ ...err.response.data })
-    });
+    })
   }
-
-  base('Claims').create({
-    "Address Finder": "send netlify ewfewrgf", // FIXME: finder address
-    "Item ID": "test Prod", // FIXME: item ID
-    "Email Owner": "wagner.nicolas1@gmail.com", // idem
-    "Phone Number Owner": "+33650334223" // idem
-  }, 
-    err => { if (err) { console.log(err); return }
-  })
 }

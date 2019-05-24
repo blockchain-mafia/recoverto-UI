@@ -122,6 +122,8 @@ const StyledPrint = styled.div`
 `
 
 export default props => {
+  const recover = JSON.parse(localStorage.getItem('recover') || '{}')
+
   const { drizzle, useCacheCall, useCacheSend } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({	
     account: drizzleState.accounts[0] || '0x00'
@@ -129,11 +131,11 @@ export default props => {
   const [isClaim, setClaim] = useState(false)
   const [isSendClaim, setSendClaim] = useState('')
 
-  const [itemIDHex, privateKey] = props.itemID_Pk.split('-privateKey=')
+  const [itemID, privateKey] = props.itemID_Pk.split('-privateKey=')
 
-  const itemID = itemIDHex.replace(/0+$/, '')
+  const item = useCacheCall('Recover', 'items', itemID)
 
-  const claim = useCallback(({finder, descriptionLink}) => {
+  const claim = useCallback(async ({finder, descriptionLink}) => {
     const web3 = new Web3(new Web3.providers.HttpProvider('https://kovan.infura.io/v3/846256afe0ee40f0971d902ea8d36266'),
       {
         defaultBlock: "latest",
@@ -145,17 +147,30 @@ export default props => {
       setClaim(true)
       setSendClaim('pending')
 
+      await fetch('/.netlify/functions/claims', {
+        method: 'post',
+        body: JSON.stringify({
+          addressOwner: item.owner,
+          addressFinder: drizzleState.account,
+          itemID: itemID,
+          emailOwner: (recover[drizzleState.account] && recover[drizzleState.account].phoneNumber) || '',
+          phoneNumberOwner: (recover[drizzleState.account] && recover[drizzleState.account].email) || ''
+        })
+      })
+      .then(res => res.json())
+      .catch(err => console.error(err))
+
       // TODO: do this only if the private is not registered
       window.localStorage.setItem('recover', JSON.stringify({
         ...JSON.parse(localStorage.getItem('recover') || '{}'),
-        [itemIDHex]: {
+        [itemID]: {
           finder: drizzleState.account,
           privateKey
         }
       }))
 
       const encodedABI = drizzle.contracts.Recover.methods.claim(itemID, finder, descriptionLink).encodeABI()
-      web3.eth.accounts.signTransaction({
+      await web3.eth.accounts.signTransaction({
           to: drizzle.contracts.Recover.address,
           gas: 255201, // TODO: compute the gas cost before
           data: encodedABI
@@ -169,15 +184,13 @@ export default props => {
               window.location.replace(
                 `/contract/${
                   process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
-                }/items/${itemID}/claim-success`
+                }/items/${itemID}/pk/${privateKey}/claim-success`
               )
             })
         }
       )
     }
   })
-
-  const item = useCacheCall('Recover', 'items', itemID)
 
   const loadDescription = useDataloader.getDescription()
 
