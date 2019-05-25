@@ -308,7 +308,7 @@ export default () => {
                   ? window.location.replace(
                       `/contract/${
                         process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
-                      }/items/${values.itemID}/owner`
+                      }/items/${values.itemID.replace(/0+$/, '')}/owner`
                     )
                   : 'Error during the transaction.'}
               </>
