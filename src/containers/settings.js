@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import styled from 'styled-components/macro'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import ReactPhoneInput from 'react-phone-input-2'
@@ -86,6 +86,7 @@ export default () => {
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
 
   const [isSaved, setIsSaved] = useState(false)
+  const [user, setUser] = useState('')
 
   const { drizzle, useCacheSend } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({	
@@ -93,6 +94,42 @@ export default () => {
     balance: drizzleState.accountBalances[drizzleState.accounts[0]],
     transactions: drizzleState.transactions
   }))
+
+  const addSettings = useCallback(({ 
+      signMsg, 
+      email, 
+      phoneNumber, 
+      fundClaims, 
+      timeoutLocked 
+    }) => {
+      fetch('/.netlify/functions/settings', {
+        method: 'post',
+        body: JSON.stringify({
+          address: drizzleState.account,
+          signMsg,
+          email: (recover[drizzleState.account] && recover[drizzleState.account].email) || '',
+          phoneNumber: (recover[drizzleState.account] && recover[drizzleState.account].phoneNumber) || '',
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(data.result === "Settings added")
+          window.localStorage.setItem('recover', JSON.stringify({
+            ...JSON.parse(localStorage.getItem('recover') || '{}'),
+            [drizzleState.account]: {
+              email,
+              phoneNumber,
+              fundClaims,
+              timeoutLocked
+            }
+          }))
+
+        setIsSaved(true)
+      
+        // TODO: if error, render error on the UI
+    })
+    .catch(err => console.error(err))
+  })
 
   return (
     <Container>
@@ -122,18 +159,18 @@ export default () => {
 
           return errors
         }}
-        onSubmit={values => {
-          window.localStorage.setItem('recover', JSON.stringify({
-            ...JSON.parse(localStorage.getItem('recover') || '{}'),
-            [drizzleState.account]: {
-              email: values.email,
-              phoneNumber: values.phoneNumber,
-              fundClaims: values.fundClaims,
-              timeoutLocked: values.timeoutLocked
-            }
-          }))
+        onSubmit={async values => {
+          const signMsg = await drizzle.web3.eth.personal.sign(
+            `Signature required to check if your are the owner of this address: ${drizzleState.account}`,
+            drizzleState.account
+          )
 
-          setIsSaved(true)
+          addSettings({ 
+            signMsg,
+            email: values.email,
+            phoneNumber:values.phoneNumber 
+          })
+
         }}
       >
         {({

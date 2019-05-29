@@ -153,8 +153,8 @@ export default props => {
           addressOwner: item.owner,
           addressFinder: drizzleState.account,
           itemID: itemID,
-          emailOwner: (recover[drizzleState.account] && recover[drizzleState.account].phoneNumber) || '',
-          phoneNumberOwner: (recover[drizzleState.account] && recover[drizzleState.account].email) || ''
+          emailOwner: (recover[drizzleState.account] && recover[drizzleState.account].email) || '',
+          phoneNumberOwner: (recover[drizzleState.account] && recover[drizzleState.account].phoneNumber) || ''
         })
       })
       .then(res => res.json())
