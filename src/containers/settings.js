@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import styled from 'styled-components/macro'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import ReactPhoneInput from 'react-phone-input-2'
+
 import 'react-phone-input-2/dist/style.css'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
@@ -95,7 +96,8 @@ export default () => {
     transactions: drizzleState.transactions
   }))
 
-  const addSettings = useCallback(({ 
+  const addSettings = useCallback(({
+      address,
       signMsg, 
       email, 
       phoneNumber, 
@@ -105,7 +107,7 @@ export default () => {
       fetch('/.netlify/functions/settings', {
         method: 'post',
         body: JSON.stringify({
-          address: drizzleState.account,
+          address,
           signMsg,
           email: (recover[drizzleState.account] && recover[drizzleState.account].email) || '',
           phoneNumber: (recover[drizzleState.account] && recover[drizzleState.account].phoneNumber) || '',
@@ -165,7 +167,8 @@ export default () => {
             drizzleState.account
           )
 
-          addSettings({ 
+          addSettings({
+            address: drizzleState.account,
             signMsg,
             email: values.email,
             phoneNumber:values.phoneNumber 

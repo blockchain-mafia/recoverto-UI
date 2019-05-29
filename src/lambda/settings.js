@@ -1,8 +1,7 @@
 import Airtable from 'airtable'
 import fs from 'fs'
 import dotenv from 'dotenv'
-import EthCrypto from 'eth-crypto'
-import { ethers } from 'ethers'
+import sigUtil from 'eth-sig-util'
 
 // Set up airtable envs in the development envirronement.
 const envConfig = dotenv.parse(
@@ -15,22 +14,35 @@ for (let k in envConfig) {
 
 const { AIRTABLE_API_KEY, AIRTABLE_BASE } = process.env
 
-// TODO: check the signature
 export function handler(event, context, callback) {
     // Only allow GET, POST or PATCH
   if (!["GET", "POST", "PATCH"].includes(event.httpMethod))
-    return { statusCode: 405, body: "Method Not Allowed" }
+    return {
+      statusCode: 403,
+      body: JSON.stringify({ error: "Method Not Allowed" })
+    }
 
-  // TODO: check if the signMsg match with the address
-  // if (signingAddress !== address)
-  //   return { statusCode: 405, body: "Address Not Allowed" }
 
-  const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY })
-    .base(process.env.AIRTABLE_BASE)
-
+  const params = JSON.parse(event.body)
+  const signMsg = params.signMsg || ""
+  const address = params.address || ""
   const ID = params.ID || ""
   const email = params.email || ""
   const phoneNumber = params.phoneNumber || ""
+
+  const signer = sigUtil.recoverPersonalSignature({
+    data: `Signature required to check if your are the owner of this address: ${address}`,
+    sig: signMsg
+  })
+
+  if (signer !== address.toLowerCase())
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ error: "Address Not Allowed" })
+    }
+
+  const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY })
+    .base(process.env.AIRTABLE_BASE)
 
   try {
     if (event.httpMethod === "GET") // GET
@@ -47,10 +59,10 @@ export function handler(event, context, callback) {
         })
       })
     else if (event.httpMethod === "PATCH") { // PATCH
-      base('Owners').update("recOivqvhvejwRH2c", {
-        "Address": "0x580B9ca15035B8C99bda7B959EAB185b40b19704",
-        "Email": "wagner.nicolas1@gmail.com",
-        "Phone Number": "+33650334223"
+      base('Owners').update(ID, {
+        "Address": address,
+        "Email": email,
+        "Phone Number": phoneNumber
       }, (err, record) => {
         if (err) { console.error(err); return; }
         console.log(record.get('Address'));
@@ -62,8 +74,8 @@ export function handler(event, context, callback) {
     } else { // POST
       base('Owners').create({
         "Address": address,
-        "Email": "wagner.nicolassss1@gmail.com",
-        "Phone Number": "+33650334223"
+        "Email": email,
+        "Phone Number": phoneNumber
       }, err => {
         if (err) { console.error(err); return }
       })

@@ -18,6 +18,7 @@ The Recover user interface.
 2.  Install and set up the [MetaMask](https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?hl=en) chrome extension.
 3.  Configure MetaMask on the Kovan Test Network.
 4.  Run `yarn` to install dependencies and then `yarn start` to start the dev server.
+5. `cp .airtable.development .airtable # and set the ids`
 
 ## Other Scripts
 
