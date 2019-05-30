@@ -109,8 +109,8 @@ export default () => {
         body: JSON.stringify({
           address,
           signMsg,
-          email: (recover[drizzleState.account] && recover[drizzleState.account].email) || '',
-          phoneNumber: (recover[drizzleState.account] && recover[drizzleState.account].phoneNumber) || '',
+          email: email || (recover[drizzleState.account] && recover[drizzleState.account].email) || '',
+          phoneNumber: phoneNumber || (recover[drizzleState.account] && recover[drizzleState.account].phoneNumber) || '',
         })
       })
       .then(res => res.json())
