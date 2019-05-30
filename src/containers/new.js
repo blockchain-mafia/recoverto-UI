@@ -3,12 +3,16 @@ import EthCrypto from 'eth-crypto'
 import styled from 'styled-components/macro'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import Textarea from 'react-textarea-autosize'
+import Modal from 'react-responsive-modal'
+import ReactPhoneInput from 'react-phone-input-2'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import Button from '../components/button'
 import MessageBoxTx from '../components/message-box-tx'
 import ipfsPublish from './api/ipfs-publish'
-import generateMetaEvidence from '../utils/generate-meta-evidence';
+import generateMetaEvidence from '../utils/generate-meta-evidence'
+
+import 'react-phone-input-2/dist/style.css'
 
 const Container = styled.div`
   font-family: Nunito;
@@ -83,6 +87,7 @@ export default () => {
 
   const [identity] = useState(EthCrypto.createIdentity())
   const [isMetaEvidencePublish, setIsMetaEvidencePublish] = useState(false)
+  const [isOpen, setOpen] = useState(false)
   const { drizzle, useCacheSend } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({	
     account: drizzleState.accounts[0] || '0x00',
@@ -111,6 +116,47 @@ export default () => {
       )
   )
 
+  const signMsg = useCallback(({}))
+
+  const addSettings = useCallback(async ({
+    email,
+    phoneNumber, 
+    fundClaims, 
+    timeoutLocked 
+  }) => {
+    const signMsg = await drizzle.web3.eth.personal.sign(
+      `Signature required to check if your are the owner of this address: ${drizzleState.account}`,
+      drizzleState.account
+    )
+
+    fetch('/.netlify/functions/settings', {
+      method: 'post',
+      body: JSON.stringify({
+        address: drizzleState.account,
+        signMsg,
+        email,
+        phoneNumber
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if(data.result === "Settings added")
+        window.localStorage.setItem('recover', JSON.stringify({
+          ...JSON.parse(localStorage.getItem('recover') || '{}'),
+          [drizzleState.account]: {
+            email,
+            phoneNumber,
+            fundClaims,
+            timeoutLocked
+          }
+        }))
+
+      setOpen(false)
+
+      // TODO: if error, render error on the UI
+    }).catch(err => console.error(err))
+  })
+
   return (
     <Container>
       <Title>New Item</Title>
@@ -119,7 +165,11 @@ export default () => {
           type: '',
           description: '',
           contactInformation: '',
-          rewardAmount: 0
+          rewardAmount: 0,
+          email: (recover[drizzleState.account] && recover[drizzleState.account].email) || '',
+          phoneNumber: (recover[drizzleState.account] && recover[drizzleState.account].phoneNumber) || '',
+          fundClaims: (recover[drizzleState.account] && recover[drizzleState.account].fundClaims) || '0.005',
+          timeoutLocked: (recover[drizzleState.account] && recover[drizzleState.account].timeoutLocked) || 604800
         }}
         validate={values => {
           let errors = {}
@@ -141,6 +191,21 @@ export default () => {
             errors.rewardAmount = 'Number Required'
           if (values.rewardAmount <= 0)
             errors.rewardAmount = 'The reward must be positive.'
+          if (!values.email)
+            errors.email = 'Email Required'
+          if (
+            values.email !== '' &&
+            !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)
+          )
+            errors.email = 'Invalid email address'
+          if (isNaN(values.fundClaims))
+            errors.fundClaims = 'Number Required'
+          if (values.fundClaims <= 0)
+            errors.fundClaims = 'Amount of the fund claims must be positive.'
+          if (isNaN(values.timeoutLocked))
+            errors.timeoutLocked = 'Number Required'
+          if (values.timeoutLocked <= 0)
+            errors.timeoutLocked = 'Timeout locked must be positive.'
 
           return errors
         }}
@@ -277,6 +342,145 @@ export default () => {
                   component={Error}
                 />
               </FieldContainer>
+              <Modal 
+                open={isOpen} 
+                onClose={() => setOpen(false)} 
+                center
+                styles={{
+                  closeButton: {background: 'transparent'},
+                  modal: {width: '80vw', maxWidth: '300px'}
+                }}
+              >
+                <FieldContainer>
+                  <StyledLabel htmlFor="email">
+                    <span 
+                      className="info"
+                      aria-label="Your email to be notified if there is a claim on one of your items."
+                    >
+                      Email (required)
+                    </span>
+                  </StyledLabel>
+                  <StyledField
+                    name="email"
+                    placeholder="Email"
+                  />
+                  <ErrorMessage
+                    name="email"
+                    component={Error}
+                  />
+                </FieldContainer>
+                <FieldContainer>
+                  <StyledLabel htmlFor="phoneNumber">
+                    <span 
+                      className="info"
+                      aria-label="Your phone number to be notified by SMS if there is a claim on one of your items."
+                    >
+                      Phone Number
+                    </span>
+                  </StyledLabel>
+                  <ReactPhoneInput
+                    value={values.phoneNumber} 
+                    onChange={phoneNumber => setFieldValue('phoneNumber', phoneNumber)}
+                    containerStyle={{
+                      margin: '10px 0',
+                      lineHeight: '50px',
+                      boxSizing: 'border-box',
+                      border: '1px solid #ccc !important',
+                    }}
+                    inputStyle={{
+                      height: '52px',
+                      width: '100%',
+                      boxSizing: 'border-box',
+                      color: '#222',
+                      font: '400 15px system-ui'
+                    }}
+                    inputExtraProps={{
+                      name: 'phoneNumber'
+                    }}
+                  />
+                  <ErrorMessage
+                    name="phoneNumber"
+                    component={Error}
+                  />
+                </FieldContainer>
+                <FieldContainer>
+                  <StyledLabel htmlFor="fundClaims">
+                    <span 
+                      className="info"
+                      aria-label="
+                        The amount sent to the wallet finder to pay the gas to claim without ETH. 
+                        It's a small amount of ETH.
+                      "
+                    >
+                      Fund Claims (ETH)
+                    </span>
+                  </StyledLabel>
+                  <StyledField
+                    name="fundClaims"
+                    placeholder="PreFund Gas Cost to Claim"
+                  />
+                  <ErrorMessage
+                    name="fundClaims"
+                    component={Error}
+                  />
+                </FieldContainer>
+                <FieldContainer>
+                  <StyledLabel htmlFor="timeoutLocked">
+                    <span 
+                      className="info"
+                      aria-label="
+                        Time in seconds after which the finder from whom his claim was accepted 
+                        may force the payment of the reward if there is no dispute flow.
+                      "
+                    >
+                      Time Locked (seconds)
+                    </span>
+                  </StyledLabel>
+                  <StyledField
+                    name="timeoutLocked"
+                    placeholder="Timeout locked"
+                  />
+                  <ErrorMessage
+                    name="timeoutLocked"
+                    component={Error}
+                  />
+                </FieldContainer>
+                <p style={{
+                  fontFamily: 'Roboto',
+                  textAlign: 'center', 
+                  padding: '14px 0 30px 0'
+                }}>
+                  You can set up these settings <br /> in &nbsp;
+                  <i 
+                    style={{
+                      fontFamily: 'Courrier',
+                      fontStyle: 'italic'
+                    }}
+                  >
+                    Menu > Settings
+                  </i>.
+                </p>
+                <Button
+                  style={{width: '100%'}}
+                  onClick={
+                    () => addSettings({
+                      email: values.email,
+                      phoneNumber: values.phoneNumber 
+                    })
+                  }
+                >
+                  Settings
+                </Button>
+              </Modal>
+              {
+                values.email === '' && (
+                  <Button
+                    onClick={() => setOpen(true)}
+                  >
+                    Settings
+                  </Button>
+                )
+              }
               <Submit>
                 <Button
                   type="submit"

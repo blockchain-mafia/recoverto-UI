@@ -129,8 +129,7 @@ export default () => {
         setIsSaved(true)
       
         // TODO: if error, render error on the UI
-    })
-    .catch(err => console.error(err))
+    }).catch(err => console.error(err))
   })
 
   return (
@@ -145,6 +144,8 @@ export default () => {
         }}
         validate={values => {
           let errors = {}
+          if (!values.email)
+            errors.email = 'Email Required'
           if (
             values.email !== '' && 
             !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)
@@ -173,17 +174,12 @@ export default () => {
             email: values.email,
             phoneNumber:values.phoneNumber 
           })
-
         }}
       >
         {({
           errors,
           setFieldValue,
-          touched,
-          isSubmitting,
-          values,
-          handleChange,
-          form
+          values
         }) => (
           <>
             <StyledForm>
@@ -222,7 +218,6 @@ export default () => {
                     lineHeight: '50px',
                     boxSizing: 'border-box',
                     border: '1px solid #ccc !important',
-
                   }}
                   inputStyle={{
                     height: '52px',
@@ -234,7 +229,6 @@ export default () => {
                   inputExtraProps={{
                     name: 'phoneNumber'
                   }}
-
                 />
                 <ErrorMessage
                   name="phoneNumber"
@@ -250,7 +244,7 @@ export default () => {
                       It's a small amount of ETH.
                     "
                   >
-                    Fund Claims
+                    Fund Claims (ETH)
                   </span>
                 </StyledLabel>
                 <StyledField
@@ -267,11 +261,11 @@ export default () => {
                   <span 
                     className="info"
                     aria-label="
-                      Time after which the finder from whom his claim was accepted 
+                      Time in seconds after which the finder from whom his claim was accepted 
                       may force the payment of the reward if there is no dispute flow.
                     "
                   >
-                    Time Locked
+                    Time Locked (seconds)
                   </span>
                 </StyledLabel>
                 <StyledField
