@@ -32,6 +32,13 @@ const Title = styled.h2`
   padding-bottom: 20px;
 `
 
+const ModalTitle = styled.h3`
+  font-family: Nunito;
+  font-size: 30px;
+  color: #14213d;
+  padding-bottom: 14px;
+`
+
 const FieldContainer = styled.div`
   margin: 20px 0;
 `
@@ -92,6 +99,7 @@ export default () => {
   const drizzleState = useDrizzleState(drizzleState => ({	
     account: drizzleState.accounts[0] || '0x00',
     balance: drizzleState.accountBalances[drizzleState.accounts[0]],
+    ID: `${drizzleState.accounts[0]}-${drizzleState.web3.networkId}`,
     transactions: drizzleState.transactions
   }))
 
@@ -120,8 +128,8 @@ export default () => {
 
   const addSettings = useCallback(async ({
     email,
-    phoneNumber, 
-    fundClaims, 
+    phoneNumber,
+    fundClaims,
     timeoutLocked 
   }) => {
     const signMsg = await drizzle.web3.eth.personal.sign(
@@ -143,7 +151,7 @@ export default () => {
       if(data.result === "Settings added")
         window.localStorage.setItem('recover', JSON.stringify({
           ...JSON.parse(localStorage.getItem('recover') || '{}'),
-          [drizzleState.account]: {
+          [drizzleState.ID]: {
             email,
             phoneNumber,
             fundClaims,
@@ -166,10 +174,10 @@ export default () => {
           description: '',
           contactInformation: '',
           rewardAmount: 0,
-          email: (recover[drizzleState.account] && recover[drizzleState.account].email) || '',
-          phoneNumber: (recover[drizzleState.account] && recover[drizzleState.account].phoneNumber) || '',
-          fundClaims: (recover[drizzleState.account] && recover[drizzleState.account].fundClaims) || '0.005',
-          timeoutLocked: (recover[drizzleState.account] && recover[drizzleState.account].timeoutLocked) || 604800
+          email: (recover[drizzleState.ID] && recover[drizzleState.ID].email) || '',
+          phoneNumber: (recover[drizzleState.ID] && recover[drizzleState.ID].phoneNumber) || '',
+          fundClaims: (recover[drizzleState.ID] && recover[drizzleState.ID].fundClaims) || '0.005',
+          timeoutLocked: (recover[drizzleState.ID] && recover[drizzleState.ID].timeoutLocked) || 604800
         }}
         validate={values => {
           let errors = {}
@@ -253,7 +261,7 @@ export default () => {
             }
           }))
 
-          const fundClaimsAmount = (recover[drizzleState.account] && recover[drizzleState.account].fundClaims) || '0.005'
+          const fundClaimsAmount = (recover[drizzleState.ID] && recover[drizzleState.ID].fundClaims) || '0.005'
 
           values.value = drizzle.web3.utils.toWei(
             typeof fundClaimsAmount === 'string'
@@ -261,7 +269,7 @@ export default () => {
               : String(fundClaimsAmount)
             )
 
-          values.timeoutLocked = (recover[drizzleState.account] && recover[drizzleState.account].timeoutLocked) || 604800
+          values.timeoutLocked = (recover[drizzleState.ID] && recover[drizzleState.ID].timeoutLocked) || 604800
 
           addItem(values)
         })}
@@ -269,8 +277,6 @@ export default () => {
         {({
           errors,
           setFieldValue,
-          touched,
-          isSubmitting,
           values,
           handleChange
         }) => (
@@ -348,9 +354,10 @@ export default () => {
                 center
                 styles={{
                   closeButton: {background: 'transparent'},
-                  modal: {width: '80vw', maxWidth: '300px'}
+                  modal: {width: '80vw', maxWidth: '300px', padding: '6vh 8vw'}
                 }}
               >
+                <ModalTitle>Settings</ModalTitle>
                 <FieldContainer>
                   <StyledLabel htmlFor="email">
                     <span 
@@ -446,26 +453,32 @@ export default () => {
                   />
                 </FieldContainer>
                 <p style={{
+                  color: '#444',
                   fontFamily: 'Roboto',
+                  fontWeight: '300',
                   textAlign: 'center', 
-                  padding: '14px 0 30px 0'
+                  padding: '14px 0 22px 0'
                 }}>
                   You can set up these settings <br /> in &nbsp;
                   <i 
                     style={{
-                      fontFamily: 'Courrier',
-                      fontStyle: 'italic'
+                      fontFamily: 'Tahoma, Geneva, sans-serif',
+                      lineHeight: '30px',
+                      color: '#808080',
+                      fontSize: '14px'
                     }}
                   >
                     Menu > Settings
-                  </i>.
+                  </i> .
                 </p>
                 <Button
                   style={{width: '100%'}}
                   onClick={
                     () => addSettings({
                       email: values.email,
-                      phoneNumber: values.phoneNumber 
+                      phoneNumber: values.phoneNumber,
+                      fundClaims: values.fundClaims,
+                      timeoutLocked: values.timeoutLocked 
                     })
                   }
                 >

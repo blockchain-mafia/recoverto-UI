@@ -93,6 +93,7 @@ export default () => {
   const drizzleState = useDrizzleState(drizzleState => ({	
     account: drizzleState.accounts[0] || '0x00',
     balance: drizzleState.accountBalances[drizzleState.accounts[0]],
+    ID: `${drizzleState.accounts[0]}-${drizzleState.web3.networkId}`,
     transactions: drizzleState.transactions
   }))
 
@@ -109,8 +110,8 @@ export default () => {
         body: JSON.stringify({
           address,
           signMsg,
-          email: email || (recover[drizzleState.account] && recover[drizzleState.account].email) || '',
-          phoneNumber: phoneNumber || (recover[drizzleState.account] && recover[drizzleState.account].phoneNumber) || '',
+          email: email || (recover[drizzleState.ID] && recover[drizzleState.ID].email) || '',
+          phoneNumber: phoneNumber || (recover[drizzleState.ID] && recover[drizzleState.ID].phoneNumber) || '',
         })
       })
       .then(res => res.json())
@@ -118,7 +119,7 @@ export default () => {
         if(data.result === "Settings added")
           window.localStorage.setItem('recover', JSON.stringify({
             ...JSON.parse(localStorage.getItem('recover') || '{}'),
-            [drizzleState.account]: {
+            [drizzleState.ID]: {
               email,
               phoneNumber,
               fundClaims,
@@ -137,10 +138,10 @@ export default () => {
       <Title>Settings</Title>
       <Formik
         initialValues={{
-          email: (recover[drizzleState.account] && recover[drizzleState.account].email) || '',
-          phoneNumber: (recover[drizzleState.account] && recover[drizzleState.account].phoneNumber) || '',
-          fundClaims: (recover[drizzleState.account] && recover[drizzleState.account].fundClaims) || 0.005,
-          timeoutLocked: (recover[drizzleState.account] && recover[drizzleState.account].timeoutLocked) || 604800
+          email: (recover[drizzleState.ID] && recover[drizzleState.ID].email) || '',
+          phoneNumber: (recover[drizzleState.ID] && recover[drizzleState.ID].phoneNumber) || '',
+          fundClaims: (recover[drizzleState.ID] && recover[drizzleState.ID].fundClaims) || 0.005,
+          timeoutLocked: (recover[drizzleState.ID] && recover[drizzleState.ID].timeoutLocked) || 604800
         }}
         validate={values => {
           let errors = {}
