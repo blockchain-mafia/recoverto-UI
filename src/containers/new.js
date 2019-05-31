@@ -482,7 +482,7 @@ export default () => {
                     })
                   }
                 >
-                  Settings
+                  Save Settings
                 </Button>
               </Modal>
               {

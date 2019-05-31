@@ -1,10 +1,16 @@
 import Airtable from 'airtable'
+import dotenv from 'dotenv'
+
+// Set up airtable envs in the development envirronement.
+const envConfig = dotenv.parse(
+  fs.readFileSync('.airtable')
+)
+
+for (let k in envConfig) {
+  process.env[k] = envConfig[k]
+}
 
 const { AIRTABLE_API_KEY, AIRTABLE_BASE } = process.env
-// (TODO: add a file with this config (needed to be `mv`) and add .gitignore)
-// or in dev env
-// const AIRTABLE_API_KEY = ''
-// const AIRTABLE_BASE = ''
 
 // TODO: use a bot instead of a netlify function to avoid a DDOS attack
 export function handler(event, context, callback) {
