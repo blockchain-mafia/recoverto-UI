@@ -241,24 +241,6 @@
         {
           "name": "_itemID",
           "type": "bytes32"
-        },
-        {
-          "name": "_claimID",
-          "type": "uint256"
-        }
-      ],
-      "name": "removeClaim",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_itemID",
-          "type": "bytes32"
         }
       ],
       "name": "resetClaims",
@@ -503,6 +485,34 @@
       ],
       "name": "Ruling",
       "type": "event"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "arbitrator",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "arbitratorExtraData",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
     },
     {
       "constant": true,

@@ -87,7 +87,7 @@ export default () => {
                   dataDecrypted: {type: 'loading...'}
                 }
 
-                let itemID = claim.itemID.replace(/0x0/gi, '0x').replace(/0+$/, '')
+                const itemID = claim.itemID.replace(/0x0/gi, '0x').replace(/0+$/, '')
 
                 if(recover[itemID] && recover[itemID].privateKey) {
                   const metaEvidence = loadDescription(
@@ -98,9 +98,8 @@ export default () => {
                 } else item.content = {
                   dataDecrypted: {type: 'Data Encrypted'}
                 }
-                item.itemID = itemID
                 if(recover[itemID] && recover[itemID].finder)
-                item.finder = recover[itemID].finder
+                  item.finder = recover[itemID].finder
               }
               acc.data.push({ ...claim, ...item, ID: d })
             }

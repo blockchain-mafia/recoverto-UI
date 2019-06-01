@@ -133,7 +133,7 @@ export default props => {
 
   const [itemID, privateKey] = props.itemID_Pk.split('-privateKey=')
 
-  const item = useCacheCall('Recover', 'items', itemID)
+  const item = useCacheCall('Recover', 'items', itemID.padEnd(66, '0'))
 
   const claim = useCallback(async ({finder, descriptionLink}) => {
     const web3 = new Web3(new Web3.providers.HttpProvider('https://kovan.infura.io/v3/846256afe0ee40f0971d902ea8d36266'),
@@ -169,7 +169,12 @@ export default props => {
         }
       }))
 
-      const encodedABI = drizzle.contracts.Recover.methods.claim(itemID, finder, descriptionLink).encodeABI()
+      const encodedABI = drizzle.contracts.Recover.methods.claim(
+        itemID.padEnd(66, '0'), 
+        finder, 
+        descriptionLink
+      ).encodeABI()
+
       await web3.eth.accounts.signTransaction({
           to: drizzle.contracts.Recover.address,
           gas: 255201, // TODO: compute the gas cost before

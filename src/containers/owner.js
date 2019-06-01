@@ -121,13 +121,15 @@ export default props => {
   const itemID = props.itemID
   const privateKey = recover[itemID] ? recover[itemID].privateKey : null
 
-  const item = useCacheCall('Recover', 'items', itemID)
+  const item = useCacheCall('Recover', 'items', itemID.padEnd(66, '0'))
+
+  // TODO: get arbitrator
 
   // TODO: get the arbitratorExtraData
   // const arbitratorExtraData = useCacheCall('Recover', 'arbitratorExtraData')
   // const arbitrationCost = useCacheCall('Arbitrator', 'arbitrationCost', arbitratorExtraData)
 
-  const claimIDs = useCacheCall('Recover', 'getClaimsByItemID', itemID)
+  const claimIDs = useCacheCall('Recover', 'getClaimsByItemID', itemID.padEnd(66, '0'))
 
   const loadDescription = useDataloader.getDescription()
 
@@ -197,15 +199,18 @@ export default props => {
           <div key={claim.ID}>
             <p style={{padding: '10px 0'}}>ID: {claim && claim.ID}</p>
             <p style={{padding: '10px 0'}}>Finder: {claim && claim.finder}</p>
-            <p style={{padding: '10px 0 40px 0'}}>Description: {claim && claim.descriptionLink}</p>
-
+            {claim && claim.descriptionLink && (
+              <p style={{padding: '10px 0 40px 0'}}>Description: {claim.descriptionLink}</p>
+            )}
             {claim && item && item.rewardAmount && (
               <button
                 style={{padding: '0 30px', textAlign: 'center', lineHeight: '50px', border: '1px solid #14213D', borderRadius: '10px'}}
                 onClick={() =>
-                  sendAcceptClaim(itemID, claim.ID, {
-                    value: item.rewardAmount
-                  })
+                  sendAcceptClaim(
+                    itemID.padEnd(66, '0'), 
+                    claim.ID, 
+                    { value: item.rewardAmount}
+                  )
                 }
               >
                 Accept Claim

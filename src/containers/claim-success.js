@@ -73,7 +73,7 @@ export default props => {
 
   const { itemID, pk } = props
 
-  const item = useCacheCall('Recover', 'items', itemID)
+  const item = useCacheCall('Recover', 'items', itemID.padEnd(66, '0'))
 
   const loadDescription = useDataloader.getDescription()
 

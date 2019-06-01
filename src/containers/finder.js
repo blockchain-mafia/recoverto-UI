@@ -93,12 +93,13 @@ export default props => {
     'payArbitrationFeeByFinder'
   )
 
-  // TODO: add partial reimburse
-  const reimburse = useCallback(({ itemID, amount }) => sendReimburse(itemID, amount))
+  const arbitratorExtraData = useCacheCall('Recover', 'arbitratorExtraData')
 
-  // TODO: get the arbitratorExtraData
-  // const arbitratorExtraData = useCacheCall('Recover', 'arbitratorExtraData')
-  // const arbitrationCost = useCacheCall('Arbitrator', 'arbitrationCost', arbitratorExtraData)
+  const arbitrationCost = useCacheCall(
+    'KlerosLiquid', 
+    'arbitrationCost',
+    (arbitratorExtraData || '0x00')
+  )
 
   const loadDescription = useDataloader.getDescription()
 
@@ -115,8 +116,10 @@ export default props => {
         dataDecrypted: {type: 'loading...'}
       }
 
-      const itemID = claim.itemID.replace(/0x0/gi, '0x').substring(0, 65)
-      
+      item.itemID = claim.itemID
+
+      const itemID = claim.itemID.replace(/0x0/gi, '0x').replace(/0+$/, '')
+
       if(recover[itemID] && recover[itemID].privateKey) {
         const metaEvidence = loadDescription(
           item.descriptionEncryptedLink,
@@ -126,7 +129,6 @@ export default props => {
       } else item.content = {
         dataDecrypted: {type: 'Data Encrypted'}
       }
-      item.itemID = itemID
       if(recover[itemID] && recover[itemID].finder)
       item.finder = recover[itemID].finder
     }
@@ -136,7 +138,7 @@ export default props => {
     <Container>
       {claim && item ? (
         <>
-          {claim.finder === drizzleState.account && (
+          {item.amountLocked > 0 && claim.finder === drizzleState.account && (
             <DropdownStyled>
               <StyledSettings
                 style={!dropdownHidden ? {background: '#efefef'} : {}}
@@ -145,15 +147,27 @@ export default props => {
               <DropdownMenuStyled hidden={dropdownHidden}>
                 <DropdownItemStyled 
                   onClick={() => {
-                    reimburse({ itemID: item.itemID, amount: item.rewardAmount})
+                    sendReimburse(
+                      item.itemID.padEnd(66, '0'), 
+                      item.rewardAmount
+                    )
                     setDropdownHidden(!dropdownHidden)
                   }}
                 >
                   Reimburse
                 </DropdownItemStyled>
                 <DropdownDivider />
-                {/* TODO: call sendPayArbitrationFeeByFinder */}
-                <DropdownItemStyled>Raise a Dispute (WIP)</DropdownItemStyled>
+                <DropdownItemStyled
+                  onClick={() => {
+                    sendPayArbitrationFeeByFinder(
+                      item.itemID.padEnd(66, '0'),
+                      { value: arbitrationCost }
+                    )
+                    setDropdownHidden(!dropdownHidden)
+                  }}
+                >
+                  Raise a Dispute
+                </DropdownItemStyled>
               </DropdownMenuStyled>
             </DropdownStyled>
           )}
