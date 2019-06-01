@@ -1,4 +1,5 @@
 import Airtable from 'airtable'
+import fs from 'fs'
 import dotenv from 'dotenv'
 
 // Set up airtable envs in the development envirronement.

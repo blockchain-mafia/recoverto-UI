@@ -83,6 +83,52 @@ const StyledPrint = styled.div`
   }
 `
 
+const StyledNoClaim = styled.div`
+  background: #efefef;
+  border-radius: 10px;
+  text-align: center;
+  font-family: Nunito;
+  font-style: normal;
+  font-weight: 300;
+  font-size: 20px;
+  line-height: 70px;
+  color: #777777;
+  cursor: not-allowed;
+`
+
+const StyledClaimBoxContainer = styled.div`
+  background: #ffc282;
+  border-radius: 10px;
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 300;
+  font-size: 20px;
+  line-height: 20px;
+  color: #777777;
+`
+
+const StyledClaimBoxContent = styled.div`
+  padding: 50px;
+`
+
+const StyledButtonClaimBox = styled.div`
+  width: 100%;
+  color: #fff;
+  background: #ff8300;
+  border-radius: 0px 0px 10px 10px;
+  font-family: Nunito;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 68px;
+  text-align: center;
+  cursor: pointer;
+  &:hover {
+    background: #a6ffcb;
+    color: #444;
+  }
+`
+
 class ComponentToPrint extends Component {
   render() {
     return (
@@ -123,11 +169,13 @@ export default props => {
 
   const item = useCacheCall('Recover', 'items', itemID.padEnd(66, '0'))
 
-  // TODO: get arbitrator
+  const arbitratorExtraData = useCacheCall('Recover', 'arbitratorExtraData')
 
-  // TODO: get the arbitratorExtraData
-  // const arbitratorExtraData = useCacheCall('Recover', 'arbitratorExtraData')
-  // const arbitrationCost = useCacheCall('Arbitrator', 'arbitrationCost', arbitratorExtraData)
+  const arbitrationCost = useCacheCall(
+    'KlerosLiquid', 
+    'arbitrationCost',
+    (arbitratorExtraData || '0x00')
+  )
 
   const claimIDs = useCacheCall('Recover', 'getClaimsByItemID', itemID.padEnd(66, '0'))
 
@@ -196,15 +244,16 @@ export default props => {
       {/* TODO: only if the drizzle account is the owner */}
       {
         !claims.loading && claims.data.map(claim => (
-          <div key={claim.ID}>
-            <p style={{padding: '10px 0'}}>ID: {claim && claim.ID}</p>
-            <p style={{padding: '10px 0'}}>Finder: {claim && claim.finder}</p>
-            {claim && claim.descriptionLink && (
-              <p style={{padding: '10px 0 40px 0'}}>Description: {claim.descriptionLink}</p>
-            )}
+          <StyledClaimBoxContainer key={claim.ID}>
+            <StyledClaimBoxContent>
+              <p style={{padding: '10px 0'}}>ID: {claim && claim.ID}</p>
+              <p style={{padding: '10px 0'}}>Finder: {claim && claim.finder}</p>
+              {claim && claim.descriptionLink && (
+                <p style={{padding: '10px 0 40px 0'}}>Description: {claim.descriptionLink}</p>
+              )}
+            </StyledClaimBoxContent>
             {claim && item && item.rewardAmount && (
-              <button
-                style={{padding: '0 30px', textAlign: 'center', lineHeight: '50px', border: '1px solid #14213D', borderRadius: '10px'}}
+              <StyledButtonClaimBox
                 onClick={() =>
                   sendAcceptClaim(
                     itemID.padEnd(66, '0'), 
@@ -213,26 +262,46 @@ export default props => {
                   )
                 }
               >
-                Accept Claim
-              </button>
+                ACCEPT CLAIM
+              </StyledButtonClaimBox>
             )}
 
             {' '}
 
             {item && item.amountLocked > 0 && (
-              <button style={{padding: '0 30px', textAlign: 'center', lineHeight: '50px', border: '1px solid #14213D', borderRadius: '10px'}} onClick={() => sendPay(itemID, item.amountLocked)}>
+              <button 
+                style={{padding: '0 30px', textAlign: 'center', lineHeight: '50px', border: '1px solid #14213D', borderRadius: '10px'}} 
+                onClick={() => sendPay(
+                  itemID.padEnd(66, '0'), 
+                  item.amountLocked
+                )}
+              >
                 Pay the finder
               </button>
             )}
             {item && item.amountLocked > 0 && (
-              <button style={{padding: '0 30px', textAlign: 'center', lineHeight: '50px', border: '1px solid #14213D', borderRadius: '10px'}} onClick={() => sendPayArbitrationFeeByOwner(itemID, item.amountLocked)}>
-                Raise a dispute {item.amountLocked}
+              <button 
+                style={{
+                  padding: '0 30px', 
+                  textAlign: 'center', 
+                  lineHeight: '50px', 
+                  border: '1px solid #14213D', 
+                  borderRadius: '10px'
+                }} 
+                onClick={() => sendPayArbitrationFeeByOwner(
+                  itemID.padEnd(66, '0'),
+                  { value: arbitrationCost }
+                )}
+              >
+                Raise a dispute
               </button>
             )}
-          </div>
+          </StyledClaimBoxContainer>
         ))
       }
-      {!claims.loading && claims.data.length === 0 && 'No claim'}
+      {!claims.loading && claims.data.length === 0 && (
+        <StyledNoClaim>There is no claim.</StyledNoClaim>
+      )}
     </Container>
   )
 }

@@ -17,6 +17,7 @@ main {
 }
 
 button {
+  color: #444;
   display: inline-block;
   height: 50px;
   padding: 0 30px; 
