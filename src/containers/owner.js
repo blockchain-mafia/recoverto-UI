@@ -6,11 +6,18 @@ import Textarea from 'react-textarea-autosize'
 import { BounceLoader } from 'react-spinners'
 import ReactToPrint from 'react-to-print'
 import Web3 from 'web3'
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownDivider
+} from 'styled-dropdown-component'
 
-import { useDrizzle } from '../temp/drizzle-react-hooks'
+import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import Button from '../components/button'
 import ETHAmount from '../components/eth-amount'
 import { useDataloader } from '../bootstrap/dataloader'
+import { ReactComponent as Settings } from '../assets/images/settings-orange.svg'
 
 const Container = styled.div`
   font-family: Nunito;
@@ -97,6 +104,7 @@ const StyledNoClaim = styled.div`
 `
 
 const StyledClaimBoxContainer = styled.div`
+  padding-top: 4vw;
   background: #ffc282;
   border-radius: 10px;
   font-family: Roboto;
@@ -104,14 +112,24 @@ const StyledClaimBoxContainer = styled.div`
   font-weight: 300;
   font-size: 20px;
   line-height: 20px;
-  color: #777777;
+  color: #777;
 `
 
-const StyledClaimBoxContent = styled.div`
-  padding: 50px;
+const StyledClaimAddressContainerBoxContent = styled.div`
+  display: flex;
+  flex-direction: row;
+  padding:  0 4vw;
+`
+
+const StyledClaimDescriptionContainerBoxContent = styled.div`
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  padding:  0 4vw;
 `
 
 const StyledButtonClaimBox = styled.div`
+  margin-top: 30px;
   width: 100%;
   color: #fff;
   background: #ff8300;
@@ -126,6 +144,62 @@ const StyledButtonClaimBox = styled.div`
   &:hover {
     background: #a6ffcb;
     color: #444;
+  }
+`
+
+const StyledClaimLabelBoxContent = styled.div`
+  font-family: Roboto;
+  font-weight: 300;
+  font-size: 18px;
+  line-height: 30px;
+  color: #444;
+`
+
+const StyledClaimAddressBoxContent = styled.div`
+  padding-left: 1vw;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  font-family: Nunito;
+  font-weight: 600;
+  font-size: 20px;
+  color: #191847;
+  line-height: 30px;
+`
+
+const StyledClaimDescriptionBoxContent = styled.div`
+  margin-top: 10px;
+  font-family: Nunito;
+  font-weight: 600;
+  font-size: 20px;
+  color: #191847;
+`
+
+const DropdownStyled = styled(Dropdown)`
+  float: right;
+  right: 20px;
+  top: 10px;
+`
+
+const StyledSettings = styled(Settings)`
+  padding: 10px;
+  border-radius: 50%;
+  &:hover {
+    cursor: pointer;
+    background: #fff;
+  }
+`
+
+const DropdownMenuStyled = styled(DropdownMenu)`
+  float: right;
+  left: auto;
+  right: 0;
+`
+
+const DropdownItemStyled = styled(DropdownItem)`
+  line-height: 24px;
+  &:hover {
+    cursor: pointer;
   }
 `
 
@@ -145,6 +219,11 @@ class ComponentToPrint extends Component {
 
 export default props => {
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
+
+  const [dropdownHidden, setDropdownHidden] = useState(true)
+  const drizzleState = useDrizzleState(drizzleState => ({	
+    account: drizzleState.accounts[0] || '0x00'
+  }))
 
   const componentRef = useRef()
   const { useCacheCall, useCacheSend } = useDrizzle()
@@ -240,19 +319,56 @@ export default props => {
       ) : (
         <Title>Loading Item...</Title>
       )}
-      <SubTitle>List Claims</SubTitle>
       {/* TODO: only if the drizzle account is the owner */}
+      {/* TODO: move this sewction in the top section to have the loading */}
+      {/* item.amountLocked > 0 && item.owner === drizzleState.account */}
+      <SubTitle>List Claims</SubTitle>
+      {
+        item && item.amountLocked > 0 && item.owner === drizzleState.account && (
+          <DropdownStyled>
+            <StyledSettings
+              style={!dropdownHidden ? {background: '#fff'} : {}}
+              onClick={() => setDropdownHidden(!dropdownHidden)}
+            />
+            <DropdownMenuStyled hidden={dropdownHidden}>
+              {/* TODO: add loader transaction */}
+              <DropdownItemStyled
+                onClick={() => {
+                  sendPayArbitrationFeeByOwner(
+                    itemID.padEnd(66, '0'),
+                    { value: arbitrationCost }
+                  )
+                  setDropdownHidden(!dropdownHidden)
+                }}
+              >
+                Raise a Dispute
+              </DropdownItemStyled>
+            </DropdownMenuStyled>
+          </DropdownStyled>
+        )
+      }
       {
         !claims.loading && claims.data.map(claim => (
           <StyledClaimBoxContainer key={claim.ID}>
-            <StyledClaimBoxContent>
-              <p style={{padding: '10px 0'}}>ID: {claim && claim.ID}</p>
-              <p style={{padding: '10px 0'}}>Finder: {claim && claim.finder}</p>
+            <StyledClaimAddressContainerBoxContent>
+              <StyledClaimLabelBoxContent>Finder:</StyledClaimLabelBoxContent>
+              <StyledClaimAddressBoxContent>
+                {claim && claim.finder}
+              </StyledClaimAddressBoxContent>
+            </StyledClaimAddressContainerBoxContent>
+            <StyledClaimDescriptionContainerBoxContent>
               {claim && claim.descriptionLink && (
-                <p style={{padding: '10px 0 40px 0'}}>Description: {claim.descriptionLink}</p>
+                <>
+                <StyledClaimLabelBoxContent>
+                  Description:
+                </StyledClaimLabelBoxContent> 
+                <StyledClaimDescriptionBoxContent>
+                  {claim.descriptionLink}
+                </StyledClaimDescriptionBoxContent> 
+                </>
               )}
-            </StyledClaimBoxContent>
-            {claim && item && item.rewardAmount && (
+            </StyledClaimDescriptionContainerBoxContent>
+            {claim && item && item.amountLocked === 0 && (
               <StyledButtonClaimBox
                 onClick={() =>
                   sendAcceptClaim(
@@ -266,35 +382,18 @@ export default props => {
               </StyledButtonClaimBox>
             )}
 
-            {' '}
-
-            {item && item.amountLocked > 0 && (
-              <button 
-                style={{padding: '0 30px', textAlign: 'center', lineHeight: '50px', border: '1px solid #14213D', borderRadius: '10px'}} 
-                onClick={() => sendPay(
-                  itemID.padEnd(66, '0'), 
-                  item.amountLocked
-                )}
+            {claim && item && item.amountLocked > 0 && (
+              <StyledButtonClaimBox
+                onClick={() =>
+                  sendAcceptClaim(
+                    itemID.padEnd(66, '0'), 
+                    claim.ID, 
+                    { value: item.rewardAmount}
+                  )
+                }
               >
-                Pay the finder
-              </button>
-            )}
-            {item && item.amountLocked > 0 && (
-              <button 
-                style={{
-                  padding: '0 30px', 
-                  textAlign: 'center', 
-                  lineHeight: '50px', 
-                  border: '1px solid #14213D', 
-                  borderRadius: '10px'
-                }} 
-                onClick={() => sendPayArbitrationFeeByOwner(
-                  itemID.padEnd(66, '0'),
-                  { value: arbitrationCost }
-                )}
-              >
-                Raise a dispute
-              </button>
+                REWARD THE FINDER
+              </StyledButtonClaimBox>
             )}
           </StyledClaimBoxContainer>
         ))
