@@ -192,9 +192,9 @@ export default props => {
               // TODO: post msg to airtable to be sure the tx is deployed
               window.location.replace(
                 `/contract/${
-                  drizzleState.networkID === 1 ? 
+                  drizzleState.networkID === 1 ? // FIXME: resolve network without drizzle
                     process.env.REACT_APP_RECOVER_MAINNET_ADDRESS 
-                    : process.env.REACT_APP_RECOVER_KOVAN_ADDRESS}
+                    : process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
                 }/items/${itemID}/pk/${privateKey}/claim-success`
               )
             })
@@ -282,7 +282,7 @@ export default props => {
               </div>
               <div style={{textAlign: 'right'}}>
                 <Button
-                  style={{padding: '0 30px', textAlign: 'center', lineHeight: '50px', border: '1px solid #14213D', borderRadius: '10px'}}
+                  style={{padding: '0 30px', textAlign: 'center', lineHeight: '50px', border: '1px solid #14213d', borderRadius: '10px'}}
                   type="submit"
                   disabled={Object.entries(errors).length > 0}
                 >

@@ -10,7 +10,7 @@
     "court"
   ],
   "repository": "https://github.com/kleros/court",
-  "author": "Kleros",
+  "author": "Wagner Nicolas",
   "license": "MIT",
   "private": true,
   "scripts": {
@@ -61,7 +61,7 @@
     "dataloader": "^1.4.0",
     "debounce": "^1.2.0",
     "dotenv": "^8.0.0",
-    "drizzle": "^1.2.4",
+    "drizzle": "simondlr/drizzle#web3mod",
     "eth-crypto": "^1.3.4",
     "eth-sig-util": "^2.2.0",
     "formik": "^1.5.1",
@@ -71,7 +71,7 @@
     "is-text-path": "^1.0.1",
     "is-video": "^1.0.1",
     "javascript-time-ago": "^1.0.32",
-    "netlify-lambda": "^1.4.13",
+    "netlify-lambda": "^1.4.2",
     "polished": "^2.3.0",
     "prop-types": "^15.6.2",
     "qrcode.react": "^0.9.3",

@@ -31,6 +31,7 @@ const StyledMessageLine3 = styled.div`
 `
 const _404 = ({ Web3 }) => (
   <StyledDiv Web3={Web3}>
+    {console.log(Web3)}
     <StyledInfoDiv className="">
       <Styled404Div className="primary-color theme-color">
         {Web3 && 'Web3 '}404
@@ -45,7 +46,7 @@ const _404 = ({ Web3 }) => (
       </StyledMessageLine2>
       <StyledMessageLine3 className="ternary-color theme-color">
         {Web3
-          ? "Please make sure you have your wallet unlocked on Mainnet or Kovan. If you don't have a wallet, we recommend you install MetaMask on desktop and Trust on mobile."
+          ? 'Please make sure you have your wallet unlocked on Mainnet or Kovan. If you don\'t have a wallet, we recommend you install MetaMask on desktop and Trust on mobile.'
           : 'Issue with Web3.'}
       </StyledMessageLine3>
     </StyledInfoDiv>

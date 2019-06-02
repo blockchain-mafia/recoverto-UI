@@ -16,6 +16,8 @@ if (fs.existsSync('.airtable')) {
 
 const { AIRTABLE_API_KEY, AIRTABLE_BASE } = process.env
 
+console.log(AIRTABLE_API_KEY)
+
 // TODO: use a bot instead of a netlify function to avoid a DDOS attack
 export function handler(event, context, callback) {
   // Only allow POST
@@ -33,22 +35,16 @@ export function handler(event, context, callback) {
   const phoneNumberOwner = params.phoneNumberOwner || ""
 
   try {
-    base('Owners').select({
-      view: 'Grid view',
-      filterByFormula: `{Address} = '${addressOwner}'`
-    }).firstPage((err, records) => {
-      records.forEach(record => {
-        base('Claims').create({
-          "Address Finder": addressFinder,
-          "Item ID": itemID,
-          "Phone Number Owner": phoneNumberOwner,
-          "Email Owner": emailOwner
-        })
-        callback(null, {
-          statusCode: 200,
-          body: JSON.stringify({ result: "Data recorded" })
-        })
-      })
+    base('Claims').create({
+      "Address Finder": addressFinder,
+      "Owner": addressOwner,
+      "Item ID": itemID,
+      "Phone Number Owner": phoneNumberOwner,
+      "Email Owner": emailOwner
+    })
+    callback(null, {
+      statusCode: 200,
+      body: JSON.stringify({ result: "Data recorded" })
     })
   } catch (err) { 
     console.log(err)
