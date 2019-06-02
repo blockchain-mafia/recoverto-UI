@@ -126,7 +126,8 @@ export default props => {
 
   const { drizzle, useCacheCall, useCacheSend } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({	
-    account: drizzleState.accounts[0] || '0x00'
+    account: drizzleState.accounts[0] || '0x00',
+    networkID: drizzleState.web3.networkId || 1
   }))
   const [isClaim, setClaim] = useState(false)
   const [isSendClaim, setSendClaim] = useState('')
@@ -136,7 +137,10 @@ export default props => {
   const item = useCacheCall('Recover', 'items', itemID.padEnd(66, '0'))
 
   const claim = useCallback(async ({finder, descriptionLink}) => {
-    const web3 = new Web3(new Web3.providers.HttpProvider('https://kovan.infura.io/v3/846256afe0ee40f0971d902ea8d36266'),
+    const web3 = new Web3(
+      new Web3.providers.HttpProvider(
+        `https://${drizzleState.networkID === 1 ? 'mainnet' : 'kovan'}.infura.io/v3/846256afe0ee40f0971d902ea8d36266`
+      ),
       {
         defaultBlock: "latest",
         transactionConfirmationBlocks: 1,
@@ -188,7 +192,9 @@ export default props => {
               // TODO: post msg to airtable to be sure the tx is deployed
               window.location.replace(
                 `/contract/${
-                  process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
+                  drizzleState.networkID === 1 ? 
+                    process.env.REACT_APP_RECOVER_MAINNET_ADDRESS 
+                    : process.env.REACT_APP_RECOVER_KOVAN_ADDRESS}
                 }/items/${itemID}/pk/${privateKey}/claim-success`
               )
             })

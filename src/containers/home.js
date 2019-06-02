@@ -35,7 +35,8 @@ export default () => {
 
   const { drizzle, useCacheCall } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({	
-    account: drizzleState.accounts[0] || '0x00'
+    account: drizzleState.accounts[0] || '0x00',
+    networkID: drizzleState.web3.networkId || 1
   }))
 
   const itemIDs = useCacheCall('Recover', 'getItemIDsByOwner', drizzleState.account)
@@ -124,7 +125,9 @@ export default () => {
             onClick={
               () => window.location.replace(
                 `/contract/${
-                  process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
+                  drizzleState.networkID === 1 ?
+                    process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
+                  : process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
                 }/claims/${claim.ID}`
               )
             }
@@ -145,7 +148,9 @@ export default () => {
             onClick={
               () => window.location.replace(
                 `/contract/${
-                  process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
+                  drizzleState.networkID === 1 ?
+                    process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
+                    : process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
                 }/items/${item.ID}/owner`
               )
             }

@@ -100,7 +100,8 @@ export default () => {
     account: drizzleState.accounts[0] || '0x00',
     balance: drizzleState.accountBalances[drizzleState.accounts[0]],
     ID: `${drizzleState.accounts[0]}-${drizzleState.web3.networkId}`,
-    transactions: drizzleState.transactions
+    transactions: drizzleState.transactions,
+    networkID: drizzleState.web3.networkId || 1
   }))
 
   const { send, status } = useCacheSend('Recover', 'addItem')
@@ -233,11 +234,11 @@ export default () => {
           const ipfsHashMetaEvidenceObj = await ipfsPublish(
             'metaEvidence.json',
             enc.encode(JSON.stringify(generateMetaEvidence({
-              arbitrableAddress: process.env.REACT_APP_RECOVER_KOVAN_ADDRESS,
+              arbitrableAddress: drizzleState.networkID === 1 ? process.env.REACT_APP_RECOVER_MAINNET_ADDRESS : process.env.REACT_APP_RECOVER_KOVAN_ADDRESS,
               owner: drizzleState.account,
               dataEncrypted: EthCrypto.cipher.stringify(dataEncrypted).toString(),
               timeout: values.timeoutLocked,
-              arbitrator: process.env.REACT_APP_ARBITRATOR_KOVAN_ADDRESS
+              arbitrator: drizzleState.networkID === 1 ? process.env.REACT_APP_ARBITRATOR_MAINNET_ADDRESS : process.env.REACT_APP_ARBITRATOR_KOVAN_ADDRESS
             })))
           )
 
@@ -507,7 +508,7 @@ export default () => {
               <MessageBoxTx
                 pending={true}
                 onClick={() => window.open(
-                  `https://kovan.etherscan.io/tx/${Object.keys(drizzleState.transactions)[0]}`,
+                  `https://${drizzleState.networkID === 1 ? '' : 'kovan.'}etherscan.io/tx/${Object.keys(drizzleState.transactions)[0]}`,
                   '_blank'
                 )}
               />
@@ -517,14 +518,16 @@ export default () => {
                 <MessageBoxTx 
                   ongoing={true}
                   onClick={() => window.open(
-                    `https://kovan.etherscan.io/tx/${Object.keys(drizzleState.transactions)[0]}`,
+                    `https://${drizzleState.networkID === 1 ? '' : 'kovan.'}etherscan.io/tx/${Object.keys(drizzleState.transactions)[0]}`,
                     '_blank'
                   )}
                 />
                 {(status === 'success' && isMetaEvidencePublish)
                   ? window.location.replace(
                       `/contract/${
-                        process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
+                        drizzleState.networkID === 1 ?
+                          process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
+                          : process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
                       }/items/${values.itemID.replace(/0+$/, '')}/owner`
                     )
                   : 'Error during the transaction.'}
