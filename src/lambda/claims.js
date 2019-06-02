@@ -3,13 +3,16 @@ import fs from 'fs'
 import dotenv from 'dotenv'
 
 // Set up airtable envs in the development envirronement.
-const envConfig = dotenv.parse(
-  fs.readFileSync('.airtable')
-)
-
-for (let k in envConfig) {
-  process.env[k] = envConfig[k]
+if (fs.existsSync('.airtable')) {
+  const envConfig = dotenv.parse(
+    fs.readFileSync('.airtable')
+  )
+  
+  for (let k in envConfig) {
+    process.env[k] = envConfig[k]
+  }
 }
+
 
 const { AIRTABLE_API_KEY, AIRTABLE_BASE } = process.env
 
