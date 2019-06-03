@@ -31,7 +31,6 @@ const StyledMessageLine3 = styled.div`
 `
 const _404 = ({ Web3 }) => (
   <StyledDiv Web3={Web3}>
-    {console.log(Web3)}
     <StyledInfoDiv className="">
       <Styled404Div className="primary-color theme-color">
         {Web3 && 'Web3 '}404

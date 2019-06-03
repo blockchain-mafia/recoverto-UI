@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import EthCrypto from 'eth-crypto'
 import styled from 'styled-components/macro'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
@@ -95,14 +95,20 @@ export default () => {
   const [identity] = useState(EthCrypto.createIdentity())
   const [isMetaEvidencePublish, setIsMetaEvidencePublish] = useState(false)
   const [isOpen, setOpen] = useState(false)
+  const [isMMOpen, setMMOpen] = useState(null)
   const { drizzle, useCacheSend } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({	
     account: drizzleState.accounts[0] || '0x00',
-    balance: drizzleState.accountBalances[drizzleState.accounts[0]],
+    balance: drizzleState.accountBalances[drizzleState.accounts[0]] || 0,
     ID: `${drizzleState.accounts[0]}-${drizzleState.web3.networkId}`,
     transactions: drizzleState.transactions,
     networkID: drizzleState.web3.networkId || 1
   }))
+
+  useEffect(() => {
+    if (drizzleState.account === '0x00')
+      setMMOpen(true)
+  })
 
   const { send, status } = useCacheSend('Recover', 'addItem')
   
@@ -167,6 +173,32 @@ export default () => {
   })
 
   return (
+    <>
+    <Modal 
+      open={isMMOpen} 
+      onClose={v => v} 
+      showCloseIcon={false}
+      focusTrapped={false}
+      center
+      styles={{
+        closeButton: {background: 'transparent'},
+        modal: {width: '80vw', maxWidth: '300px', padding: '6vh 8vw'}
+      }}
+    >
+      <ModalTitle>Metamask Wallet Required</ModalTitle>
+      <p>
+        To use this decentralized application you need to have a 
+        Metamask account with some Ethers, the cryptocurrency of 
+        the Ethereum Blockchain.
+      </p>
+
+      <p>Here is the shortest way to create a Metamask Wallet with some Ethers:</p>
+      <ol>
+        <li>1. Install Metamask</li>
+        <li>2. Buy some Ethers on Coinbase</li>
+        <li>3. Transfer your Ethers to your Metamask Wallet</li>
+      </ol>
+    </Modal>
     <Container>
       <Title>New Item</Title>
       <Formik
@@ -234,11 +266,11 @@ export default () => {
           const ipfsHashMetaEvidenceObj = await ipfsPublish(
             'metaEvidence.json',
             enc.encode(JSON.stringify(generateMetaEvidence({
-              arbitrableAddress: drizzleState.networkID === 1 ? process.env.REACT_APP_RECOVER_MAINNET_ADDRESS : process.env.REACT_APP_RECOVER_KOVAN_ADDRESS,
+              arbitrableAddress: drizzleState.networkID === 42 ? process.env.REACT_APP_RECOVER_KOVAN_ADDRESS : process.env.REACT_APP_RECOVER_MAINNET_ADDRESS,
               owner: drizzleState.account,
               dataEncrypted: EthCrypto.cipher.stringify(dataEncrypted).toString(),
               timeout: values.timeoutLocked,
-              arbitrator: drizzleState.networkID === 1 ? process.env.REACT_APP_ARBITRATOR_MAINNET_ADDRESS : process.env.REACT_APP_ARBITRATOR_KOVAN_ADDRESS
+              arbitrator: drizzleState.networkID === 42 ? process.env.REACT_APP_ARBITRATOR_KOVAN_ADDRESS : process.env.REACT_APP_ARBITRATOR_MAINNET_ADDRESS
             })))
           )
 
@@ -508,7 +540,7 @@ export default () => {
               <MessageBoxTx
                 pending={true}
                 onClick={() => window.open(
-                  `https://${drizzleState.networkID === 1 ? '' : 'kovan.'}etherscan.io/tx/${Object.keys(drizzleState.transactions)[0]}`,
+                  `https://${drizzleState.networkID === 42 ? 'kovan.' : ''}etherscan.io/tx/${Object.keys(drizzleState.transactions)[0]}`,
                   '_blank'
                 )}
               />
@@ -518,16 +550,16 @@ export default () => {
                 <MessageBoxTx 
                   ongoing={true}
                   onClick={() => window.open(
-                    `https://${drizzleState.networkID === 1 ? '' : 'kovan.'}etherscan.io/tx/${Object.keys(drizzleState.transactions)[0]}`,
+                    `https://${drizzleState.networkID === 42 ? 'kovan.' : ''}etherscan.io/tx/${Object.keys(drizzleState.transactions)[0]}`,
                     '_blank'
                   )}
                 />
                 {(status === 'success' && isMetaEvidencePublish)
                   ? window.location.replace(
                       `/contract/${
-                        drizzleState.networkID === 1 ?
-                          process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
-                          : process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
+                        drizzleState.networkID === 42 ?
+                          process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
+                          : process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
                       }/items/${values.itemID.replace(/0+$/, '')}/owner`
                     )
                   : 'Error during the transaction.'}
@@ -537,5 +569,6 @@ export default () => {
         )}
       </Formik>
     </Container>
+    </>
   )
 }

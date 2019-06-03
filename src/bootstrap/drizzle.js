@@ -1,10 +1,7 @@
 import { Drizzle, generateStore } from 'drizzle'
-import Web3 from 'web3'
 
 import Recover from '../assets/contracts/recover.json'
 import KlerosLiquid  from '../assets/contracts/kleros-liquid.json'
-
-// TODO: resolve the network with web3
 
 const options = {
   contracts: [
@@ -30,9 +27,10 @@ const options = {
   web3: {
     fallback: {
       type: 'ws',
-      url: process.env.REACT_APP_WEB3_KOVAN_FALLBACK_URL // FIXME: add mainnet network
+      // TODO: switch to the kovan fallback if the app uses the kovan network
+      url: process.env.REACT_APP_WEB3_MAINNET_FALLBACK_URL
     }
-  }
+  } 
 }
 
 export default new Drizzle(options, generateStore(options))

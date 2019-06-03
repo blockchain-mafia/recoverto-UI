@@ -139,7 +139,7 @@ export default props => {
   const claim = useCallback(async ({finder, descriptionLink}) => {
     const web3 = new Web3(
       new Web3.providers.HttpProvider(
-        `https://${drizzleState.networkID === 1 ? 'mainnet' : 'kovan'}.infura.io/v3/846256afe0ee40f0971d902ea8d36266`
+        `https://${drizzleState.networkID === 42 ? 'kovan' : 'mainnet'}.infura.io/v3/846256afe0ee40f0971d902ea8d36266`
       ),
       {
         defaultBlock: "latest",
@@ -192,9 +192,9 @@ export default props => {
               // TODO: post msg to airtable to be sure the tx is deployed
               window.location.replace(
                 `/contract/${
-                  drizzleState.networkID === 1 ? // FIXME: resolve network without drizzle
-                    process.env.REACT_APP_RECOVER_MAINNET_ADDRESS 
-                    : process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
+                  drizzleState.networkID === 42 ?
+                    process.env.REACT_APP_RECOVER_KOVAN_ADDRESS 
+                    : process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
                 }/items/${itemID}/pk/${privateKey}/claim-success`
               )
             })

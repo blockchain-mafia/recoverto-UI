@@ -125,9 +125,9 @@ export default () => {
             onClick={
               () => window.location.replace(
                 `/contract/${
-                  drizzleState.networkID === 1 ?
-                    process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
-                  : process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
+                  drizzleState.networkID === 42 ?
+                    process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
+                  : process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
                 }/claims/${claim.ID}`
               )
             }
@@ -148,9 +148,9 @@ export default () => {
             onClick={
               () => window.location.replace(
                 `/contract/${
-                  drizzleState.networkID === 1 ?
-                    process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
-                    : process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
+                  drizzleState.networkID === 42 ?
+                    process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
+                    : process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
                 }/items/${item.ID}/owner`
               )
             }
