@@ -11,8 +11,10 @@ import Button from '../components/button'
 import MessageBoxTx from '../components/message-box-tx'
 import ipfsPublish from './api/ipfs-publish'
 import generateMetaEvidence from '../utils/generate-meta-evidence'
+import EthereumMetamaskChrome from '../assets/images/ethereum-metamask-chrome.png';
 
 import 'react-phone-input-2/dist/style.css'
+import { cover } from 'polished';
 
 const Container = styled.div`
   font-family: Nunito;
@@ -62,8 +64,8 @@ const StyledField = styled(Field)`
   margin: 10px 0;
   width: 100%;
   display: block;
-  background: #FFFFFF;
-  border: 1px solid #CCCCCC;
+  background: #fff;
+  border: 1px solid #ccc;
   box-sizing: border-box;
   border-radius: 5px;
 `
@@ -73,8 +75,8 @@ const StyledTextarea = styled(Textarea)`
   margin: 10px 0;
   width: 100%;
   display: block;
-  background: #FFFFFF;
-  border: 1px solid #CCCCCC;
+  background: #fff;
+  border: 1px solid #ccc;
   box-sizing: border-box;
   border-radius: 5px;
 `
@@ -87,6 +89,17 @@ const StyledForm = styled(Form)`
 const Submit = styled.div`
   margin-top: 30px;
   text-align: right;
+`
+
+const ModalContent = styled.div`
+  font-family: Roboto;
+  color: #14213d;
+  font-size: 16px;
+  line-height: 24px;
+`
+
+const PModalContent = styled.p`
+  padding: 20px 0;
 `
 
 export default () => {
@@ -182,22 +195,31 @@ export default () => {
       center
       styles={{
         closeButton: {background: 'transparent'},
-        modal: {width: '80vw', maxWidth: '300px', padding: '6vh 8vw'}
+        modal: {
+          background: `url(${EthereumMetamaskChrome}) #fff no-repeat`,
+          backgroundSize: 'contain',
+          backgroundPosition: 'center center',
+          width: '80vw', 
+          maxWidth: '400px', 
+          padding: '6vh 8vw'
+        }
       }}
     >
       <ModalTitle>Metamask Wallet Required</ModalTitle>
-      <p>
+      <ModalContent>
+      <PModalContent>
         To use this decentralized application you need to have a 
-        Metamask account with some Ethers, the cryptocurrency of 
+        Metamask account with some Ethers, cryptocurrency of 
         the Ethereum Blockchain.
-      </p>
+      </PModalContent>
 
-      <p>Here is the shortest way to create a Metamask Wallet with some Ethers:</p>
+      <PModalContent>Here is the shortest way to create a Metamask Wallet with some Ethers:</PModalContent>
       <ol>
-        <li>1. Install Metamask</li>
-        <li>2. Buy some Ethers on Coinbase</li>
+        <li>1. Install <a href="https://metamask.io/">Metamask</a></li>
+        <li>2. Buy some Ethers on <a href="https://www.coinbase.com/">Coinbase</a></li>
         <li>3. Transfer your Ethers to your Metamask Wallet</li>
       </ol>
+      </ModalContent>
     </Modal>
     <Container>
       <Title>New Item</Title>
