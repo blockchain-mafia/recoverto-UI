@@ -144,8 +144,6 @@ export default () => {
       )
   )
 
-  const signMsg = useCallback(({}))
-
   const addSettings = useCallback(async ({
     email,
     phoneNumber,
@@ -157,6 +155,7 @@ export default () => {
       drizzleState.account
     )
 
+    // TODO: use await
     fetch('/.netlify/functions/settings', {
       method: 'post',
       body: JSON.stringify({

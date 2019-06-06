@@ -82,7 +82,7 @@ export default () => {
           (acc, d) => {
             const claim = call('Recover', 'claims', d)
             if(claim) {
-              const item = useCacheCall('Recover', 'items', claim.itemID)
+              const item = call('Recover', 'items', claim.itemID)
               if(item) {
                 item.content = {
                   dataDecrypted: {type: 'loading...'}

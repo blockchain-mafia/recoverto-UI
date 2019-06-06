@@ -5,10 +5,6 @@
       "constant": false,
       "inputs": [
         {
-          "name": "_itemID",
-          "type": "bytes32"
-        },
-        {
           "name": "_claimID",
           "type": "uint256"
         }
@@ -53,8 +49,8 @@
       "constant": false,
       "inputs": [
         {
-          "name": "_itemID",
-          "type": "bytes32"
+          "name": "_claimID",
+          "type": "uint256"
         }
       ],
       "name": "appeal",
@@ -161,8 +157,8 @@
       "constant": false,
       "inputs": [
         {
-          "name": "_itemID",
-          "type": "bytes32"
+          "name": "_claimID",
+          "type": "uint256"
         }
       ],
       "name": "executeTransaction",
@@ -175,8 +171,8 @@
       "constant": false,
       "inputs": [
         {
-          "name": "_itemID",
-          "type": "bytes32"
+          "name": "_claimID",
+          "type": "uint256"
         },
         {
           "name": "_amount",
@@ -193,8 +189,8 @@
       "constant": false,
       "inputs": [
         {
-          "name": "_itemID",
-          "type": "bytes32"
+          "name": "_claimID",
+          "type": "uint256"
         }
       ],
       "name": "payArbitrationFeeByFinder",
@@ -207,8 +203,8 @@
       "constant": false,
       "inputs": [
         {
-          "name": "_itemID",
-          "type": "bytes32"
+          "name": "_claimID",
+          "type": "uint256"
         }
       ],
       "name": "payArbitrationFeeByOwner",
@@ -221,8 +217,8 @@
       "constant": false,
       "inputs": [
         {
-          "name": "_itemID",
-          "type": "bytes32"
+          "name": "_claimID",
+          "type": "uint256"
         },
         {
           "name": "_amountReimbursed",
@@ -230,20 +226,6 @@
         }
       ],
       "name": "reimburse",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_itemID",
-          "type": "bytes32"
-        }
-      ],
-      "name": "resetClaims",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
@@ -271,8 +253,8 @@
       "constant": false,
       "inputs": [
         {
-          "name": "_itemID",
-          "type": "bytes32"
+          "name": "_claimID",
+          "type": "uint256"
         },
         {
           "name": "_evidence",
@@ -289,8 +271,8 @@
       "constant": false,
       "inputs": [
         {
-          "name": "_itemID",
-          "type": "bytes32"
+          "name": "_claimID",
+          "type": "uint256"
         }
       ],
       "name": "timeOutByFinder",
@@ -303,8 +285,8 @@
       "constant": false,
       "inputs": [
         {
-          "name": "_itemID",
-          "type": "bytes32"
+          "name": "_claimID",
+          "type": "uint256"
         }
       ],
       "name": "timeOutByOwner",
@@ -337,7 +319,7 @@
       "inputs": [
         {
           "indexed": true,
-          "name": "_transactionID",
+          "name": "_claimID",
           "type": "uint256"
         },
         {
@@ -354,8 +336,8 @@
       "inputs": [
         {
           "indexed": true,
-          "name": "_itemID",
-          "type": "bytes32"
+          "name": "_claimID",
+          "type": "uint256"
         },
         {
           "indexed": false,
@@ -537,6 +519,10 @@
           "type": "string"
         },
         {
+          "name": "amountLocked",
+          "type": "uint256"
+        },
+        {
           "name": "lastInteraction",
           "type": "uint256"
         },
@@ -547,6 +533,10 @@
         {
           "name": "disputeID",
           "type": "uint256"
+        },
+        {
+          "name": "isAccepted",
+          "type": "bool"
         },
         {
           "name": "status",
@@ -674,25 +664,6 @@
           "type": "bytes32"
         }
       ],
-      "name": "itemIDtoClaimAcceptedID",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
       "name": "items",
       "outputs": [
         {
@@ -710,10 +681,6 @@
         {
           "name": "descriptionEncryptedLink",
           "type": "string"
-        },
-        {
-          "name": "amountLocked",
-          "type": "uint256"
         },
         {
           "name": "timeoutLocked",

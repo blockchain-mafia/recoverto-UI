@@ -1,4 +1,4 @@
-import React, { Component, useCallback, useRef, useState } from 'react'
+import React, { Component, useCallback, useRef, useState, useMemo } from 'react'
 import styled from 'styled-components/macro'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import QRCode from 'qrcode.react'
@@ -104,6 +104,7 @@ const StyledNoClaim = styled.div`
 `
 
 const StyledClaimBoxContainer = styled.div`
+  margin-bottom: 30px;
   padding-top: 4vw;
   background: #ffc282;
   border-radius: 10px;
@@ -226,21 +227,24 @@ export default props => {
   }))
 
   const componentRef = useRef()
-  const { useCacheCall, useCacheSend } = useDrizzle()
+  const { useCacheCall, useCacheSend, useCacheEvents } = useDrizzle()
 
   const { send: sendAcceptClaim, status: statusAcceptClaim } = useCacheSend(
     'Recover',
     'acceptClaim'
   )
   const { send: sendPay, status: statusPay } = useCacheSend('Recover', 'pay')
-  const { send: sendReimburse, status: statusReimburse } = useCacheSend('Recover', 'reimburse')
   const { send: sendPayArbitrationFeeByOwner, status: statusPayArbitrationFeeByOwner } = useCacheSend(
     'Recover',
     'payArbitrationFeeByOwner'
   )
-  const { send: sendPayArbitrationFeeByFinder, status: statusPayArbitrationFeeByFinder } = useCacheSend(
+  const { send: sendAppeal, status: statusAppeal } = useCacheSend(
     'Recover',
-    'payArbitrationFeeByFinder'
+    'appeal'
+  )
+  const { send: sendSubmitEvidence, status: statusSubmitEvidence } = useCacheSend(
+    'Recover',
+    'submitEvidence'
   )
 
   const itemID = props.itemID
@@ -275,9 +279,55 @@ export default props => {
       ? claimIDs.reduce(
           (acc, d) => {
             const claim = call('Recover', 'claims', d)
-            if(claim)
-              acc.data.push({ ...claim, ID: d })
-              // TODO: decrypt details information
+
+            const funds = useCacheEvents(
+              'Recover',
+              'Fund',
+              useMemo(
+                () => ({
+                  filter: { _claimID: d },
+                  fromBlock: process.env.REACT_APP_DRAW_EVENT_LISTENER_BLOCK_NUMBER
+                }),
+                [drizzleState.account]
+              )
+            )
+
+            if(claim) {
+              let disputeStatus, currentRuling, appealCost
+
+              if (claim.status > 0) {
+                disputeStatus = call(
+                  'KlerosLiquid', 
+                  'disputeStatus', 
+                  claim.disputeID
+                )
+  
+                // Dispute appealable or solved
+                if (disputeStatus === 1 || disputeStatus === 2)
+                  currentRuling = call(
+                    'KlerosLiquid',
+                    'currentRuling',
+                    claim.disputeID
+                  )
+  
+                appealCost = call(
+                  'KlerosLiquid',
+                  'appealCost',
+                  claim.disputeID
+                )
+              }
+
+              acc.data.push({ 
+                ...claim,
+                disputeStatus,
+                currentRuling,
+                appealCost,
+                funds,
+                ID: d
+              })
+            }
+
+            // TODO: decrypt details information
             return acc
           },
           {
@@ -319,88 +369,101 @@ export default props => {
       ) : (
         <Title>Loading Item...</Title>
       )}
-      {/* TODO: only if the drizzle account is the owner */}
-      {/* TODO: move this sewction in the top section to have the loading */}
-      {/* item.amountLocked > 0 && item.owner === drizzleState.account */}
-      <SubTitle>List Claims</SubTitle>
       {
-        item && item.amountLocked > 0 && item.owner === drizzleState.account && (
-          <DropdownStyled>
-            <StyledSettings
-              style={!dropdownHidden ? {background: '#fff'} : {}}
-              onClick={() => setDropdownHidden(!dropdownHidden)}
-            />
-            <DropdownMenuStyled hidden={dropdownHidden}>
-              {/* TODO: add loader transaction */}
-              <DropdownItemStyled
-                onClick={() => {
-                  sendPayArbitrationFeeByOwner(
-                    itemID.padEnd(66, '0'),
-                    { value: arbitrationCost }
-                  )
-                  setDropdownHidden(!dropdownHidden)
-                }}
-              >
-                Raise a Dispute
-              </DropdownItemStyled>
-            </DropdownMenuStyled>
-          </DropdownStyled>
+        item && item.owner === drizzleState.account && (
+          <>
+            <SubTitle>List Claims</SubTitle>
+            {
+              !claims.loading && claims.data.length === 0 && (
+                <StyledNoClaim>There is no claim.</StyledNoClaim>
+              )
+            }
+            {
+              !claims.loading && claims.data.map(claim => (
+                <div key={claim.ID}>
+                  {claim.amountLocked > 0 && (
+                    <DropdownStyled>
+                      <StyledSettings
+                        style={!dropdownHidden ? {background: '#fff'} : {}}
+                        onClick={() => setDropdownHidden(!dropdownHidden)}
+                      />
+                      <DropdownMenuStyled hidden={dropdownHidden}>
+                        {/* TODO: add loader transaction */}
+                        <DropdownItemStyled
+                          onClick={() => {
+                            sendPayArbitrationFeeByOwner(
+                              itemID.padEnd(66, '0'),
+                              { value: arbitrationCost }
+                            )
+                            setDropdownHidden(!dropdownHidden)
+                          }}
+                        >
+                          Raise a Dispute
+                        </DropdownItemStyled>
+                      </DropdownMenuStyled>
+                        {/* TODO: appeal Appeal to Ruling
+                        Submit an Evidence */}
+                    </DropdownStyled>
+                  )}
+                  <StyledClaimBoxContainer>
+                    <StyledClaimAddressContainerBoxContent>
+                      <StyledClaimLabelBoxContent>Finder:</StyledClaimLabelBoxContent>
+                      <StyledClaimAddressBoxContent>
+                        {claim.finder}
+                      </StyledClaimAddressBoxContent>
+                    </StyledClaimAddressContainerBoxContent>
+                    <StyledClaimDescriptionContainerBoxContent>
+                      {claim.descriptionLink && (
+                        <>
+                          <StyledClaimLabelBoxContent>
+                            Description:
+                          </StyledClaimLabelBoxContent> 
+                          <StyledClaimDescriptionBoxContent>
+                            {claim.descriptionLink}
+                          </StyledClaimDescriptionBoxContent> 
+                          {/* TODO: add status dispute with ruling */}
+                        </>
+                      )}
+                    </StyledClaimDescriptionContainerBoxContent>
+                    {claim.amountLocked === "0" && claim.funds.length === 0 && (
+                      <StyledButtonClaimBox
+                        onClick={() =>
+                          sendAcceptClaim(
+                            claim.ID, 
+                            { value: item.rewardAmount}
+                          )
+                        }
+                      >
+                        ACCEPT CLAIM
+                      </StyledButtonClaimBox>
+                    )}
+
+                    {claim.amountLocked > 0 && claim.funds.length === 0 && (
+                      <StyledButtonClaimBox
+                        onClick={() =>
+                          sendPay(
+                            claim.ID,
+                            claim.amountLocked
+                          )
+                        }
+                      >
+                        REWARD THE FINDER
+                      </StyledButtonClaimBox>
+                    )}
+                    {claim.funds.length > 0 && (
+                      <StyledButtonClaimBox
+                        style={{cursor: 'not-allowed'}}
+                      >
+                        TRANSACTION FINISHED
+                      </StyledButtonClaimBox>
+                    )}
+                  </StyledClaimBoxContainer>
+                </div>
+              ))
+            }
+          </>
         )
       }
-      {
-        !claims.loading && claims.data.map(claim => (
-          <StyledClaimBoxContainer key={claim.ID}>
-            <StyledClaimAddressContainerBoxContent>
-              <StyledClaimLabelBoxContent>Finder:</StyledClaimLabelBoxContent>
-              <StyledClaimAddressBoxContent>
-                {claim && claim.finder}
-              </StyledClaimAddressBoxContent>
-            </StyledClaimAddressContainerBoxContent>
-            <StyledClaimDescriptionContainerBoxContent>
-              {claim && claim.descriptionLink && (
-                <>
-                <StyledClaimLabelBoxContent>
-                  Description:
-                </StyledClaimLabelBoxContent> 
-                <StyledClaimDescriptionBoxContent>
-                  {claim.descriptionLink}
-                </StyledClaimDescriptionBoxContent> 
-                </>
-              )}
-            </StyledClaimDescriptionContainerBoxContent>
-            {claim && item && item.amountLocked === 0 && (
-              <StyledButtonClaimBox
-                onClick={() =>
-                  sendAcceptClaim(
-                    itemID.padEnd(66, '0'), 
-                    claim.ID, 
-                    { value: item.rewardAmount}
-                  )
-                }
-              >
-                ACCEPT CLAIM
-              </StyledButtonClaimBox>
-            )}
-
-            {claim && item && item.amountLocked > 0 && (
-              <StyledButtonClaimBox
-                onClick={() =>
-                  sendAcceptClaim(
-                    itemID.padEnd(66, '0'), 
-                    claim.ID, 
-                    { value: item.rewardAmount}
-                  )
-                }
-              >
-                REWARD THE FINDER
-              </StyledButtonClaimBox>
-            )}
-          </StyledClaimBoxContainer>
-        ))
-      }
-      {!claims.loading && claims.data.length === 0 && (
-        <StyledNoClaim>There is no claim.</StyledNoClaim>
-      )}
     </Container>
   )
 }

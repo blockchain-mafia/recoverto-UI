@@ -138,7 +138,7 @@ export default props => {
     <Container>
       {claim && item ? (
         <>
-          {item.amountLocked > 0 && claim.finder === drizzleState.account && (
+          {claim.amountLocked > 0 && claim.finder === drizzleState.account && (
             <DropdownStyled>
               <StyledSettings
                 style={!dropdownHidden ? {background: '#efefef'} : {}}
@@ -148,7 +148,7 @@ export default props => {
                 <DropdownItemStyled 
                   onClick={() => {
                     sendReimburse(
-                      item.itemID.padEnd(66, '0'), 
+                      claimID, 
                       item.rewardAmount
                     )
                     setDropdownHidden(!dropdownHidden)
@@ -160,7 +160,7 @@ export default props => {
                 <DropdownItemStyled
                   onClick={() => {
                     sendPayArbitrationFeeByFinder(
-                      item.itemID.padEnd(66, '0'),
+                      claimID,
                       { value: arbitrationCost }
                     )
                     setDropdownHidden(!dropdownHidden)

@@ -133,6 +133,7 @@ export default () => {
     }).catch(err => console.error(err))
   })
 
+  // TODO: add fallback
   return (
     <Container>
       <Title>Settings</Title>

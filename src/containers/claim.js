@@ -142,7 +142,7 @@ export default props => {
         `https://${drizzleState.networkID === 42 ? 'kovan' : 'mainnet'}.infura.io/v3/846256afe0ee40f0971d902ea8d36266`
       ),
       {
-        defaultBlock: "latest",
+        defaultBlock: 'latest',
         transactionConfirmationBlocks: 1,
         transactionBlockTimeout: 5
       }
@@ -215,7 +215,7 @@ export default props => {
     <Container>
       <Title>Discovered Item</Title>
       <Message>
-        Congratulations! You find a lost item.
+        Congratulations! You found a lost item.
         <br />Claim the discovered to get the reward!
       </Message>
       {item ? (
