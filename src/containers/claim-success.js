@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import styled from 'styled-components/macro'
-import Textarea from 'react-textarea-autosize'
 
-import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
+import { useDrizzle } from '../temp/drizzle-react-hooks'
 import { useDataloader } from '../bootstrap/dataloader'
 
 const Container = styled.div`

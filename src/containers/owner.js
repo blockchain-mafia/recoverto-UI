@@ -12,6 +12,7 @@ import {
   DropdownMenu,
   DropdownDivider
 } from 'styled-dropdown-component'
+import Modal from 'react-responsive-modal'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import Button from '../components/button'
@@ -185,6 +186,54 @@ const DropdownItemStyled = styled(DropdownItem)`
   }
 `
 
+const ModalTitle = styled.h3`
+  font-family: Nunito;
+  font-size: 30px;
+  color: #14213d;
+  padding-bottom: 14px;
+`
+
+const StyledLabel  = styled.label`
+  font-family: Roboto;
+  color: #5c5c5c;
+  font-size: 16px;
+  line-height: 19px;
+`
+
+const StyledField = styled(Field)`
+  line-height: 50px;
+  padding-left: 20px;
+  margin: 10px 0;
+  width: 100%;
+  display: block;
+  background: #fff;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  border-radius: 5px;
+`
+
+const FieldContainer = styled.div`
+  margin: 20px 0;
+`
+
+const StyledTextarea = styled(Textarea)`
+  padding: 20px 0 0 20px;
+  margin: 20px 0 40px 0;
+  width: 100%;
+  display: block;
+  background: #FFFFFF;
+  border: 1px solid #CCCCCC;
+  box-sizing: border-box;
+  border-radius: 5px;
+  min-height: 11em;
+`
+
+const Error  = styled.div`
+  color: red;
+  font-family: Roboto;
+  font-size: 14px;
+`
+
 class ComponentToPrint extends Component {
   render() {
     return (
@@ -201,6 +250,8 @@ class ComponentToPrint extends Component {
 
 export default props => {
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
+
+  const [isOpen, setOpen] = useState(false)
 
   const [dropdownHidden, setDropdownHidden] = useState(true)
   const drizzleState = useDrizzleState(drizzleState => ({	
@@ -323,6 +374,134 @@ export default props => {
 
   return (
     <Container>
+      <Formik
+        initialValues={{
+          title: '',
+          description: '',
+          file: ''
+        }}
+        validate={values => {
+          let errors = {}
+          if (values.title  === '')
+            errors.title = 'Title Required'
+          if (values.description  === '')
+            errors.description = 'Description Required'
+          if (values.description.length > 100000)
+            errors.description =
+              'The maximum numbers of the characters for the description is 100,000 characters.'
+          return errors
+        }}
+        onSubmit={values => values}
+      >
+        {({
+          errors,
+          setFieldValue,
+          values,
+          handleChange
+        }) => (
+          <>
+            <Modal 
+              open={isOpen} 
+              onClose={() => setOpen(false)} 
+              center
+              styles={{
+                closeButton: {background: 'transparent'},
+                modal: {width: '80vw', maxWidth: '300px', padding: '6vh 8vw'}
+              }}
+            >
+              <ModalTitle>Evidence</ModalTitle>
+              <FieldContainer>
+                <StyledLabel htmlFor="title">
+                  <span 
+                    className="info"
+                    aria-label="The title of the evidence"
+                  >
+                    Title
+                  </span>
+                </StyledLabel>
+                <StyledField
+                  name="title"
+                  placeholder="Title"
+                />
+                <ErrorMessage
+                  name="title"
+                  component={Error}
+                />
+              </FieldContainer>
+              <FieldContainer>
+                <StyledLabel htmlFor="description">
+                  <span 
+                    className="info"
+                    aria-label="
+                      The amount sent to the wallet finder to pay the gas to claim without ETH. 
+                      It's a small amount of ETH.
+                    "
+                  >
+                    Description
+                  </span>
+                </StyledLabel>
+                <StyledField
+                  name="descriptionLink"
+                  placeholder="Message for the owner"
+                  value={values.descriptionLink}
+                  render={({ field, form }) => (
+                    <StyledTextarea
+                      {...field}
+                      placeholder="Message for the owner"
+                      onChange={e => {
+                        handleChange(e)
+                        form.setFieldValue('descriptionLink', e.target.value)
+                      }}
+                    />
+                  )}
+                />
+                <ErrorMessage
+                  name="description"
+                  component={Error}
+                />
+              </FieldContainer>
+              {/* hack Formik for file type */}
+              {/* and store only the path on the file in the redux state */}
+              <FieldContainer>
+                <StyledLabel htmlFor="file">
+                  <span 
+                      className="info"
+                      aria-label="A file to prove your statement."
+                    >
+                      File (optional)
+                    </span> 
+                </StyledLabel>
+                <div className="NewEvidenceArbitrableTx-form-file FileInput">
+                  <input
+                    className="FileInput-input--noBorder"
+                    id="file"
+                    name="file"
+                    type="file"
+                    // eslint-disable-next-line react/jsx-no-bind
+                    onChange={e => {
+                      const file = e.currentTarget.files[0]
+                      if (file)
+                        return setFieldValue('file', {
+                          dataURL: e.currentTarget.files[0],
+                          name: file.name
+                        })
+                    }}
+                  />
+                  <div className="FileInput-filename">
+                    {values.file ? values.file.name : null}
+                  </div>
+                </div>
+                {errors.file && <div className="error">{errors.file}</div>}
+              </FieldContainer>
+              <Button
+                style={{width: '100%'}}
+              >
+                Submit Evidence
+              </Button>
+            </Modal>
+          </>
+        )}
+      </Formik>
       {item ? (
         <>
           <Title>{item.content ? item.content.dataDecrypted.type : 'Item'}</Title>
@@ -394,6 +573,7 @@ export default props => {
                           <DropdownItemStyled
                           onClick={() => {
                             // TODO: open a box to submit an evidence
+                            setOpen(true)
                             setDropdownHidden(!dropdownHidden)
                           }}
                         >
@@ -475,7 +655,7 @@ export default props => {
                       </StyledButtonClaimBox>
                     )}
 
-                    {claim.status === 0 && claim.amountLocked > 0 && claim.funds.length === 0 && (
+                    {claim.status === 0 && claim.amountLocked > 0 && claim.funds && claim.funds.length === 0 && (
                       <StyledButtonClaimBox
                         onClick={() =>
                           sendPay(
