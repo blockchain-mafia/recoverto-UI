@@ -116,7 +116,7 @@ export default () => {
       })
       .then(res => res.json())
       .then(data => {
-        if(data.result === "Settings added")
+        if(data.result === 'Settings added')
           window.localStorage.setItem('recover', JSON.stringify({
             ...JSON.parse(localStorage.getItem('recover') || '{}'),
             [drizzleState.ID]: {
@@ -141,7 +141,7 @@ export default () => {
         initialValues={{
           email: (recover[drizzleState.ID] && recover[drizzleState.ID].email) || '',
           phoneNumber: (recover[drizzleState.ID] && recover[drizzleState.ID].phoneNumber) || '',
-          fundClaims: (recover[drizzleState.ID] && recover[drizzleState.ID].fundClaims) || 0.005,
+          fundClaims: (recover[drizzleState.ID] && recover[drizzleState.ID].fundClaims) || 0.007,
           timeoutLocked: (recover[drizzleState.ID] && recover[drizzleState.ID].timeoutLocked) || 604800
         }}
         validate={values => {
@@ -174,7 +174,9 @@ export default () => {
             address: drizzleState.account,
             signMsg,
             email: values.email,
-            phoneNumber:values.phoneNumber 
+            phoneNumber:values.phoneNumber,
+            fundClaims: values.fundClaims,
+            timeoutLocked: values.timeoutLocked
           })
         }}
       >

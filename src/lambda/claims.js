@@ -13,10 +13,7 @@ if (fs.existsSync('.airtable')) {
   }
 }
 
-
 const { AIRTABLE_API_KEY, AIRTABLE_BASE } = process.env
-
-console.log(AIRTABLE_API_KEY)
 
 // TODO: use a bot instead of a netlify function to avoid a DDOS attack
 export function handler(event, context, callback) {

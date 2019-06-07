@@ -140,6 +140,7 @@ export default props => {
         <>
           {claim.amountLocked > 0 && claim.finder === drizzleState.account && (
             <DropdownStyled>
+              {/* FIX: only if status === 0 */}
               <StyledSettings
                 style={!dropdownHidden ? {background: '#efefef'} : {}}
                 onClick={() => setDropdownHidden(!dropdownHidden)}

@@ -54,34 +54,6 @@ const Label = styled.div`
   color: #5C5C5C;
 `
 
-const StyledField = styled(Field)`
-  line-height: 50px;
-  padding-left: 20px;
-  margin: 20px 0 40px 0;
-  width: 100%;
-  display: block;
-  background: #FFFFFF;
-  border: 1px solid #CCCCCC;
-  box-sizing: border-box;
-  border-radius: 5px;
-`
-
-const StyledTextarea = styled(Textarea)`
-  padding: 20px 0 0 20px;
-  margin: 20px 0 40px 0;
-  width: 100%;
-  display: block;
-  background: #FFFFFF;
-  border: 1px solid #CCCCCC;
-  box-sizing: border-box;
-  border-radius: 5px;
-`
-
-const StyledForm = styled(Form)`
-  display: flex;
-  flex-direction: column;
-`
-
 const StyledPrint = styled.div`
   display: none;
   @media print {
@@ -118,7 +90,7 @@ const StyledClaimBoxContainer = styled.div`
 
 const StyledClaimAddressContainerBoxContent = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   padding:  0 4vw;
 `
 
@@ -157,7 +129,6 @@ const StyledClaimLabelBoxContent = styled.div`
 `
 
 const StyledClaimAddressBoxContent = styled.div`
-  padding-left: 1vw;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
@@ -169,7 +140,17 @@ const StyledClaimAddressBoxContent = styled.div`
 `
 
 const StyledClaimDescriptionBoxContent = styled.div`
+  white-space: pre-line;
   margin-top: 10px;
+  font-family: Nunito;
+  font-weight: 600;
+  font-size: 20px;
+  color: #191847;
+`
+
+const StyledClaimStatusBoxContent = styled.div`
+  white-space: pre-line;
+  margin: 10px 0 40px 0;
   font-family: Nunito;
   font-weight: 600;
   font-size: 20px;
@@ -295,26 +276,28 @@ export default props => {
             if(claim) {
               let disputeStatus, currentRuling, appealCost
 
-              if (claim.status > 0) {
-                disputeStatus = call(
-                  'KlerosLiquid', 
-                  'disputeStatus', 
-                  claim.disputeID
-                )
-  
-                // Dispute appealable or solved
-                if (disputeStatus === 1 || disputeStatus === 2)
-                  currentRuling = call(
-                    'KlerosLiquid',
-                    'currentRuling',
+              if (claim.disputeID != 0) {
+                if (claim.status > '2') {
+                  disputeStatus = call(
+                    'KlerosLiquid', 
+                    'disputeStatus',
                     claim.disputeID
                   )
-  
-                appealCost = call(
-                  'KlerosLiquid',
-                  'appealCost',
-                  claim.disputeID
-                )
+    
+                  // Dispute appealable or solved
+                  if (disputeStatus === '1' || disputeStatus === '2')
+                    currentRuling = call(
+                      'KlerosLiquid',
+                      'currentRuling',
+                      claim.disputeID
+                    )
+    
+                  appealCost = call(
+                    'KlerosLiquid',
+                    'appealCost',
+                    claim.disputeID
+                  )
+                }
               }
 
               acc.data.push({ 
@@ -344,9 +327,13 @@ export default props => {
         <>
           <Title>{item.content ? item.content.dataDecrypted.type : 'Item'}</Title>
           <Label>Description</Label>
-          <div style={{padding: '10px 0'}}>{item.content ? item.content.dataDecrypted.description : '...'}</div>
+          <div style={{padding: '10px 0', whiteSpace: 'pre-line', lineHeight: '24px'}}>
+            {item.content ? item.content.dataDecrypted.description : '...'}
+          </div>
           <Label>Contact Information</Label>
-          <div style={{padding: '10px 0'}}>{item.content ? item.content.dataDecrypted.contactInformation : '...'}</div>
+          <div style={{padding: '10px 0', whiteSpace: 'pre-line', lineHeight: '24px'}}>
+            {item.content ? item.content.dataDecrypted.contactInformation : '...'}
+          </div>
           <Label>Reward</Label>
           <div style={{padding: '10px 0'}}>{
               ETHAmount({amount: item.rewardAmount, decimals: 2})
@@ -389,10 +376,11 @@ export default props => {
                       />
                       <DropdownMenuStyled hidden={dropdownHidden}>
                         {/* TODO: add loader transaction */}
+                      { claim.status === '0' && (
                         <DropdownItemStyled
                           onClick={() => {
                             sendPayArbitrationFeeByOwner(
-                              itemID.padEnd(66, '0'),
+                              claim.ID,
                               { value: arbitrationCost }
                             )
                             setDropdownHidden(!dropdownHidden)
@@ -400,23 +388,47 @@ export default props => {
                         >
                           Raise a Dispute
                         </DropdownItemStyled>
+                      )}
+                      {
+                        claim.status > '0' && claim.status < '4' && (
+                          <DropdownItemStyled
+                          onClick={() => {
+                            // TODO: open a box to submit an evidence
+                            setDropdownHidden(!dropdownHidden)
+                          }}
+                        >
+                          Submit an Evidence
+                        </DropdownItemStyled>
+                      )}
+                      {
+                        claim.status === '3' && claim.currentRuling === '2' && (
+                          <DropdownItemStyled
+                          onClick={() => {
+                            sendAppeal(
+                              claim.ID,
+                              { value: claim.appealCost }
+                            )
+                            setDropdownHidden(!dropdownHidden)
+                          }}
+                        >
+                          Appeal to the Ruling
+                        </DropdownItemStyled>
+                      )}
                       </DropdownMenuStyled>
-                        {/* TODO: appeal Appeal to Ruling
-                        Submit an Evidence */}
                     </DropdownStyled>
                   )}
                   <StyledClaimBoxContainer>
                     <StyledClaimAddressContainerBoxContent>
-                      <StyledClaimLabelBoxContent>Finder:</StyledClaimLabelBoxContent>
-                      <StyledClaimAddressBoxContent>
-                        {claim.finder}
-                      </StyledClaimAddressBoxContent>
+                      <StyledClaimLabelBoxContent>Finder</StyledClaimLabelBoxContent>
+                        <StyledClaimAddressBoxContent>
+                          {claim.finder}
+                        </StyledClaimAddressBoxContent>
                     </StyledClaimAddressContainerBoxContent>
                     <StyledClaimDescriptionContainerBoxContent>
                       {claim.descriptionLink && (
                         <>
                           <StyledClaimLabelBoxContent>
-                            Description:
+                            Description
                           </StyledClaimLabelBoxContent> 
                           <StyledClaimDescriptionBoxContent>
                             {claim.descriptionLink}
@@ -425,7 +437,32 @@ export default props => {
                         </>
                       )}
                     </StyledClaimDescriptionContainerBoxContent>
-                    {claim.amountLocked === "0" && claim.funds.length === 0 && (
+                    {
+                      claim.status > 0 && (
+                        <StyledClaimDescriptionContainerBoxContent>
+                          <StyledClaimLabelBoxContent>Status Dispute:</StyledClaimLabelBoxContent>
+                          <StyledClaimStatusBoxContent>
+                            {
+                              claim.status === '1'
+                                ? 'Awaiting the fee from the finder.'
+                                : claim.status === '2'
+                                  ? 'Awaiting the fee from you.'
+                                  : claim.status === '3'
+                                    ? claim.currentRuling
+                                      ? claim.currentRuling === '1'
+                                        ? 'You win the dispute. The dispute can be appealable.'
+                                        : 'You lose the dispute. The dispute can be appealable.'
+                                      : 'Dispute Ongoing'
+                                    : claim.currentRuling === '1'
+                                      ? 'You win the dispute.'
+                                      : 'You lose the dispute'
+                            }
+                          </StyledClaimStatusBoxContent>
+                        </StyledClaimDescriptionContainerBoxContent>
+                      )
+                    }
+
+                    {claim.amountLocked === '0' && claim.funds.length === 0 && (
                       <StyledButtonClaimBox
                         onClick={() =>
                           sendAcceptClaim(
@@ -438,7 +475,7 @@ export default props => {
                       </StyledButtonClaimBox>
                     )}
 
-                    {claim.amountLocked > 0 && claim.funds.length === 0 && (
+                    {claim.status === 0 && claim.amountLocked > 0 && claim.funds.length === 0 && (
                       <StyledButtonClaimBox
                         onClick={() =>
                           sendPay(

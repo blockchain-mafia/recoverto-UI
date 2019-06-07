@@ -59,6 +59,7 @@ const TitleBox = styled.div`
 `
 
 const TypeBox = styled.div`
+  white-space: pre-line;
   font-size: 24px;
   color: #000000;
   line-height: 40px;
