@@ -1,6 +1,6 @@
 import React, { Component, useCallback, useRef, useState, useMemo } from 'react'
 import styled from 'styled-components/macro'
-import { Formik, Form, Field, ErrorMessage } from 'formik'
+import { Formik, Field, ErrorMessage } from 'formik'
 import QRCode from 'qrcode.react'
 import Textarea from 'react-textarea-autosize'
 import { BounceLoader } from 'react-spinners'
@@ -18,6 +18,9 @@ import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import Button from '../components/button'
 import ETHAmount from '../components/eth-amount'
 import { useDataloader } from '../bootstrap/dataloader'
+import ipfsPublish from './api/ipfs-publish'
+import MessageBoxTx from '../components/message-box-tx'
+import ReadFile from '../utils/read-file'
 import { ReactComponent as Settings } from '../assets/images/settings-orange.svg'
 
 const Container = styled.div`
@@ -251,11 +254,13 @@ class ComponentToPrint extends Component {
 export default props => {
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
 
+  const [claimID, setClaimID] = useState(null)
   const [isOpen, setOpen] = useState(false)
-
   const [dropdownHidden, setDropdownHidden] = useState(true)
   const drizzleState = useDrizzleState(drizzleState => ({	
-    account: drizzleState.accounts[0] || '0x00'
+    account: drizzleState.accounts[0] || '0x00',
+    networkID: drizzleState.web3.networkId || 1,
+    transactions: drizzleState.transactions
   }))
 
   const componentRef = useRef()
@@ -376,28 +381,67 @@ export default props => {
     <Container>
       <Formik
         initialValues={{
-          title: '',
+          name: '',
           description: '',
-          file: ''
+          evidenceFile: ''
         }}
         validate={values => {
           let errors = {}
-          if (values.title  === '')
-            errors.title = 'Title Required'
-          if (values.description  === '')
-            errors.description = 'Description Required'
+          if (values.name  === '')
+            errors.name = 'Name Required'
           if (values.description.length > 100000)
             errors.description =
               'The maximum numbers of the characters for the description is 100,000 characters.'
+          if (values.evidenceFile.size > 5000000)
+            errors.evidenceFile = 'The file is too big. The maximum size is 5MB.'
           return errors
         }}
-        onSubmit={values => values}
+        onSubmit={async ({ name, description, evidenceFile }) => {
+          let evidenceFileURI = ''
+
+          if (evidenceFile) {
+            const evidenceArrayBuffer = await ReadFile(evidenceFile.dataURL)
+
+            const ipfsHashEvidenceObj = await ipfsPublish(
+              evidenceFile.name,
+              new Buffer(evidenceArrayBuffer)
+            )
+
+            evidenceFileURI = await `ipfs/${
+              ipfsHashEvidenceObj[1].hash
+            }${ipfsHashEvidenceObj[0].path}`
+          }
+          
+          const evidence = await {
+            evidenceFileURI,
+            name,
+            description
+          }
+
+          const enc = new TextEncoder()
+
+          // Upload the evidence to IPFS
+          const ipfsHashEvidenceObj = await ipfsPublish(
+            'evidence.json',
+            enc.encode(JSON.stringify(evidence)) // encode to bytes
+          )
+
+          const ipfsHashEvidence =
+            `${ipfsHashEvidenceObj[1].hash}${ipfsHashEvidenceObj[0].path}`
+
+          await sendSubmitEvidence(
+            claimID,
+            `/ipfs/${ipfsHashEvidence}`
+          )
+        }}
       >
         {({
+          submitForm,
           errors,
           setFieldValue,
           values,
-          handleChange
+          handleChange,
+          resetForm
         }) => (
           <>
             <Modal 
@@ -411,20 +455,20 @@ export default props => {
             >
               <ModalTitle>Evidence</ModalTitle>
               <FieldContainer>
-                <StyledLabel htmlFor="title">
+                <StyledLabel htmlFor="name">
                   <span 
                     className="info"
-                    aria-label="The title of the evidence"
+                    aria-label="The name of the evidence"
                   >
-                    Title
+                    Name
                   </span>
                 </StyledLabel>
                 <StyledField
-                  name="title"
-                  placeholder="Title"
+                  name="name"
+                  placeholder="Name"
                 />
                 <ErrorMessage
-                  name="title"
+                  name="name"
                   component={Error}
                 />
               </FieldContainer>
@@ -433,24 +477,22 @@ export default props => {
                   <span 
                     className="info"
                     aria-label="
-                      The amount sent to the wallet finder to pay the gas to claim without ETH. 
-                      It's a small amount of ETH.
+                      Description of the evidence.
                     "
                   >
                     Description
                   </span>
                 </StyledLabel>
                 <StyledField
-                  name="descriptionLink"
-                  placeholder="Message for the owner"
-                  value={values.descriptionLink}
+                  name="description"
+                  value={values.description}
                   render={({ field, form }) => (
                     <StyledTextarea
                       {...field}
-                      placeholder="Message for the owner"
+                      placeholder="Description of the evidence"
                       onChange={e => {
                         handleChange(e)
-                        form.setFieldValue('descriptionLink', e.target.value)
+                        form.setFieldValue('description', e.target.value)
                       }}
                     />
                   )}
@@ -463,7 +505,7 @@ export default props => {
               {/* hack Formik for file type */}
               {/* and store only the path on the file in the redux state */}
               <FieldContainer>
-                <StyledLabel htmlFor="file">
+                <StyledLabel htmlFor="evidenceFile">
                   <span 
                       className="info"
                       aria-label="A file to prove your statement."
@@ -474,30 +516,46 @@ export default props => {
                 <div className="NewEvidenceArbitrableTx-form-file FileInput">
                   <input
                     className="FileInput-input--noBorder"
-                    id="file"
-                    name="file"
+                    id="evidenceFile"
+                    name="evidenceFile"
                     type="file"
                     // eslint-disable-next-line react/jsx-no-bind
                     onChange={e => {
                       const file = e.currentTarget.files[0]
                       if (file)
-                        return setFieldValue('file', {
+                        return setFieldValue('evidenceFile', {
                           dataURL: e.currentTarget.files[0],
                           name: file.name
                         })
                     }}
                   />
                   <div className="FileInput-filename">
-                    {values.file ? values.file.name : null}
+                    {values.evidenceFile ? values.evidenceFile.name : null}
                   </div>
                 </div>
-                {errors.file && <div className="error">{errors.file}</div>}
+                {errors.evidenceFile && <div className="error">{errors.evidenceFile}</div>}
               </FieldContainer>
               <Button
+                onClick={submitForm}
                 style={{width: '100%'}}
+                type="submit"
+                disabled={Object.entries(errors).length > 0 || (statusSubmitEvidence && statusSubmitEvidence === 'pending')}
               >
                 Submit Evidence
               </Button>
+              {statusSubmitEvidence && statusSubmitEvidence === 'pending' && (
+                <MessageBoxTx
+                  pending={true}
+                  // TODO: remove box after tx + reset data
+                  onClick={() => {
+                    window.open(
+                      `https://${drizzleState.networkID === 42 ? 'kovan.' : ''}etherscan.io/tx/${Object.keys(drizzleState.transactions)[0]}`,
+                      '_blank'
+                    )
+                    resetForm()
+                  }}
+                />
+              )}
             </Modal>
           </>
         )}
@@ -540,7 +598,7 @@ export default props => {
           <>
             <SubTitle>List Claims</SubTitle>
             {
-              !claims.loading && claims.data.length === 0 && (
+              !claims.loading && claims.data && claims.data.length === 0 && (
                 <StyledNoClaim>There is no claim.</StyledNoClaim>
               )
             }
@@ -573,6 +631,7 @@ export default props => {
                           <DropdownItemStyled
                           onClick={() => {
                             // TODO: open a box to submit an evidence
+                            setClaimID(claim.ID)
                             setOpen(true)
                             setDropdownHidden(!dropdownHidden)
                           }}
@@ -594,6 +653,7 @@ export default props => {
                           Appeal to the Ruling
                         </DropdownItemStyled>
                       )}
+                      {statusSubmitEvidence && 'Evidence sent.'}
                       </DropdownMenuStyled>
                     </DropdownStyled>
                   )}

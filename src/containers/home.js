@@ -33,7 +33,7 @@ export default () => {
 
   const loadDescription = useDataloader.getDescription()
 
-  const { drizzle, useCacheCall } = useDrizzle()
+  const { useCacheCall } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({	
     account: drizzleState.accounts[0] || '0x00',
     networkID: drizzleState.web3.networkId || 1

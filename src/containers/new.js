@@ -14,7 +14,6 @@ import generateMetaEvidence from '../utils/generate-meta-evidence'
 // import EthereumMetamaskChrome from '../assets/images/ethereum-metamask-chrome.png';
 
 import 'react-phone-input-2/dist/style.css'
-import { cover } from 'polished';
 
 const Container = styled.div`
   font-family: Nunito;
@@ -271,7 +270,7 @@ export default () => {
 
             return errors
           }}
-          onSubmit={useCallback(async values => {
+          onSubmit={async values => {
             const dataEncrypted = await EthCrypto.encryptWithPublicKey(
               identity.publicKey,
               JSON.stringify({
@@ -326,7 +325,7 @@ export default () => {
             values.timeoutLocked = (recover[drizzleState.ID] && recover[drizzleState.ID].timeoutLocked) || 604800
 
             addItem(values)
-          })}
+          }}
         >
           {({
             errors,
