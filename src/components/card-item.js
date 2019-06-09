@@ -9,7 +9,7 @@ const Item = styled.div`
   color: #14213d;
   background: #fff;
   overflow: hidden;
-  font-style: Nunito;
+  font-family: Nunito;
   padding 47px 44px 0 44px;
   box-shadow: 0px 4px 50px rgba(0, 0, 0, 0.1);
   border-radius: 20px;

@@ -18,7 +18,7 @@ const Box = styled.div`
   background-repeat: no-repeat;
   background-position: center;
   overflow: hidden;
-  font-style: Roboto;
+  font-family: Roboto;
   padding: 0 40px;
   border-radius: 10px;
   font-size: 24px;

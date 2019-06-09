@@ -229,7 +229,7 @@ export default () => {
             rewardAmount: 0,
             email: (recover[drizzleState.ID] && recover[drizzleState.ID].email) || '',
             phoneNumber: (recover[drizzleState.ID] && recover[drizzleState.ID].phoneNumber) || '',
-            fundClaims: (recover[drizzleState.ID] && recover[drizzleState.ID].fundClaims) || '0.005',
+            fundClaims: (recover[drizzleState.ID] && recover[drizzleState.ID].fundClaims) || '0.007',
             timeoutLocked: (recover[drizzleState.ID] && recover[drizzleState.ID].timeoutLocked) || 604800
           }}
           validate={values => {
@@ -314,7 +314,7 @@ export default () => {
               }
             }))
 
-            const fundClaimsAmount = (recover[drizzleState.ID] && recover[drizzleState.ID].fundClaims) || '0.005'
+            const fundClaimsAmount = (recover[drizzleState.ID] && recover[drizzleState.ID].fundClaims) || '0.007'
 
             values.value = drizzle.web3.utils.toWei(
               typeof fundClaimsAmount === 'string'

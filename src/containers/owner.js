@@ -237,6 +237,23 @@ const Error  = styled.div`
   font-size: 14px;
 `
 
+const Box = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 50px;
+  color: #444;
+  background-color: #a6ffcb;
+  background-repeat: no-repeat;
+  background-position: center;
+  overflow: hidden;
+  font-family: Roboto;
+  padding: 0 40px;
+  border-radius: 10px;
+  font-size: 24px;
+  height: 100px;
+  overflow: hidden;
+`
+
 class ComponentToPrint extends Component {
   render() {
     return (
@@ -311,7 +328,7 @@ export default props => {
       item.content = metaEvidence
   }
 
-  const claims = useCacheCall(['Recover'], call =>
+  const claims = useCacheCall(['Recover', 'KlerosLiquid'], call =>
     claimIDs
       ? claimIDs.reduce(
           (acc, d) => {
@@ -332,10 +349,10 @@ export default props => {
             if(claim) {
               let disputeStatus, currentRuling, appealCost
 
-              if (claim.disputeID != 0) {
+              if (claim.disputeID != '0') {
                 if (claim.status > '2') {
                   disputeStatus = call(
-                    'KlerosLiquid', 
+                    'KlerosLiquid',
                     'disputeStatus',
                     claim.disputeID
                   )
@@ -352,6 +369,7 @@ export default props => {
                     'KlerosLiquid',
                     'appealCost',
                     claim.disputeID
+                    (arbitratorExtraData || '0x00')
                   )
                 }
               }
@@ -546,7 +564,6 @@ export default props => {
               {statusSubmitEvidence && statusSubmitEvidence === 'pending' && (
                 <MessageBoxTx
                   pending={true}
-                  // TODO: remove box after tx + reset data
                   onClick={() => {
                     window.open(
                       `https://${drizzleState.networkID === 42 ? 'kovan.' : ''}etherscan.io/tx/${Object.keys(drizzleState.transactions)[0]}`,
@@ -556,6 +573,13 @@ export default props => {
                   }}
                 />
               )}
+              {
+                statusSubmitEvidence && statusSubmitEvidence === 'success' && (
+                  <Box>
+                    Evidence sent
+                  </Box>
+                )
+              }
             </Modal>
           </>
         )}
@@ -603,7 +627,7 @@ export default props => {
               )
             }
             {
-              !claims.loading && claims.data.map(claim => (
+              !claims.loading && claims.data && claims.data.map(claim => (
                 <div key={claim.ID}>
                   {claim.amountLocked > 0 && (
                     <DropdownStyled>
@@ -653,7 +677,6 @@ export default props => {
                           Appeal to the Ruling
                         </DropdownItemStyled>
                       )}
-                      {statusSubmitEvidence && 'Evidence sent.'}
                       </DropdownMenuStyled>
                     </DropdownStyled>
                   )}
@@ -715,7 +738,7 @@ export default props => {
                       </StyledButtonClaimBox>
                     )}
 
-                    {claim.status === 0 && claim.amountLocked > 0 && claim.funds && claim.funds.length === 0 && (
+                    {claim.status === '0' && claim.amountLocked > 0 && claim.funds && claim.funds.length === 0 && (
                       <StyledButtonClaimBox
                         onClick={() =>
                           sendPay(
