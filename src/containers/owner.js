@@ -274,11 +274,18 @@ export default props => {
   const [claimID, setClaimID] = useState(null)
   const [isOpen, setOpen] = useState(false)
   const [dropdownHidden, setDropdownHidden] = useState(true)
+  const [isEvidenceSent, setIsEvidenceSent] = useState(false)
   const drizzleState = useDrizzleState(drizzleState => ({	
     account: drizzleState.accounts[0] || '0x00',
     networkID: drizzleState.web3.networkId || 1,
     transactions: drizzleState.transactions
   }))
+  const resetEvidenceReset = useCallback(resetForm => {
+    if (!isEvidenceSent) {
+      resetForm()
+      setIsEvidenceSent(true)
+    }
+  })
 
   const componentRef = useRef()
   const { useCacheCall, useCacheSend, useCacheEvents } = useDrizzle()
@@ -368,7 +375,7 @@ export default props => {
                   appealCost = call(
                     'KlerosLiquid',
                     'appealCost',
-                    claim.disputeID
+                    claim.disputeID,
                     (arbitratorExtraData || '0x00')
                   )
                 }
@@ -415,6 +422,8 @@ export default props => {
           return errors
         }}
         onSubmit={async ({ name, description, evidenceFile }) => {
+          setIsEvidenceSent(false)
+
           let evidenceFileURI = ''
 
           if (evidenceFile) {
@@ -577,6 +586,7 @@ export default props => {
                 statusSubmitEvidence && statusSubmitEvidence === 'success' && (
                   <Box>
                     Evidence sent
+                    { !isEvidenceSent && resetEvidenceReset(resetForm) }
                   </Box>
                 )
               }
