@@ -60,7 +60,7 @@ const Main = ({ children }) => (
 const ContainerLoader = styled.div`
   position: absolute;
   top: 50%;
-  left: 50%;
+  left: calc(50% - 28px);
 `
 
 const C404 = loadable(

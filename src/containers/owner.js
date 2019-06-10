@@ -259,7 +259,7 @@ class ComponentToPrint extends Component {
     return (
       <StyledPrint>
         <QRCode
-          value={`https://app.recover.to/contract/${this.props.contract}/items/${
+          value={`${process.env.REACT_APP_URL_APP}/contract/${this.props.contract}/items/${
             this.props.itemID_Pk
           }`}
         />
@@ -614,7 +614,7 @@ export default props => {
           <div style={{textAlign: 'center'}}>
             <QRCode
               value={
-                `https://app.recover.to/contract/${props.contract}/items/
+                `${process.env.REACT_APP_URL_APP}/contract/${props.contract}/items/
                 ${itemID}-privateKey=${privateKey}`}
             />
             <ReactToPrint
