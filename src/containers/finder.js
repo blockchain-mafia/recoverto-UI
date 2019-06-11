@@ -1,8 +1,5 @@
-import React, { Component, useCallback, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components/macro'
-import { Formik, Form, Field, ErrorMessage } from 'formik'
-import Textarea from 'react-textarea-autosize'
-import { BounceLoader } from 'react-spinners'
 import {
   Dropdown,
   DropdownItem,
@@ -11,7 +8,6 @@ import {
 } from 'styled-dropdown-component'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
-import Button from '../components/button'
 import ETHAmount from '../components/eth-amount'
 import { useDataloader } from '../bootstrap/dataloader'
 import { ReactComponent as Settings } from '../assets/images/settings.svg'

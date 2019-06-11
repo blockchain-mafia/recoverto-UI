@@ -3,9 +3,7 @@ import styled from 'styled-components/macro'
 import { Formik, Field, ErrorMessage } from 'formik'
 import QRCode from 'qrcode.react'
 import Textarea from 'react-textarea-autosize'
-import { BounceLoader } from 'react-spinners'
 import ReactToPrint from 'react-to-print'
-import Web3 from 'web3'
 import {
   Dropdown,
   DropdownItem,
@@ -21,6 +19,8 @@ import { useDataloader } from '../bootstrap/dataloader'
 import ipfsPublish from './api/ipfs-publish'
 import MessageBoxTx from '../components/message-box-tx'
 import ReadFile from '../utils/read-file'
+import Attachment from '../components/attachment'
+
 import { ReactComponent as Settings } from '../assets/images/settings-orange.svg'
 
 const Container = styled.div`
@@ -175,7 +175,6 @@ const StyledSettings = styled(Settings)`
     background: #fff;
   }
 `
-
 const DropdownMenuStyled = styled(DropdownMenu)`
   float: right;
   left: auto;
@@ -254,6 +253,20 @@ const Box = styled.div`
   overflow: hidden;
 `
 
+const StyledClaimEvidenceContainerBoxContent = styled.div`
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  padding:  0 4vw;
+`
+
+const StyledClaimEvidenceBoxContent = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-top: 10px;
+`
+
 class ComponentToPrint extends Component {
   render() {
     return (
@@ -275,6 +288,7 @@ export default props => {
   const [isOpen, setOpen] = useState(false)
   const [dropdownHidden, setDropdownHidden] = useState(true)
   const [isEvidenceSent, setIsEvidenceSent] = useState(false)
+  const { drizzle } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({	
     account: drizzleState.accounts[0] || '0x00',
     networkID: drizzleState.web3.networkId || 1,
@@ -335,6 +349,9 @@ export default props => {
       item.content = metaEvidence
   }
 
+  let metaEvidence
+  const getEvidence = useDataloader.getEvidence()
+
   const claims = useCacheCall(['Recover', 'KlerosLiquid'], call =>
     claimIDs
       ? claimIDs.reduce(
@@ -354,7 +371,7 @@ export default props => {
             )
 
             if(claim) {
-              let disputeStatus, currentRuling, appealCost
+              let disputeStatus, currentRuling, appealCost, evidence
 
               if (claim.disputeID != '0') {
                 if (claim.status > '2') {
@@ -378,6 +395,12 @@ export default props => {
                     claim.disputeID,
                     (arbitratorExtraData || '0x00')
                   )
+
+                  evidence = getEvidence(
+                    drizzle.contracts.Recover.address,
+                    drizzle.contracts.KlerosLiquid.address,
+                    claim.disputeID
+                  )
                 }
               }
 
@@ -387,6 +410,7 @@ export default props => {
                 currentRuling,
                 appealCost,
                 funds,
+                evidence,
                 ID: d
               })
             }
@@ -697,19 +721,33 @@ export default props => {
                           {claim.finder}
                         </StyledClaimAddressBoxContent>
                     </StyledClaimAddressContainerBoxContent>
-                    <StyledClaimDescriptionContainerBoxContent>
-                      {claim.descriptionLink && (
-                        <>
-                          <StyledClaimLabelBoxContent>
-                            Description
-                          </StyledClaimLabelBoxContent> 
-                          <StyledClaimDescriptionBoxContent>
-                            {claim.descriptionLink}
-                          </StyledClaimDescriptionBoxContent> 
-                          {/* TODO: add status dispute with ruling */}
-                        </>
-                      )}
-                    </StyledClaimDescriptionContainerBoxContent>
+                    {claim.descriptionLink && (
+                      <StyledClaimDescriptionContainerBoxContent>
+                        <StyledClaimLabelBoxContent>
+                          Description
+                        </StyledClaimLabelBoxContent> 
+                        <StyledClaimDescriptionBoxContent>
+                          {claim.descriptionLink}
+                        </StyledClaimDescriptionBoxContent> 
+                      </StyledClaimDescriptionContainerBoxContent>
+                    )}
+                    {claim.evidence && claim.evidence.length && (
+                      <StyledClaimEvidenceContainerBoxContent>
+                        <StyledClaimLabelBoxContent>
+                          Evidence{claim.evidence.length > 0 && 's'}
+                        </StyledClaimLabelBoxContent> 
+                        <StyledClaimEvidenceBoxContent>
+                          { claim.evidence.map(e => (
+                            <Attachment
+                              key={e.transactionHash}
+                              URI={e.evidenceJSON.evidenceFileURI}
+                              description={e.evidenceJSON.description}
+                              title={e.evidenceJSON.name}
+                            />
+                          ))}
+                        </StyledClaimEvidenceBoxContent>
+                      </StyledClaimEvidenceContainerBoxContent>
+                    )}
                     {
                       claim.status > 0 && (
                         <StyledClaimDescriptionContainerBoxContent>
