@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import styled from 'styled-components/macro'
 import {
   Dropdown,
@@ -78,7 +78,7 @@ export default props => {
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
 
   const [dropdownHidden, setDropdownHidden] = useState(true)
-  const { useCacheCall, useCacheSend } = useDrizzle()
+  const { useCacheCall, useCacheSend, useCacheEvents, drizzle } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({	
     account: drizzleState.accounts[0] || '0x00'
   }))
@@ -87,6 +87,14 @@ export default props => {
   const { send: sendPayArbitrationFeeByFinder, status: statusPayArbitrationFeeByFinder } = useCacheSend(
     'Recover',
     'payArbitrationFeeByFinder'
+  )
+  const { send: sendAppeal, status: statusAppeal } = useCacheSend(
+    'Recover',
+    'appeal'
+  )
+  const { send: sendSubmitEvidence, status: statusSubmitEvidence } = useCacheSend(
+    'Recover',
+    'submitEvidence'
   )
 
   const arbitratorExtraData = useCacheCall('Recover', 'arbitratorExtraData')
@@ -103,10 +111,54 @@ export default props => {
 
   const claim = useCacheCall('Recover', 'claims', claimID)
 
+  const getEvidence = useDataloader.getEvidence()
+
   let item
 
   if(claim) {
     item = useCacheCall('Recover', 'items', claim.itemID)
+    // TODO: test without web3 (drizzleState.account)
+    claim.funds = useCacheEvents(
+      'Recover',
+      'Fund',
+      useMemo(
+        () => ({
+          filter: { _claimID: claim.itemID },
+          fromBlock: process.env.REACT_APP_DRAW_EVENT_LISTENER_BLOCK_NUMBER
+        }),
+        [drizzleState.account]
+      )
+    )
+
+    if (claim.disputeID != '0') {
+      if (claim.status > '2') {
+        claim.disputeStatus = useCacheCall(
+          'KlerosLiquid',
+          'disputeStatus',
+          claim.disputeID
+        )
+
+        claim.currentRuling = useCacheCall(
+          'KlerosLiquid',
+          'currentRuling',
+          claim.disputeID
+        )
+
+        claim.appealCost = useCacheCall(
+          'KlerosLiquid',
+          'appealCost',
+          claim.disputeID,
+          (arbitratorExtraData || '0x00')
+        )
+
+        claim.evidence = getEvidence(
+          drizzle.contracts.Recover.address,
+          drizzle.contracts.KlerosLiquid.address,
+          claim.disputeID
+        )
+      }
+    }
+
     if(item) {
       item.content = {
         dataDecrypted: {type: 'loading...'}
@@ -178,6 +230,30 @@ export default props => {
               ETHAmount({amount: item.rewardAmount, decimals: 2})
             } ETH
           </div>
+          {
+            claim.status > 0 && (
+              <>
+                <Label>Dispute Status</Label>
+                <div style={{padding: '10px 0'}}>
+                  {
+                    claim.status === '1'
+                      ? 'Awaiting the fee from the finder.'
+                      : claim.status === '2'
+                        ? 'Awaiting the fee from you.'
+                        : claim.status === '3'
+                          ? claim.disputeStatus === '0'
+                            ? 'Dispute Ongoing'
+                            : claim.currentRuling === '2'
+                              ? <>You win the dispute. <br />The dispute can be appealable.</>
+                              : <>You lose the dispute. <br />The dispute can be appealable.</>
+                          : claim.status === '4' && claim.currentRuling === '2'
+                            ? 'You win the dispute.'
+                            : 'You lose the dispute.'
+                  }
+                </div>
+              </>
+            )
+          }
         </>
       ) : (
         <Title>Loading Item...</Title>

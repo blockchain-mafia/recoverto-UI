@@ -7,8 +7,7 @@ import ReactToPrint from 'react-to-print'
 import {
   Dropdown,
   DropdownItem,
-  DropdownMenu,
-  DropdownDivider
+  DropdownMenu
 } from 'styled-dropdown-component'
 import Modal from 'react-responsive-modal'
 
@@ -288,7 +287,6 @@ export default props => {
   const [isOpen, setOpen] = useState(false)
   const [dropdownHidden, setDropdownHidden] = useState(true)
   const [isEvidenceSent, setIsEvidenceSent] = useState(false)
-  const { drizzle } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({	
     account: drizzleState.accounts[0] || '0x00',
     networkID: drizzleState.web3.networkId || 1,
@@ -302,7 +300,7 @@ export default props => {
   })
 
   const componentRef = useRef()
-  const { useCacheCall, useCacheSend, useCacheEvents } = useDrizzle()
+  const { useCacheCall, useCacheSend, useCacheEvents, drizzle } = useDrizzle()
 
   const { send: sendAcceptClaim, status: statusAcceptClaim } = useCacheSend(
     'Recover',
@@ -349,7 +347,6 @@ export default props => {
       item.content = metaEvidence
   }
 
-  let metaEvidence
   const getEvidence = useDataloader.getEvidence()
 
   const claims = useCacheCall(['Recover', 'KlerosLiquid'], call =>
@@ -381,13 +378,11 @@ export default props => {
                     claim.disputeID
                   )
     
-                  // Dispute appealable or solved
-                  if (disputeStatus === '1' || disputeStatus === '2')
-                    currentRuling = call(
-                      'KlerosLiquid',
-                      'currentRuling',
-                      claim.disputeID
-                    )
+                  currentRuling = call(
+                    'KlerosLiquid',
+                    'currentRuling',
+                    claim.disputeID
+                  )
     
                   appealCost = call(
                     'KlerosLiquid',
@@ -698,7 +693,7 @@ export default props => {
                         </DropdownItemStyled>
                       )}
                       {
-                        claim.status === '3' && claim.currentRuling === '2' && (
+                        claim.status === '3' && claim.currentRuling === '2' && claim.disputeStatus === '1' && (
                           <DropdownItemStyled
                           onClick={() => {
                             sendAppeal(
@@ -759,14 +754,14 @@ export default props => {
                                 : claim.status === '2'
                                   ? 'Awaiting the fee from you.'
                                   : claim.status === '3'
-                                    ? claim.currentRuling
-                                      ? claim.currentRuling === '1'
+                                    ? claim.disputeStatus === '0'
+                                      ? 'Dispute Ongoing'
+                                      : claim.currentRuling === '1'
                                         ? 'You win the dispute. The dispute can be appealable.'
                                         : 'You lose the dispute. The dispute can be appealable.'
-                                      : 'Dispute Ongoing'
-                                    : claim.currentRuling === '1'
+                                    : claim.status === '4' && claim.currentRuling === '1'
                                       ? 'You win the dispute.'
-                                      : 'You lose the dispute'
+                                      : 'You lose the dispute.'
                             }
                           </StyledClaimStatusBoxContent>
                         </StyledClaimDescriptionContainerBoxContent>
