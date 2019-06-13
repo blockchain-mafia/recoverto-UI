@@ -144,6 +144,15 @@ export default props => {
           claim.disputeID
         )
 
+        const dispute = useCacheCall(
+          'KlerosLiquid',
+          'disputes',
+          claim.disputeID
+        )
+
+        if (dispute)
+          claim.isRuled = dispute.ruled ? true : false
+
         claim.appealCost = useCacheCall(
           'KlerosLiquid',
           'appealCost',
@@ -241,7 +250,7 @@ export default props => {
                       : claim.status === '2'
                         ? 'Awaiting the fee from you.'
                         : claim.status === '3'
-                          ? claim.disputeStatus === '0'
+                          ? !claim.isRuled
                             ? 'Dispute Ongoing'
                             : claim.currentRuling === '2'
                               ? <>You win the dispute. <br />The dispute can be appealable.</>

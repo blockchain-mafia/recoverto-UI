@@ -368,7 +368,7 @@ export default props => {
             )
 
             if(claim) {
-              let disputeStatus, currentRuling, appealCost, evidence
+              let disputeStatus, currentRuling, appealCost, evidence, isRuled
 
               if (claim.disputeID != '0') {
                 if (claim.status > '2') {
@@ -383,6 +383,15 @@ export default props => {
                     'currentRuling',
                     claim.disputeID
                   )
+
+                  const dispute = call(
+                    'KlerosLiquid',
+                    'disputes',
+                    claim.disputeID
+                  )
+
+                  if (dispute)
+                    isRuled = dispute.ruled ? true : false
     
                   appealCost = call(
                     'KlerosLiquid',
@@ -401,6 +410,7 @@ export default props => {
 
               acc.data.push({ 
                 ...claim,
+                isRuled,
                 disputeStatus,
                 currentRuling,
                 appealCost,
@@ -754,7 +764,7 @@ export default props => {
                                 : claim.status === '2'
                                   ? 'Awaiting the fee from you.'
                                   : claim.status === '3'
-                                    ? claim.disputeStatus === '0'
+                                    ? !claim.isRuled
                                       ? 'Dispute Ongoing'
                                       : claim.currentRuling === '1'
                                         ? 'You win the dispute. The dispute can be appealable.'
