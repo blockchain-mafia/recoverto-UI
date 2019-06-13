@@ -768,7 +768,7 @@ export default props => {
                       )
                     }
 
-                    {claim.amountLocked === '0' && claim.funds.length === 0 && (
+                    {claim.amountLocked === '0' && claim.funds && claim.funds.length === 0 && (
                       <StyledButtonClaimBox
                         onClick={() =>
                           sendAcceptClaim(
@@ -793,7 +793,7 @@ export default props => {
                         REWARD THE FINDER
                       </StyledButtonClaimBox>
                     )}
-                    {claim.funds.length > 0 && (
+                    {claim.funds && claim.funds.length > 0 && (
                       <StyledButtonClaimBox
                         style={{cursor: 'not-allowed'}}
                       >
