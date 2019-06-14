@@ -1,8 +1,9 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
 import styled from 'styled-components/macro'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import Textarea from 'react-textarea-autosize'
 import Web3 from 'web3'
+import Modal from 'react-responsive-modal'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import Button from '../components/button'
@@ -121,6 +122,59 @@ const StyledPrint = styled.div`
   }
 `
 
+const StyledFieldAddress = styled(Field)`
+  line-height: 50px;
+  padding-left: 20px;
+  margin: 20px 0 40px 0;
+  width: 65%;
+  display: inline-block;
+  background: #fff;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  border-radius: 5px;
+  @media only screen and (max-width: 768px) {
+    width: 100%;
+    margin: 20px 0 10px 0;
+  }
+`
+
+const ModalTitle = styled.h3`
+  font-family: Nunito;
+  font-size: 30px;
+  color: #14213d;
+  padding-bottom: 14px;
+`
+
+const StyledButtonAddress = styled(Button)`
+  height: 54px;
+  width: 34%;
+  margin-left: 1%;
+  display: inline-block;
+  background: #fff;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  border-radius: 5px;
+  padding: 1px;
+  @media only screen and (max-width: 768px) {
+    width: 100%;
+    margin: 20px 0 40px 0;
+  }
+`
+
+// TODO: move to utils folder
+function generateSeedWallet() {
+  const bip39 = require('bip39')
+  const hdkey = require('ethereumjs-wallet/hdkey')
+  const mnemonic = bip39.generateMnemonic() //generates string
+  const seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex')
+  const hdwallet = hdkey.fromMasterSeed(bip39.mnemonicToSeed(seed))
+  const wallet_hdpath = "m/44'/60'/0'/0/"
+  const wallet = hdwallet.derivePath(wallet_hdpath + 0).getWallet()
+  const address = '0x' + wallet.getAddress().toString('hex')
+  const privateKey = wallet.getPrivateKey().toString('hex')
+  return {mnemonic, address, privateKey}
+}
+
 export default props => {
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
 
@@ -130,11 +184,19 @@ export default props => {
     networkID: drizzleState.web3.networkId || 1
   }))
   const [isClaim, setClaim] = useState(false)
+  const [finderAddress, setFinderAddress] = useState('')
+  const [wallet, setWallet] = useState('')
   const [isSendClaim, setSendClaim] = useState('')
+  const [isOpen, setOpen] = useState(false)
 
   const [itemID, privateKey] = props.itemID_Pk.split('-privateKey=')
 
   const item = useCacheCall('Recover', 'items', itemID.padEnd(66, '0'))
+
+  useEffect(() => {
+    if (!wallet)
+      setWallet(generateSeedWallet())
+  })
 
   const claim = useCallback(async ({finder, descriptionLink}) => {
     const web3 = new Web3(
@@ -213,6 +275,7 @@ export default props => {
 
   return (
     <Container>
+
       <Title>Discovered Item</Title>
       <Message>
         Congratulations! You found a lost item.
@@ -245,15 +308,49 @@ export default props => {
       >
         {({ errors, values, handleChange }) => (
           <>
+            <Modal 
+              open={isOpen} 
+              onClose={() => setOpen(false)} 
+              center
+              styles={{
+                closeButton: {background: 'transparent'},
+                modal: {width: '80vw', maxWidth: '300px', padding: '6vh 3vw'}
+              }}
+            >
+              <ModalTitle>Wallet</ModalTitle>
+                <label style={{display: 'block', width: '100%'}} htmlFor="finder">
+                  Your Ethereum Address
+                </label>
+                {wallet.address}
+
+                <label style={{display: 'block', width: '100%'}} htmlFor="finder">
+                  Your Password (Private Key)
+                </label>
+                {wallet.privateKey}
+                <Button
+                  style={{padding: '0 30px', textAlign: 'center', lineHeight: '50px', border: '1px solid #14213d', borderRadius: '10px', width: '100%'}}
+                  onClick={() => {
+                    setOpen(false)
+                    values.finder = wallet.address
+                  }}
+                >
+                  I saved my Password
+                </Button>
+            </Modal>
             <StyledForm>
               <div>
-                <label htmlFor="finder">
+                <label style={{display: 'block', width: '100%'}} htmlFor="finder">
                   Finder Address
                 </label>
-                <StyledField
+                <StyledFieldAddress
                   name="finder"
                   placeholder="Your Ethereum Address to get the Reward 0x123..."
                 />
+                <StyledButtonAddress
+                  onClick={() => setOpen(true)}
+                >
+                  I don't have a Wallet
+                </StyledButtonAddress>
               </div>
               <div>
                 <label htmlFor="descriptionLink">

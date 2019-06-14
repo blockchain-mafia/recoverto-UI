@@ -3,8 +3,7 @@ import styled from 'styled-components/macro'
 import {
   Dropdown,
   DropdownItem,
-  DropdownMenu,
-  DropdownDivider
+  DropdownMenu
 } from 'styled-dropdown-component'
 import Textarea from 'react-textarea-autosize'
 import Modal from 'react-responsive-modal'
