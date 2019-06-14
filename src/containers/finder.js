@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import styled from 'styled-components/macro'
 import {
   Dropdown,
@@ -6,10 +6,17 @@ import {
   DropdownMenu,
   DropdownDivider
 } from 'styled-dropdown-component'
+import Textarea from 'react-textarea-autosize'
+import Modal from 'react-responsive-modal'
+import { Formik, Field, ErrorMessage } from 'formik'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import ETHAmount from '../components/eth-amount'
 import { useDataloader } from '../bootstrap/dataloader'
+import ipfsPublish from './api/ipfs-publish'
+import MessageBoxTx from '../components/message-box-tx'
+import ReadFile from '../utils/read-file'
+import Button from '../components/button'
 import { ReactComponent as Settings } from '../assets/images/settings.svg'
 
 const Container = styled.div`
@@ -74,14 +81,102 @@ const DropdownItemStyled = styled(DropdownItem)`
   }
 `
 
+const Box = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 50px;
+  color: #444;
+  background-color: #a6ffcb;
+  background-repeat: no-repeat;
+  background-position: center;
+  overflow: hidden;
+  font-family: Roboto;
+  padding: 0 40px;
+  border-radius: 10px;
+  font-size: 24px;
+  height: 100px;
+  overflow: hidden;
+`
+const StyledLabel  = styled.label`
+  font-family: Roboto;
+  color: #5c5c5c;
+  font-size: 16px;
+  line-height: 19px;
+`
+
+const StyledField = styled(Field)`
+  line-height: 50px;
+  padding-left: 20px;
+  margin: 10px 0;
+  width: 100%;
+  display: block;
+  background: #fff;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  border-radius: 5px;
+`
+
+const FieldContainer = styled.div`
+  margin: 20px 0;
+`
+
+const StyledTextarea = styled(Textarea)`
+  padding: 20px 0 0 20px;
+  margin: 20px 0 40px 0;
+  width: 100%;
+  display: block;
+  background: #FFFFFF;
+  border: 1px solid #CCCCCC;
+  box-sizing: border-box;
+  border-radius: 5px;
+  min-height: 11em;
+`
+
+const Error  = styled.div`
+  color: red;
+  font-family: Roboto;
+  font-size: 14px;
+`
+
+const StyledClaimEvidenceContainerBoxContent = styled.div`
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  padding:  0 4vw;
+`
+
+const StyledClaimEvidenceBoxContent = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-top: 10px;
+`
+
+const ModalTitle = styled.h3`
+  font-family: Nunito;
+  font-size: 30px;
+  color: #14213d;
+  padding-bottom: 14px;
+`
+
 export default props => {
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
 
   const [dropdownHidden, setDropdownHidden] = useState(true)
+  const [isOpen, setOpen] = useState(false)
+  const [isEvidenceSent, setIsEvidenceSent] = useState(false)
   const { useCacheCall, useCacheSend, useCacheEvents, drizzle } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({	
-    account: drizzleState.accounts[0] || '0x00'
+    account: drizzleState.accounts[0] || '0x00',
+    networkID: drizzleState.web3.networkId || 1,
+    transactions: drizzleState.transactions
   }))
+  const resetEvidenceReset = useCallback(resetForm => {
+    if (!isEvidenceSent) {
+      resetForm()
+      setIsEvidenceSent(true)
+    }
+  })
 
   const { send: sendReimburse, status: statusReimburse } = useCacheSend('Recover', 'reimburse')
   const { send: sendPayArbitrationFeeByFinder, status: statusPayArbitrationFeeByFinder } = useCacheSend(
@@ -191,8 +286,198 @@ export default props => {
     }
   }
 
+  // TODO: refactoring send evidence box with owner.js (create component EvidenceBox)
+
   return (
     <Container>
+      <Formik
+        initialValues={{
+          name: '',
+          description: '',
+          evidenceFile: ''
+        }}
+        validate={values => {
+          let errors = {}
+          if (values.name  === '')
+            errors.name = 'Name Required'
+          if (values.description.length > 100000)
+            errors.description =
+              'The maximum numbers of the characters for the description is 100,000 characters.'
+          if (values.evidenceFile.size > 5000000)
+            errors.evidenceFile = 'The file is too big. The maximum size is 5MB.'
+          return errors
+        }}
+        onSubmit={async ({ name, description, evidenceFile }) => {
+          setIsEvidenceSent(false)
+
+          let evidenceFileURI = ''
+
+          if (evidenceFile) {
+            const evidenceArrayBuffer = await ReadFile(evidenceFile.dataURL)
+
+            const ipfsHashEvidenceObj = await ipfsPublish(
+              evidenceFile.name,
+              new Buffer(evidenceArrayBuffer)
+            )
+
+            evidenceFileURI = await `ipfs/${
+              ipfsHashEvidenceObj[1].hash
+            }${ipfsHashEvidenceObj[0].path}`
+          }
+
+          const evidence = await {
+            evidenceFileURI,
+            name,
+            description
+          }
+
+          const enc = new TextEncoder()
+
+          // Upload the evidence to IPFS
+          const ipfsHashEvidenceObj = await ipfsPublish(
+            'evidence.json',
+            enc.encode(JSON.stringify(evidence)) // encode to bytes
+          )
+
+          const ipfsHashEvidence =
+            `${ipfsHashEvidenceObj[1].hash}${ipfsHashEvidenceObj[0].path}`
+
+          await sendSubmitEvidence(
+            claimID,
+            `/ipfs/${ipfsHashEvidence}`
+          )
+        }}
+      >
+        {({
+          submitForm,
+          errors,
+          setFieldValue,
+          values,
+          handleChange,
+          resetForm
+        }) => (
+          <Modal 
+            open={isOpen} 
+            onClose={() => setOpen(false)} 
+            center
+            styles={{
+              closeButton: {background: 'transparent'},
+              modal: {width: '80vw', maxWidth: '300px', padding: '6vh 8vw'}
+            }}
+          >
+            <ModalTitle>Evidence</ModalTitle>
+            <FieldContainer>
+              <StyledLabel htmlFor="name">
+                <span 
+                  className="info"
+                  aria-label="The name of the evidence"
+                >
+                  Name
+                </span>
+              </StyledLabel>
+              <StyledField
+                name="name"
+                placeholder="Name"
+              />
+              <ErrorMessage
+                name="name"
+                component={Error}
+              />
+            </FieldContainer>
+            <FieldContainer>
+              <StyledLabel htmlFor="description">
+                <span 
+                  className="info"
+                  aria-label="
+                    Description of the evidence.
+                  "
+                >
+                  Description
+                </span>
+              </StyledLabel>
+              <StyledField
+                name="description"
+                value={values.description}
+                render={({ field, form }) => (
+                  <StyledTextarea
+                    {...field}
+                    placeholder="Description of the evidence"
+                    onChange={e => {
+                      handleChange(e)
+                      form.setFieldValue('description', e.target.value)
+                    }}
+                  />
+                )}
+              />
+              <ErrorMessage
+                name="description"
+                component={Error}
+              />
+            </FieldContainer>
+            {/* hack Formik for file type */}
+            {/* and store only the path on the file in the redux state */}
+            <FieldContainer>
+              <StyledLabel htmlFor="evidenceFile">
+                <span 
+                    className="info"
+                    aria-label="A file to prove your statement."
+                  >
+                    File (optional)
+                  </span> 
+              </StyledLabel>
+              <div className="NewEvidenceArbitrableTx-form-file FileInput">
+                <input
+                  className="FileInput-input--noBorder"
+                  id="evidenceFile"
+                  name="evidenceFile"
+                  type="file"
+                  // eslint-disable-next-line react/jsx-no-bind
+                  onChange={e => {
+                    const file = e.currentTarget.files[0]
+                    if (file)
+                      return setFieldValue('evidenceFile', {
+                        dataURL: e.currentTarget.files[0],
+                        name: file.name
+                      })
+                  }}
+                />
+                <div className="FileInput-filename">
+                  {values.evidenceFile ? values.evidenceFile.name : null}
+                </div>
+              </div>
+              {errors.evidenceFile && <div className="error">{errors.evidenceFile}</div>}
+            </FieldContainer>
+            <Button
+              onClick={submitForm}
+              style={{width: '100%'}}
+              type="submit"
+              disabled={Object.entries(errors).length > 0 || (statusSubmitEvidence && statusSubmitEvidence === 'pending')}
+            >
+              Submit Evidence
+            </Button>
+            {statusSubmitEvidence && statusSubmitEvidence === 'pending' && (
+              <MessageBoxTx
+                pending={true}
+                onClick={() => {
+                  window.open(
+                    `https://${drizzleState.networkID === 42 ? 'kovan.' : ''}etherscan.io/tx/${Object.keys(drizzleState.transactions)[0]}`,
+                    '_blank'
+                  )
+                  resetForm()
+                }}
+              />
+            )}
+            {
+              statusSubmitEvidence && statusSubmitEvidence === 'success' && (
+                <Box>
+                  Evidence sent
+                  { !isEvidenceSent && resetEvidenceReset(resetForm) }
+                </Box>
+              )
+            }
+          </Modal>
+        )}
+      </Formik>
       {claim && item ? (
         <>
           {claim.amountLocked > 0 && claim.finder === drizzleState.account && (
@@ -203,29 +488,68 @@ export default props => {
                 onClick={() => setDropdownHidden(!dropdownHidden)}
               />
               <DropdownMenuStyled hidden={dropdownHidden}>
-                <DropdownItemStyled 
-                  onClick={() => {
-                    sendReimburse(
-                      claimID, 
-                      item.rewardAmount
-                    )
-                    setDropdownHidden(!dropdownHidden)
-                  }}
-                >
-                  Reimburse
-                </DropdownItemStyled>
-                <DropdownDivider />
-                <DropdownItemStyled
-                  onClick={() => {
-                    sendPayArbitrationFeeByFinder(
-                      claimID,
-                      { value: arbitrationCost }
-                    )
-                    setDropdownHidden(!dropdownHidden)
-                  }}
-                >
-                  Raise a Dispute
-                </DropdownItemStyled>
+                { 
+                  claim.status === '0' && (
+                    <DropdownItemStyled 
+                      onClick={() => {
+                        sendReimburse(
+                          claimID, 
+                          item.rewardAmount
+                        )
+                        setDropdownHidden(!dropdownHidden)
+                      }}
+                    >
+                      Reimburse
+                    </DropdownItemStyled>
+                  )
+                }
+                {
+                  claim.status === '0' && (
+                    <DropdownItemStyled
+                      onClick={() => {
+                        sendPayArbitrationFeeByFinder(
+                          claimID,
+                          { value: arbitrationCost }
+                        )
+                        setDropdownHidden(!dropdownHidden)
+                      }}
+                    >
+                      Raise a Dispute
+                    </DropdownItemStyled>
+                  )
+                }
+                {
+                  claim.status > '0' && claim.status < '4' && (
+                    <DropdownItemStyled
+                      onClick={() => {
+                        // TODO: open a box to submit an evidence
+                        setOpen(true)
+                        setDropdownHidden(!dropdownHidden)
+                      }}
+                    >
+                      Submit an Evidence
+                    </DropdownItemStyled>
+                  )
+                }
+                {
+                  claim.status === '3' 
+                  && claim.currentRuling === '1' 
+                  && claim.disputeStatus === '1'
+                  && claim.isRuled
+                  && (
+                    <DropdownItemStyled
+                      onClick={() => {
+                        sendAppeal(
+                          claim.ID,
+                          { value: claim.appealCost }
+                        )
+                        setDropdownHidden(!dropdownHidden)
+                      }}
+                    >
+                      Appeal to the Ruling
+                    </DropdownItemStyled>
+                  )
+                }
               </DropdownMenuStyled>
             </DropdownStyled>
           )}

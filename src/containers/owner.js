@@ -499,128 +499,126 @@ export default props => {
           handleChange,
           resetForm
         }) => (
-          <>
-            <Modal 
-              open={isOpen} 
-              onClose={() => setOpen(false)} 
-              center
-              styles={{
-                closeButton: {background: 'transparent'},
-                modal: {width: '80vw', maxWidth: '300px', padding: '6vh 8vw'}
-              }}
-            >
-              <ModalTitle>Evidence</ModalTitle>
-              <FieldContainer>
-                <StyledLabel htmlFor="name">
-                  <span 
-                    className="info"
-                    aria-label="The name of the evidence"
-                  >
-                    Name
-                  </span>
-                </StyledLabel>
-                <StyledField
-                  name="name"
-                  placeholder="Name"
-                />
-                <ErrorMessage
-                  name="name"
-                  component={Error}
-                />
-              </FieldContainer>
-              <FieldContainer>
-                <StyledLabel htmlFor="description">
-                  <span 
-                    className="info"
-                    aria-label="
-                      Description of the evidence.
-                    "
-                  >
-                    Description
-                  </span>
-                </StyledLabel>
-                <StyledField
-                  name="description"
-                  value={values.description}
-                  render={({ field, form }) => (
-                    <StyledTextarea
-                      {...field}
-                      placeholder="Description of the evidence"
-                      onChange={e => {
-                        handleChange(e)
-                        form.setFieldValue('description', e.target.value)
-                      }}
-                    />
-                  )}
-                />
-                <ErrorMessage
-                  name="description"
-                  component={Error}
-                />
-              </FieldContainer>
-              {/* hack Formik for file type */}
-              {/* and store only the path on the file in the redux state */}
-              <FieldContainer>
-                <StyledLabel htmlFor="evidenceFile">
-                  <span 
-                      className="info"
-                      aria-label="A file to prove your statement."
-                    >
-                      File (optional)
-                    </span> 
-                </StyledLabel>
-                <div className="NewEvidenceArbitrableTx-form-file FileInput">
-                  <input
-                    className="FileInput-input--noBorder"
-                    id="evidenceFile"
-                    name="evidenceFile"
-                    type="file"
-                    // eslint-disable-next-line react/jsx-no-bind
+          <Modal 
+            open={isOpen} 
+            onClose={() => setOpen(false)} 
+            center
+            styles={{
+              closeButton: {background: 'transparent'},
+              modal: {width: '80vw', maxWidth: '300px', padding: '6vh 8vw'}
+            }}
+          >
+            <ModalTitle>Evidence</ModalTitle>
+            <FieldContainer>
+              <StyledLabel htmlFor="name">
+                <span 
+                  className="info"
+                  aria-label="The name of the evidence"
+                >
+                  Name
+                </span>
+              </StyledLabel>
+              <StyledField
+                name="name"
+                placeholder="Name"
+              />
+              <ErrorMessage
+                name="name"
+                component={Error}
+              />
+            </FieldContainer>
+            <FieldContainer>
+              <StyledLabel htmlFor="description">
+                <span 
+                  className="info"
+                  aria-label="
+                    Description of the evidence.
+                  "
+                >
+                  Description
+                </span>
+              </StyledLabel>
+              <StyledField
+                name="description"
+                value={values.description}
+                render={({ field, form }) => (
+                  <StyledTextarea
+                    {...field}
+                    placeholder="Description of the evidence"
                     onChange={e => {
-                      const file = e.currentTarget.files[0]
-                      if (file)
-                        return setFieldValue('evidenceFile', {
-                          dataURL: e.currentTarget.files[0],
-                          name: file.name
-                        })
+                      handleChange(e)
+                      form.setFieldValue('description', e.target.value)
                     }}
                   />
-                  <div className="FileInput-filename">
-                    {values.evidenceFile ? values.evidenceFile.name : null}
-                  </div>
-                </div>
-                {errors.evidenceFile && <div className="error">{errors.evidenceFile}</div>}
-              </FieldContainer>
-              <Button
-                onClick={submitForm}
-                style={{width: '100%'}}
-                type="submit"
-                disabled={Object.entries(errors).length > 0 || (statusSubmitEvidence && statusSubmitEvidence === 'pending')}
-              >
-                Submit Evidence
-              </Button>
-              {statusSubmitEvidence && statusSubmitEvidence === 'pending' && (
-                <MessageBoxTx
-                  pending={true}
-                  onClick={() => {
-                    window.open(
-                      `https://${drizzleState.networkID === 42 ? 'kovan.' : ''}etherscan.io/tx/${Object.keys(drizzleState.transactions)[0]}`,
-                      '_blank'
-                    )
-                    resetForm()
+                )}
+              />
+              <ErrorMessage
+                name="description"
+                component={Error}
+              />
+            </FieldContainer>
+            {/* hack Formik for file type */}
+            {/* and store only the path on the file in the redux state */}
+            <FieldContainer>
+              <StyledLabel htmlFor="evidenceFile">
+                <span 
+                    className="info"
+                    aria-label="A file to prove your statement."
+                  >
+                    File (optional)
+                  </span> 
+              </StyledLabel>
+              <div className="NewEvidenceArbitrableTx-form-file FileInput">
+                <input
+                  className="FileInput-input--noBorder"
+                  id="evidenceFile"
+                  name="evidenceFile"
+                  type="file"
+                  // eslint-disable-next-line react/jsx-no-bind
+                  onChange={e => {
+                    const file = e.currentTarget.files[0]
+                    if (file)
+                      return setFieldValue('evidenceFile', {
+                        dataURL: e.currentTarget.files[0],
+                        name: file.name
+                      })
                   }}
                 />
-              )}
-              {
-                statusSubmitEvidence && statusSubmitEvidence === 'success' && (
-                  <Box>
-                    Evidence sent
-                    { !isEvidenceSent && resetEvidenceReset(resetForm) }
-                  </Box>
-                )
-              }
-            </Modal>
-          </>
+                <div className="FileInput-filename">
+                  {values.evidenceFile ? values.evidenceFile.name : null}
+                </div>
+              </div>
+              {errors.evidenceFile && <div className="error">{errors.evidenceFile}</div>}
+            </FieldContainer>
+            <Button
+              onClick={submitForm}
+              style={{width: '100%'}}
+              type="submit"
+              disabled={Object.entries(errors).length > 0 || (statusSubmitEvidence && statusSubmitEvidence === 'pending')}
+            >
+              Submit Evidence
+            </Button>
+            {statusSubmitEvidence && statusSubmitEvidence === 'pending' && (
+              <MessageBoxTx
+                pending={true}
+                onClick={() => {
+                  window.open(
+                    `https://${drizzleState.networkID === 42 ? 'kovan.' : ''}etherscan.io/tx/${Object.keys(drizzleState.transactions)[0]}`,
+                    '_blank'
+                  )
+                  resetForm()
+                }}
+              />
+            )}
+            {
+              statusSubmitEvidence && statusSubmitEvidence === 'success' && (
+                <Box>
+                  Evidence sent
+                  { !isEvidenceSent && resetEvidenceReset(resetForm) }
+                </Box>
+              )
+            }
+          </Modal>
         )}
       </Formik>
       {item ? (
@@ -675,7 +673,7 @@ export default props => {
                         onClick={() => setDropdownHidden(!dropdownHidden)}
                       />
                       <DropdownMenuStyled hidden={dropdownHidden}>
-                        {/* TODO: add loader transaction */}
+                      {/* TODO: add loader transaction */}
                       { claim.status === '0' && (
                         <DropdownItemStyled
                           onClick={() => {
@@ -692,30 +690,36 @@ export default props => {
                       {
                         claim.status > '0' && claim.status < '4' && (
                           <DropdownItemStyled
-                          onClick={() => {
-                            // TODO: open a box to submit an evidence
-                            setClaimID(claim.ID)
-                            setOpen(true)
-                            setDropdownHidden(!dropdownHidden)
-                          }}
-                        >
-                          Submit an Evidence
-                        </DropdownItemStyled>
-                      )}
+                            onClick={() => {
+                              // TODO: open a box to submit an evidence
+                              setClaimID(claim.ID)
+                              setOpen(true)
+                              setDropdownHidden(!dropdownHidden)
+                            }}
+                          >
+                            Submit an Evidence
+                          </DropdownItemStyled>
+                        )
+                      }
                       {
-                        claim.status === '3' && claim.currentRuling === '2' && claim.disputeStatus === '1' && (
+                        claim.status === '3' 
+                        && claim.currentRuling === '2' 
+                        && claim.disputeStatus === '1' 
+                        && claim.isRuled 
+                        && (
                           <DropdownItemStyled
-                          onClick={() => {
-                            sendAppeal(
-                              claim.ID,
-                              { value: claim.appealCost }
-                            )
-                            setDropdownHidden(!dropdownHidden)
-                          }}
-                        >
-                          Appeal to the Ruling
-                        </DropdownItemStyled>
-                      )}
+                            onClick={() => {
+                              sendAppeal(
+                                claim.ID,
+                                { value: claim.appealCost }
+                              )
+                              setDropdownHidden(!dropdownHidden)
+                            }}
+                          >
+                            Appeal to the Ruling
+                          </DropdownItemStyled>
+                        )
+                      }
                       </DropdownMenuStyled>
                     </DropdownStyled>
                   )}
