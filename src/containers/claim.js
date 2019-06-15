@@ -3,6 +3,7 @@ import styled from 'styled-components/macro'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import Textarea from 'react-textarea-autosize'
 import Web3 from 'web3'
+import EthCrypto from 'eth-crypto'
 import Modal from 'react-responsive-modal'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
@@ -10,6 +11,7 @@ import Button from '../components/button'
 import ETHAmount from '../components/eth-amount'
 import { useDataloader } from '../bootstrap/dataloader'
 import MessageBoxTx from '../components/message-box-tx'
+import ipfsPublish from './api/ipfs-publish'
 
 const Container = styled.div`
   font-family: Nunito;
@@ -182,7 +184,6 @@ export default props => {
     networkID: drizzleState.web3.networkId || 1
   }))
   const [isClaim, setClaim] = useState(false)
-  const [finderAddress, setFinderAddress] = useState('')
   const [wallet, setWallet] = useState('')
   const [isSendClaim, setSendClaim] = useState('')
   const [isOpen, setOpen] = useState(false)
@@ -207,7 +208,7 @@ export default props => {
         transactionBlockTimeout: 5
       }
     )
-    if(!isClaim) {
+    if(!isClaim && item) {
       setClaim(true)
       setSendClaim('pending')
 
@@ -233,10 +234,27 @@ export default props => {
         }
       }))
 
+      const dataEncrypted = await EthCrypto.encryptWithPublicKey(
+        item.owner,
+        descriptionLink
+      )
+
+      const enc = new TextEncoder()
+
+      // Upload the description encrypted to IPFS
+      const ipfsHashMetaEvidenceObj = await ipfsPublish(
+        'claim.txt',
+        enc.encode(dataEncrypted)
+      )
+
+      const descriptionEncryptedIpfsUrl = `ipfs/${
+        ipfsHashMetaEvidenceObj[1].hash
+      }${ipfsHashMetaEvidenceObj[0].path}`
+
       const encodedABI = drizzle.contracts.Recover.methods.claim(
         itemID.padEnd(66, '0'), 
-        finder, 
-        descriptionLink
+        finder,
+        'descriptionEncryptedIpfsUrl'
       ).encodeABI()
 
       await web3.eth.accounts.signTransaction({
@@ -248,7 +266,7 @@ export default props => {
       ).then(
         signTransaction => {
           web3.eth.sendSignedTransaction(signTransaction.rawTransaction.toString('hex'))
-            .on('transactionHash', txHash => {
+            .on('transactionHash', () => {
               // TODO: post msg to airtable to be sure the tx is deployed
               window.location.replace(
                 `/contract/${
