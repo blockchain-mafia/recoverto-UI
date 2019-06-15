@@ -29,13 +29,6 @@ const Title = styled.h2`
   padding-bottom: 20px;
 `
 
-const SubTitle = styled.h3`
-  font-family: Nunito;
-  font-size: 30px;
-  color: #14213d;
-  margin: 30px 0;
-`
-
 const Message = styled.div`
   font-family: Nunito;
   font-size: 30px;
@@ -76,16 +69,6 @@ const DescriptionBox = styled.div`
   font-size: 20px;
 `
 
-const Label = styled.div`
-  margin-top: 24px;
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: 200;
-  font-size: 16px;
-  line-height: 19px;
-  color: #5C5C5C;
-`
-
 const StyledField = styled(Field)`
   line-height: 50px;
   padding-left: 20px;
@@ -103,8 +86,8 @@ const StyledTextarea = styled(Textarea)`
   margin: 20px 0 40px 0;
   width: 100%;
   display: block;
-  background: #FFFFFF;
-  border: 1px solid #CCCCCC;
+  background: #fff;
+  border: 1px solid #ccc;
   box-sizing: border-box;
   border-radius: 5px;
 `
@@ -112,14 +95,6 @@ const StyledTextarea = styled(Textarea)`
 const StyledForm = styled(Form)`
   display: flex;
   flex-direction: column;
-`
-
-const StyledPrint = styled.div`
-  display: none;
-  @media print {
-    display: block;
-    margin: 40px;
-  }
 `
 
 const StyledFieldAddress = styled(Field)`
@@ -159,6 +134,29 @@ const StyledButtonAddress = styled(Button)`
     width: 100%;
     margin: 20px 0 40px 0;
   }
+`
+
+const StyledLabel  = styled.label`
+  font-size: 16px;
+  line-height: 16px;
+  font-family: Nunito;
+  color: #444;
+`
+
+const StyledAccount  = styled.div`
+  line-height: 50px;
+  padding: 0 20px;
+  margin: 20px 0 40px 0;
+  width: 100%;
+  background: #f2f2f2;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  border-radius: 5px;
+  font-family: Roboto;
+  font-weight: 500;
+  color: #000;
+  overflow: scroll;
+  scrollbar-width: none;
 `
 
 // TODO: move to utils folder
@@ -275,7 +273,6 @@ export default props => {
 
   return (
     <Container>
-
       <Title>Discovered Item</Title>
       <Message>
         Congratulations! You found a lost item.
@@ -308,7 +305,8 @@ export default props => {
       >
         {({ errors, values, handleChange }) => (
           <>
-            <Modal 
+            <Modal
+              focusTrapped={false}
               open={isOpen} 
               onClose={() => setOpen(false)} 
               center
@@ -318,23 +316,28 @@ export default props => {
               }}
             >
               <ModalTitle>Create Account</ModalTitle>
-                <label style={{display: 'block', width: '100%'}} htmlFor="finder">
-                  Your Account ID (Address)
-                </label>
-                {wallet.address}
-
-                <label style={{display: 'block', width: '100%'}} htmlFor="finder">
+                <StyledLabel>
+                  <span 
+                    className="info"
+                    aria-label="It's your Ethereum Address (like 0x123...)."
+                  >
+                    Your Account ID (Ethereum Address)
+                  </span>
+                </StyledLabel>
+                <StyledAccount>{wallet.address}</StyledAccount>
+                <StyledLabel style={{display: 'block', width: '100%'}}>
                   Your Password (Private Key)
-                </label>
-                {wallet.privateKey}
+                </StyledLabel>
+                <StyledAccount>{wallet.privateKey}</StyledAccount>
                 <Button
                   style={{padding: '0 30px', textAlign: 'center', lineHeight: '50px', border: '1px solid #14213d', borderRadius: '10px', width: '100%'}}
                   onClick={() => {
                     setOpen(false)
                     values.finder = wallet.address
                   }}
+                  type="button"
                 >
-                  I saved my Password
+                  I Saved my Password
                 </Button>
             </Modal>
             <StyledForm>
@@ -348,6 +351,7 @@ export default props => {
                 />
                 <StyledButtonAddress
                   onClick={() => setOpen(true)}
+                  type="button"
                 >
                   I don't have an Account
                 </StyledButtonAddress>
