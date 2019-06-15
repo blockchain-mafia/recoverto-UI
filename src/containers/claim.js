@@ -317,9 +317,9 @@ export default props => {
                 modal: {width: '80vw', maxWidth: '300px', padding: '6vh 3vw'}
               }}
             >
-              <ModalTitle>Wallet</ModalTitle>
+              <ModalTitle>Create Account</ModalTitle>
                 <label style={{display: 'block', width: '100%'}} htmlFor="finder">
-                  Your Ethereum Address
+                  Your Account ID (Address)
                 </label>
                 {wallet.address}
 
@@ -349,7 +349,7 @@ export default props => {
                 <StyledButtonAddress
                   onClick={() => setOpen(true)}
                 >
-                  I don't have a Wallet
+                  I don't have an Account
                 </StyledButtonAddress>
               </div>
               <div>
