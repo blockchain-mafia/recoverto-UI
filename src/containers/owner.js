@@ -288,7 +288,7 @@ export default props => {
   const [dropdownHidden, setDropdownHidden] = useState(true)
   const [isEvidenceSent, setIsEvidenceSent] = useState(false)
   const drizzleState = useDrizzleState(drizzleState => ({	
-    account: drizzleState.accounts[0] || '0x00',
+    account: drizzleState.accounts[0] || '0x0000000000000000000000000000000000000000',
     networkID: drizzleState.web3.networkId || 1,
     transactions: drizzleState.transactions
   }))

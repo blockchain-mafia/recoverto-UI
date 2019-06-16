@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react'
+import React, { useCallback, useState, useEffect, useMemo } from 'react'
 import styled from 'styled-components/macro'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import Textarea from 'react-textarea-autosize'
@@ -161,27 +161,14 @@ const StyledAccount  = styled.div`
   scrollbar-width: none;
 `
 
-// TODO: move to utils folder
-function generateSeedWallet() {
-  const bip39 = require('bip39')
-  const hdkey = require('ethereumjs-wallet/hdkey')
-  const mnemonic = bip39.generateMnemonic() //generates string
-  const seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex')
-  const hdwallet = hdkey.fromMasterSeed(bip39.mnemonicToSeed(seed))
-  const wallet_hdpath = "m/44'/60'/0'/0/"
-  const wallet = hdwallet.derivePath(wallet_hdpath + 0).getWallet()
-  const address = '0x' + wallet.getAddress().toString('hex')
-  const privateKey = wallet.getPrivateKey().toString('hex')
-  return {mnemonic, address, privateKey}
-}
-
 export default props => {
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
 
-  const { drizzle, useCacheCall, useCacheSend } = useDrizzle()
+  const { drizzle, useCacheCall, useCacheEvents } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({	
-    account: drizzleState.accounts[0] || '0x00',
-    networkID: drizzleState.web3.networkId || 1
+    account: drizzleState.accounts[0] || '0x0000000000000000000000000000000000000000',
+    networkID: drizzleState.web3.networkId || 1,
+    web3: drizzleState.web3
   }))
   const [isClaim, setClaim] = useState(false)
   const [wallet, setWallet] = useState('')
@@ -194,8 +181,19 @@ export default props => {
 
   useEffect(() => {
     if (!wallet)
-      setWallet(generateSeedWallet())
+      setWallet(EthCrypto.createIdentity())
   })
+
+  const metaEvidenceEvent = useCacheEvents(
+    'Recover',
+    'MetaEvidence',
+    useMemo(
+      () => ({
+        filter: { _itemID: itemID },
+        fromBlock: process.env.REACT_APP_DRAW_EVENT_LISTENER_BLOCK_NUMBER
+      })
+    )
+  )
 
   const claim = useCallback(async ({finder, descriptionLink}) => {
     const web3 = new Web3(
@@ -208,7 +206,7 @@ export default props => {
         transactionBlockTimeout: 5
       }
     )
-    if(!isClaim && item) {
+    if(!isClaim) {
       setClaim(true)
       setSendClaim('pending')
 
@@ -216,10 +214,10 @@ export default props => {
         method: 'post',
         body: JSON.stringify({
           addressOwner: item.owner,
-          addressFinder: drizzleState.account,
+          addressFinder: finder, // FIXME: finder address is not set
           itemID: itemID,
-          emailOwner: (recover[drizzleState.account] && recover[drizzleState.account].email) || '',
-          phoneNumberOwner: (recover[drizzleState.account] && recover[drizzleState.account].phoneNumber) || ''
+          emailOwner: (recover[finder] && recover[finder].email) || '',
+          phoneNumberOwner: (recover[finder] && recover[finder].phoneNumber) || ''
         })
       })
       .then(res => res.json())
@@ -233,18 +231,20 @@ export default props => {
           privateKey
         }
       }))
+  
+      const tx = await drizzle.web3.eth.getTransaction(metaEvidenceEvent[0].transactionHash)
 
       const dataEncrypted = await EthCrypto.encryptWithPublicKey(
-        item.owner,
+        tx.publicKey.substring(2),
         descriptionLink
       )
 
       const enc = new TextEncoder()
 
-      // Upload the description encrypted to IPFS
+      // Upload the finder description encrypted to IPFS
       const ipfsHashMetaEvidenceObj = await ipfsPublish(
         'claim.txt',
-        enc.encode(dataEncrypted)
+        enc.encode(EthCrypto.cipher.stringify(dataEncrypted).toString())
       )
 
       const descriptionEncryptedIpfsUrl = `ipfs/${
@@ -252,9 +252,9 @@ export default props => {
       }${ipfsHashMetaEvidenceObj[0].path}`
 
       const encodedABI = drizzle.contracts.Recover.methods.claim(
-        itemID.padEnd(66, '0'), 
+        itemID.padEnd(66, '0'),
         finder,
-        'descriptionEncryptedIpfsUrl'
+        descriptionEncryptedIpfsUrl
       ).encodeABI()
 
       await web3.eth.accounts.signTransaction({

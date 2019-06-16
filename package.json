@@ -1,7 +1,7 @@
 {
-  "name": "court",
+  "name": "recover",
   "version": "0.0.1",
-  "description": "The Kleros court user interface.",
+  "description": "The Recover user interface.",
   "keywords": [
     "blockchain",
     "ethereum",
@@ -9,7 +9,7 @@
     "kleros",
     "court"
   ],
-  "repository": "https://github.com/kleros/court",
+  "repository": "https://github.com/blockchain-mafia/recoverto-UI",
   "author": "Wagner Nicolas",
   "license": "MIT",
   "private": true,
@@ -58,7 +58,6 @@
     "@loadable/component": "^5.5.0",
     "@reach/router": "^1.2.1",
     "airtable": "^0.6.0",
-    "bip39": "^3.0.2",
     "dataloader": "^1.4.0",
     "debounce": "^1.2.0",
     "dotenv": "^8.0.0",

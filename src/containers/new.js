@@ -110,7 +110,7 @@ export default () => {
   const [isMMOpen, setMMOpen] = useState(false)
   const { drizzle, useCacheSend } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({	
-    account: drizzleState.accounts[0] || '0x00',
+    account: drizzleState.accounts[0] || '0x0000000000000000000000000000000000000000',
     balance: drizzleState.accountBalances[drizzleState.accounts[0]] || 0,
     ID: `${drizzleState.accounts[0]}-${drizzleState.web3.networkId}`,
     transactions: drizzleState.transactions,

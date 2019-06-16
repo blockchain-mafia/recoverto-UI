@@ -39,13 +39,13 @@ export function handler(event, context, callback) {
       "Phone Number Owner": phoneNumberOwner,
       "Email Owner": emailOwner
     })
-    callback(null, {
+    return callback(null, {
       statusCode: 200,
       body: JSON.stringify({ result: "Data recorded" })
     })
   } catch (err) { 
     console.log(err)
-    callback(null, {
+    return callback(null, {
       statusCode: err.response.status,
       body: JSON.stringify({ ...err.response.data })
     })

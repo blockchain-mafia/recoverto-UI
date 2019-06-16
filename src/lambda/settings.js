@@ -54,7 +54,7 @@ export function handler(event, context, callback) {
       }).firstPage((err, records) => {
         if (err) { console.error(err); return; }
         records.forEach(record => {
-          callback(null, {
+          return callback(null, {
             statusCode: 200,
             body: JSON.stringify({ ID: record.get('ID') })
           })
@@ -69,7 +69,7 @@ export function handler(event, context, callback) {
         if (err) { console.error(err); return; }
         console.log(record.get('Address'));
       })
-      callback(null, {
+      return callback(null, {
         statusCode: 200,
         body: JSON.stringify({ result: "Settings recorded" })
       })
@@ -82,14 +82,14 @@ export function handler(event, context, callback) {
         if (err) { console.error(err); return }
       })
 
-      callback(null, {
+      return callback(null, {
         statusCode: 200,
         body: JSON.stringify({ result: "Settings added" })
       })
     }
   } catch (err) { 
     console.log(err)
-    callback(null, {
+    return callback(null, {
       statusCode: err.response.status,
       body: JSON.stringify({ ...err.response.data })
     })
