@@ -210,10 +210,8 @@ export default props => {
         method: 'post',
         body: JSON.stringify({
           addressOwner: item.owner,
-          addressFinder: finder, // FIXME: finder address is not set
-          itemID: itemID,
-          emailOwner: (recover[finder] && recover[finder].email) || '',
-          phoneNumberOwner: (recover[finder] && recover[finder].phoneNumber) || ''
+          addressFinder: finder,
+          itemID: itemID
         })
       })
       .then(res => res.json())

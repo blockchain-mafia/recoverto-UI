@@ -82,7 +82,7 @@ Note: Beware of modifying this element as it can break the animations - you shou
 .App-header-menu {
   position: fixed;
   top: 0;
-  background: #14213D;
+  background: #14213d !important;
   top: 0px;
   width: 100vw;
   color: #fff;
@@ -94,7 +94,87 @@ Note: Beware of modifying this element as it can break the animations - you shou
 }
 
 .App-header-menu__isTop {
-  background: transparent;
+  background: transparent !important;
+}
+
+/* Position and sizing of burger button */
+.bm-burger-button {
+  position: absolute;
+  width: 36px;
+  height: 30px;
+  right: 50px;
+  top: 14px;
+}
+
+/* Color/shape of burger icon bars */
+.bm-burger-bars {
+  background: #fff;
+}
+
+/* Color/shape of burger icon bars on hover*/
+.bm-burger-bars-hover {
+  background: #fff;
+}
+
+/* Position and sizing of clickable cross button */
+.bm-cross-button {
+  height: 24px;
+  width: 24px;
+}
+
+/* Color/shape of close button cross */
+.bm-cross {
+  background: #ccc;
+}
+
+.bm-menu-wrap {
+  position: fixed;
+  top: 0;
+  height: 100%;
+}
+
+/* General sidebar styles */
+.bm-menu {
+  background: #14213D;
+  padding: 2.5em 1.5em 0;
+  font-size: 1.15em;
+}
+
+/* Morph shape necessary with bubble or elastic */
+.bm-morph-shape {
+  fill: #14213D;
+}
+
+/* Wrapper for item list */
+.bm-item-list {
+  color: #bdc3c7;
+  padding: 0.8em;
+}
+
+/* Individual item */
+.bm-item {
+  display: inline-block;
+}
+
+.bm-item-list a {
+  text-decoration: none;
+  color: #fff;
+  font-size: 24px;
+  font-family: RadnikaBold;
+  line-height: 40px;
+  outline: 0;
+}
+
+/* Styling of overlay */
+.bm-overlay {
+  background: rgba(0, 0, 0, 1);
+  top: 0;
+}
+
+@media (max-width: 48em) {
+  .bm-burger-button {
+    right: 20px;
+  }
 }
 
 /* Name brand */

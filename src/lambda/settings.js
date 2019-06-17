@@ -16,19 +16,30 @@ if (fs.existsSync('.airtable')) {
 
 const { AIRTABLE_API_KEY, AIRTABLE_BASE } = process.env
 
-export function handler(event, context, callback) {
-    // Only allow GET, POST or PATCH
-  if (!["GET", "POST", "PATCH"].includes(event.httpMethod))
+// TODO: move to the utils folder
+const getIDByAddress = (base, address) => {
+  return new Promise((resolve, reject) => {
+    base('Owners').select({
+      view: 'Grid view',
+      filterByFormula: `{Address} = '${address}'`
+    }).firstPage((err, records) => {
+      if (records.length === 0) resolve(false)
+      else records.forEach(record => resolve(record['id']))
+    })
+  })
+}
+
+exports.handler = async function(event, context, callback) {
+    // Only allow GET or POST
+  if (!["GET", "POST"].includes(event.httpMethod))
     return {
       statusCode: 403,
       body: JSON.stringify({ error: "Method Not Allowed" })
     }
 
-
   const params = JSON.parse(event.body)
   const signMsg = params.signMsg || ""
   const address = params.address || ""
-  const ID = params.ID || ""
   const email = params.email || ""
   const phoneNumber = params.phoneNumber || ""
 
@@ -50,9 +61,8 @@ export function handler(event, context, callback) {
     if (event.httpMethod === "GET") // GET
       base('Owners').select({
         view: 'Grid view',
-        filterByFormula: `{Address} = '${address}'`
+        filterByFormula: `{Address} = '${address.toLowerCase()}'`
       }).firstPage((err, records) => {
-        if (err) { console.error(err); return; }
         records.forEach(record => {
           return callback(null, {
             statusCode: 200,
@@ -60,38 +70,36 @@ export function handler(event, context, callback) {
           })
         })
       })
-    else if (event.httpMethod === "PATCH") { // PATCH
-      base('Owners').update(ID, {
-        "Address": address,
-        "Email": email,
-        "Phone Number": phoneNumber
-      }, (err, record) => {
-        if (err) { console.error(err); return; }
-        console.log(record.get('Address'));
-      })
-      return callback(null, {
-        statusCode: 200,
-        body: JSON.stringify({ result: "Settings recorded" })
-      })
-    } else { // POST
-      base('Owners').create({
-        "Address": address,
-        "Email": email,
-        "Phone Number": phoneNumber
-      }, err => {
-        if (err) { console.error(err); return }
-      })
+    else {
+      const ID = await getIDByAddress(base, address.toLowerCase())
+      if (ID) {
+        base('Owners').update(ID, {
+          "Address": address.toLowerCase(),
+          "Email": email,
+          "Phone Number": phoneNumber
+        })
+        callback(null, {
+          statusCode: 200,
+          body: JSON.stringify({ result: "Settings updated" })
+        })
+      } else { // New Entry
+        base('Owners').create({
+          "Address": address.toLowerCase(),
+          "Email": email,
+          "Phone Number": phoneNumber
+        })
 
-      return callback(null, {
-        statusCode: 200,
-        body: JSON.stringify({ result: "Settings added" })
-      })
+        callback(null, {
+          statusCode: 200,
+          body: JSON.stringify({ result: "Settings added" })
+        })
+      }
     }
   } catch (err) { 
-    console.log(err)
-    return callback(null, {
-      statusCode: err.response.status,
-      body: JSON.stringify({ ...err.response.data })
+    console.error(err)
+    callback(null, {
+      statusCode: 500,
+      body: JSON.stringify({ err })
     })
   }
 }

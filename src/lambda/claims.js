@@ -15,8 +15,25 @@ if (fs.existsSync('.airtable')) {
 
 const { AIRTABLE_API_KEY, AIRTABLE_BASE } = process.env
 
+// TODO: move to the utils folder
+const getIDByAddress = (base, address) => {
+  return new Promise((resolve, reject) => {
+    base('Owners').select({
+      view: 'Grid view',
+      filterByFormula: `{Address} = '${address}'`
+    }).firstPage((err, records) => {
+      if (records.length === 0) resolve(false)
+      else records.forEach(record => resolve({
+        ID: record['id'],
+        address: record.get('Email'),
+        phoneNumber: record.get('Phone Number')
+      }))
+    })
+  })
+}
+
 // TODO: use a bot instead of a netlify function to avoid a DDOS attack
-export function handler(event, context, callback) {
+exports.handler = async function(event, context, callback) {
   // Only allow POST
   if (event.httpMethod !== "POST")
     return { statusCode: 405, body: "Method Not Allowed" }
@@ -28,26 +45,27 @@ export function handler(event, context, callback) {
   const addressOwner = params.addressOwner || "0x00"
   const addressFinder = params.addressFinder || "0x00"
   const itemID = params.itemID || ""
-  const emailOwner = params.emailOwner || ""
-  const phoneNumberOwner = params.phoneNumberOwner || ""
 
   try {
+    const dataOwner = await getIDByAddress(base, addressOwner.toLowerCase())
+
     base('Claims').create({
       "Address Finder": addressFinder,
       "Owner": addressOwner,
       "Item ID": itemID,
-      "Phone Number Owner": phoneNumberOwner,
-      "Email Owner": emailOwner
+      "Phone Number Owner": dataOwner.phoneNumber,
+      "Email Owner": dataOwner.email
     })
-    return callback(null, {
+
+    return {
       statusCode: 200,
-      body: JSON.stringify({ result: "Data recorded" })
-    })
-  } catch (err) { 
-    console.log(err)
-    return callback(null, {
-      statusCode: err.response.status,
-      body: JSON.stringify({ ...err.response.data })
-    })
+      body: JSON.stringify({ result: `Data recorded.` })
+    }
+  } catch (err) {
+    console.error(err)
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ err })
+    }
   }
 }
