@@ -161,10 +161,17 @@ const StyledAccount  = styled.div`
   scrollbar-width: none;
 `
 
+const Error  = styled.div`
+  color: red;
+  font-family: Roboto;
+  font-size: 14px;
+  margin: -20px 0 30px 0;
+`
+
 export default props => {
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
 
-  const { drizzle, useCacheCall, useCacheEvents } = useDrizzle()
+  const { drizzle, useCacheCall } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({	
     account: drizzleState.accounts[0] || '0x0000000000000000000000000000000000000000',
     networkID: drizzleState.web3.networkId || 1,
@@ -184,18 +191,7 @@ export default props => {
       setWallet(EthCrypto.createIdentity())
   })
 
-  const metaEvidenceEvent = useCacheEvents(
-    'Recover',
-    'MetaEvidence',
-    useMemo(
-      () => ({
-        filter: { _itemID: itemID },
-        fromBlock: process.env.REACT_APP_DRAW_EVENT_LISTENER_BLOCK_NUMBER
-      })
-    )
-  )
-
-  const claim = useCallback(async ({finder, descriptionLink}) => {
+  const claim = useCallback(async ({finder, description}) => {
     const web3 = new Web3(
       new Web3.providers.HttpProvider(
         `https://${drizzleState.networkID === 42 ? 'kovan' : 'mainnet'}.infura.io/v3/846256afe0ee40f0971d902ea8d36266`
@@ -232,19 +228,21 @@ export default props => {
         }
       }))
   
-      const tx = await drizzle.web3.eth.getTransaction(metaEvidenceEvent[0].transactionHash)
-
       const dataEncrypted = await EthCrypto.encryptWithPublicKey(
-        tx.publicKey.substring(2),
-        descriptionLink
+        EthCrypto.publicKeyByPrivateKey(privateKey),
+        JSON.stringify({ description })
       )
 
       const enc = new TextEncoder()
 
       // Upload the finder description encrypted to IPFS
       const ipfsHashMetaEvidenceObj = await ipfsPublish(
-        'claim.txt',
-        enc.encode(EthCrypto.cipher.stringify(dataEncrypted).toString())
+        'claim.json',
+        enc.encode(
+          JSON.stringify(
+            { dataEncrypted: EthCrypto.cipher.stringify(dataEncrypted).toString() }
+          )
+        )
       )
 
       const descriptionEncryptedIpfsUrl = `ipfs/${
@@ -308,14 +306,18 @@ export default props => {
       <Formik
         initialValues={{
           finder: '',
-          descriptionLink: ''
+          description: ''
         }}
         validate={values => {
           let errors = {}
+          if (!values.finder)
+            errors.finder = 'Address Required'
           if (!drizzle.web3.utils.isAddress(values.finder))
             errors.finder = 'Valid Address Required'
-          if (values.descriptionLink.length > 1000000)
-            errors.descriptionLink =
+          if (values.description.length === 0)
+            errors.description = 'Description Required'
+          if (values.description.length > 1000000)
+            errors.description =
               'The maximum numbers of the characters for the description is 1,000,000 characters.'
           return errors
         }}
@@ -373,15 +375,19 @@ export default props => {
                 >
                   I don't have an Account
                 </StyledButtonAddress>
+                <ErrorMessage
+                  name="finder"
+                  component={Error}
+                />
               </div>
               <div>
-                <label htmlFor="descriptionLink">
+                <label htmlFor="description">
                   Message
                 </label>
                 <StyledField
-                  name="descriptionLink"
+                  name="description"
                   placeholder="Message for the owner"
-                  value={values.descriptionLink}
+                  value={values.description}
                   render={({ field, form }) => (
                     <StyledTextarea
                       {...field}
@@ -389,14 +395,14 @@ export default props => {
                       minRows={10}
                       onChange={e => {
                         handleChange(e)
-                        form.setFieldValue('descriptionLink', e.target.value)
+                        form.setFieldValue('description', e.target.value)
                       }}
                     />
                   )}
                 />
                 <ErrorMessage
-                  name="descriptionLink"
-                  component="div"
+                  name="description"
+                  component={Error}
                 />
               </div>
               <div style={{textAlign: 'right'}}>

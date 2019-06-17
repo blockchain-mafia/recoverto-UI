@@ -408,6 +408,14 @@ export default props => {
                 }
               }
 
+              const descriptionObj = loadDescription(
+                claim.descriptionLink,
+                privateKey
+              )
+
+              if (descriptionObj)
+                claim.description = descriptionObj.dataDecrypted.description
+
               acc.data.push({ 
                 ...claim,
                 isRuled,
@@ -730,13 +738,13 @@ export default props => {
                           {claim.finder}
                         </StyledClaimAddressBoxContent>
                     </StyledClaimAddressContainerBoxContent>
-                    {claim.descriptionLink && (
+                    {claim.description && (
                       <StyledClaimDescriptionContainerBoxContent>
                         <StyledClaimLabelBoxContent>
                           Description
                         </StyledClaimLabelBoxContent> 
                         <StyledClaimDescriptionBoxContent>
-                          {claim.descriptionLink}
+                          {claim.description}
                         </StyledClaimDescriptionBoxContent> 
                       </StyledClaimDescriptionContainerBoxContent>
                     )}
