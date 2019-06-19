@@ -408,13 +408,15 @@ export default props => {
                 }
               }
 
-              const descriptionObj = loadDescription(
+              const finderInformation = loadDescription(
                 claim.descriptionLink,
                 privateKey
               )
 
-              if (descriptionObj)
-                claim.description = descriptionObj.dataDecrypted.description
+              if (finderInformation) {
+                claim.description = finderInformation.dataDecrypted.description
+                claim.finderEmail = finderInformation.dataDecrypted.email
+              }
 
               acc.data.push({ 
                 ...claim,
@@ -738,6 +740,16 @@ export default props => {
                           {claim.finder}
                         </StyledClaimAddressBoxContent>
                     </StyledClaimAddressContainerBoxContent>
+                    {claim.finderEmail && (
+                      <StyledClaimDescriptionContainerBoxContent>
+                        <StyledClaimLabelBoxContent>
+                          Email
+                        </StyledClaimLabelBoxContent> 
+                        <StyledClaimDescriptionBoxContent>
+                          {claim.finderEmail}
+                        </StyledClaimDescriptionBoxContent> 
+                      </StyledClaimDescriptionContainerBoxContent>
+                    )}
                     {claim.description && (
                       <StyledClaimDescriptionContainerBoxContent>
                         <StyledClaimLabelBoxContent>

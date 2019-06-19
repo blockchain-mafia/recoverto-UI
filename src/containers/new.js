@@ -5,6 +5,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik'
 import Textarea from 'react-textarea-autosize'
 import Modal from 'react-responsive-modal'
 import ReactPhoneInput from 'react-phone-input-2'
+import { navigate } from '@reach/router'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import Button from '../components/button'
@@ -575,7 +576,7 @@ export default () => {
                     )}
                   />
                   {(status === 'success' && isMetaEvidencePublish)
-                    ? window.location.replace(
+                    ? navigate(
                         `/contract/${
                           drizzleState.networkID === 42 ?
                             process.env.REACT_APP_RECOVER_KOVAN_ADDRESS

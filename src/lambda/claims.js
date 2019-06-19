@@ -25,7 +25,7 @@ const getIDByAddress = (base, address) => {
       if (records.length === 0) resolve(false)
       else records.forEach(record => resolve({
         ID: record['id'],
-        address: record.get('Email'),
+        email: record.get('Email'),
         phoneNumber: record.get('Phone Number')
       }))
     })

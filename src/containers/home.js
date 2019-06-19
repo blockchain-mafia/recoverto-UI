@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components/macro'
 import Dotdotdot from 'react-dotdotdot'
+import { navigate } from '@reach/router'
 
 import { useDataloader } from '../bootstrap/dataloader'
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
@@ -123,7 +124,7 @@ export default () => {
             key={claim.ID}
             encrypted={false}
             onClick={
-              () => window.location.replace(
+              () => navigate(
                 `/contract/${
                   drizzleState.networkID === 42 ?
                     process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
@@ -146,7 +147,7 @@ export default () => {
             key={item.ID}
             encrypted={false}
             onClick={
-              () => window.location.replace(
+              () => navigate(
                 `/contract/${
                   drizzleState.networkID === 42 ?
                     process.env.REACT_APP_RECOVER_KOVAN_ADDRESS

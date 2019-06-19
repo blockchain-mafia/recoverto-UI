@@ -4,6 +4,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik'
 import Textarea from 'react-textarea-autosize'
 import Web3 from 'web3'
 import EthCrypto from 'eth-crypto'
+import { navigate } from '@reach/router'
 import Modal from 'react-responsive-modal'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
@@ -191,7 +192,7 @@ export default props => {
       setWallet(EthCrypto.createIdentity())
   })
 
-  const claim = useCallback(async ({finder, description}) => {
+  const claim = useCallback(async ({finder, email, description}) => {
     const web3 = new Web3(
       new Web3.providers.HttpProvider(
         `https://${drizzleState.networkID === 42 ? 'kovan' : 'mainnet'}.infura.io/v3/846256afe0ee40f0971d902ea8d36266`
@@ -228,7 +229,7 @@ export default props => {
   
       const dataEncrypted = await EthCrypto.encryptWithPublicKey(
         EthCrypto.publicKeyByPrivateKey(privateKey),
-        JSON.stringify({ description })
+        JSON.stringify({ email, description })
       )
 
       const enc = new TextEncoder()
@@ -264,13 +265,12 @@ export default props => {
           web3.eth.sendSignedTransaction(signTransaction.rawTransaction.toString('hex'))
             .on('transactionHash', () => {
               // TODO: post msg to airtable to be sure the tx is deployed
-              window.location.replace(
-                `/contract/${
-                  drizzleState.networkID === 42 ?
-                    process.env.REACT_APP_RECOVER_KOVAN_ADDRESS 
-                    : process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
-                }/items/${itemID}/pk/${privateKey}/claim-success`
-              )
+              navigate(`
+                /contract/${drizzleState.networkID === 42 ?
+                  process.env.REACT_APP_RECOVER_KOVAN_ADDRESS 
+                  : process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
+                }/items/${itemID}/pk/${privateKey}/claim-success
+              `)
             })
         }
       )
@@ -294,6 +294,8 @@ export default props => {
       </Message>
       {item ? (
         <Box>
+          {/* Add fiat price with API */}
+          {/* Use https://api.etherscan.io/api?module=stats&action=ethprice&apikey= */}
           <TitleBox>{ETHAmount({amount: item.rewardAmount, decimals: 2})} ETH</TitleBox>
           <TypeBox>{item.content ? item.content.dataDecrypted.type : '...'}</TypeBox>
           <DescriptionBox>{item.content ? item.content.dataDecrypted.description : '...'}</DescriptionBox>
@@ -304,6 +306,7 @@ export default props => {
       <Formik
         initialValues={{
           finder: '',
+          email: '',
           description: ''
         }}
         validate={values => {
@@ -312,6 +315,13 @@ export default props => {
             errors.finder = 'Address Required'
           if (!drizzle.web3.utils.isAddress(values.finder))
             errors.finder = 'Valid Address Required'
+          if (!values.email)
+            errors.email = 'Email Required'
+          if (
+            values.email !== '' &&
+            !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)
+          )
+            errors.email = 'Invalid email address'
           if (values.description.length === 0)
             errors.description = 'Description Required'
           if (values.description.length > 1000000)
@@ -379,17 +389,35 @@ export default props => {
                 />
               </div>
               <div>
+                <label style={{display: 'block', width: '100%'}} htmlFor="email">
+                  Email
+                </label>
+                <StyledField
+                  name="email"
+                  placeholder="me@example.com"
+                />
+                <ErrorMessage
+                  name="email"
+                  component={Error}
+                />
+              </div>
+              <div>
                 <label htmlFor="description">
                   Message
                 </label>
                 <StyledField
                   name="description"
-                  placeholder="Message for the owner"
                   value={values.description}
                   render={({ field, form }) => (
                     <StyledTextarea
                       {...field}
-                      placeholder="Message for the owner"
+                      placeholder={`I found your ${
+                        item && item.content 
+                          ? item.content.dataDecrypted.type : '...'
+                        } in ...
+                        \n\nThis is my Whatsapp: +1 23 ...
+                        \n\nSee you!
+                      `}
                       minRows={10}
                       onChange={e => {
                         handleChange(e)
