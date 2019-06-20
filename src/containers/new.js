@@ -577,7 +577,7 @@ export default () => {
                     )}
                   />
                   {(status === 'success' && isMetaEvidencePublish)
-                    ? navigate(
+                    ? window.location.replace(
                         `/contract/${
                           drizzleState.networkID === 42 ?
                             process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
