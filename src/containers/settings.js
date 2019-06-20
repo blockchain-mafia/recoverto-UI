@@ -228,7 +228,7 @@ export default () => {
                     width: '100%',
                     boxSizing: 'border-box',
                     color: '#222',
-                    font: '400 15px system-ui'
+                    font: '400 15px Nunito'
                   }}
                   inputExtraProps={{
                     name: 'phoneNumber'

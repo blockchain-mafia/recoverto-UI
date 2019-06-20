@@ -129,6 +129,7 @@ const StyledTextarea = styled(Textarea)`
   box-sizing: border-box;
   border-radius: 5px;
   min-height: 11em;
+  font-family: Nunito;
 `
 
 const Error  = styled.div`

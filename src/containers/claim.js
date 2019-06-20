@@ -93,6 +93,7 @@ const StyledTextarea = styled(Textarea)`
   border: 1px solid #ccc;
   box-sizing: border-box;
   border-radius: 5px;
+  font-family: Nunito;
 `
 
 const StyledForm = styled(Form)`

@@ -79,6 +79,7 @@ const StyledTextarea = styled(Textarea)`
   border: 1px solid #ccc;
   box-sizing: border-box;
   border-radius: 5px;
+  font-family: Nunito;
 `
 
 const StyledForm = styled(Form)`
@@ -453,7 +454,7 @@ export default () => {
                         width: '100%',
                         boxSizing: 'border-box',
                         color: '#222',
-                        font: '400 15px system-ui'
+                        font: '400 15px Nunito'
                       }}
                       inputExtraProps={{
                         name: 'phoneNumber'
