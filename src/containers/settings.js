@@ -108,6 +108,7 @@ export default () => {
       fetch('/.netlify/functions/settings', {
         method: 'post',
         body: JSON.stringify({
+          network: drizzleState.networkID === 42 ? 'KOVAN' : 'MAINNET',
           address,
           signMsg,
           email: email || (recover[drizzleState.ID] && recover[drizzleState.ID].email) || '',

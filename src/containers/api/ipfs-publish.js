@@ -15,7 +15,8 @@ const ipfsPublish = async (fileName, data) => {
         buffer
       }),
       headers: {
-        "content-type": "application/json"
+        "content-type": "application/json",
+        "Access-Control-Allow-Origin": "*"
       }
     }).then(
       response => response.json()

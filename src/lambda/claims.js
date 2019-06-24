@@ -13,7 +13,11 @@ if (fs.existsSync('.airtable')) {
   }
 }
 
-const { AIRTABLE_API_KEY, AIRTABLE_BASE } = process.env
+const { 
+  AIRTABLE_API_KEY,
+  AIRTABLE_MAINNET_BASE,
+  AIRTABLE_KOVAN_BASE,
+} = process.env
 
 // TODO: move to the utils folder
 const getIDByAddress = (base, address) => {
@@ -38,10 +42,13 @@ exports.handler = async function(event, context, callback) {
   if (event.httpMethod !== "POST")
     return { statusCode: 405, body: "Method Not Allowed" }
 
+  const baseNetwork = `AIRTABLE_${network}_BASE`
+
   const base = new Airtable({ apiKey: AIRTABLE_API_KEY })
-    .base(AIRTABLE_BASE)
+    .base(eval(baseNetwork))
 
   const params = JSON.parse(event.body)
+  const network = params.network || "MAINNET"
   const addressOwner = params.addressOwner || "0x00"
   const addressFinder = params.addressFinder || "0x00"
   const itemID = params.itemID || ""
