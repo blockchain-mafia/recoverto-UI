@@ -317,7 +317,7 @@ const StyledDivFoundScreen = styled.div`
 `
 
 const StyledDivReward = styled.div`
-  margin-top: -4px;
+  margin-top: -2px;
   width: 128px;
   text-align: justify;
   font-size: 24px;
