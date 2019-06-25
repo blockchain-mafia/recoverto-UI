@@ -31,6 +31,10 @@ const Container = styled.div`
   border-radius: 20px; 
   box-shadow: 0px 4px 50px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  @media (max-width: 768px) {
+    padding: 2em 3em;
+    margin: 0;
+  }
 `
 
 const Title = styled.h2`
@@ -140,6 +144,17 @@ const StyledClaimAddressBoxContent = styled.div`
   font-size: 20px;
   color: #191847;
   line-height: 30px;
+`
+
+const StyledClaimEmailBoxContent = styled.div`
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  margin-top: 10px;
+  font-family: Nunito;
+  font-weight: 600;
+  font-size: 20px;
+  color: #191847;
 `
 
 const StyledClaimDescriptionBoxContent = styled.div`
@@ -746,9 +761,9 @@ export default props => {
                         <StyledClaimLabelBoxContent>
                           Email
                         </StyledClaimLabelBoxContent> 
-                        <StyledClaimDescriptionBoxContent>
+                        <StyledClaimEmailBoxContent>
                           {claim.finderEmail}
-                        </StyledClaimDescriptionBoxContent> 
+                        </StyledClaimEmailBoxContent> 
                       </StyledClaimDescriptionContainerBoxContent>
                     )}
                     {claim.description && (
@@ -758,7 +773,7 @@ export default props => {
                         </StyledClaimLabelBoxContent> 
                         <StyledClaimDescriptionBoxContent>
                           {claim.description}
-                        </StyledClaimDescriptionBoxContent> 
+                        </StyledClaimDescriptionBoxContent>
                       </StyledClaimDescriptionContainerBoxContent>
                     )}
                     {claim.evidence && claim.evidence.length && (

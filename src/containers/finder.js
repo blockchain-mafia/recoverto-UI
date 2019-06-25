@@ -27,6 +27,10 @@ const Container = styled.div`
   border-radius: 20px; 
   box-shadow: 0px 4px 50px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  @media (max-width: 768px) {
+    padding: 2em 3em;
+    margin: 0;
+  }
 `
 
 const Title = styled.h2`

@@ -12,6 +12,9 @@ const Grid = styled.div`
   grid-template-columns: repeat(3, 1fr);
   grid-gap: 70px;
   grid-auto-rows: 290px;
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 `
 
 const Type = styled.div`

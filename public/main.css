@@ -114,3 +114,10 @@ input[type='file']:active {
   border-right: 1px solid #ccc !important;
   z-index: 1000;
 }
+
+@media (max-width: 48em) {
+  main {
+    min-height: calc(100vh - 100px);
+    padding: 100px 0 100px 0;
+  }
+}

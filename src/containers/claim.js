@@ -23,18 +23,22 @@ const Container = styled.div`
   border-radius: 20px; 
   box-shadow: 0px 4px 50px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  @media (max-width: 768px) {
+    padding: 2em 3em;
+    margin: 0;
+  }
 `
 
 const Title = styled.h2`
   font-family: Nunito;
-  font-size: 40px;
+  font-size: 30px;
   color: #14213d;
   padding-bottom: 20px;
 `
 
 const Message = styled.div`
   font-family: Nunito;
-  font-size: 30px;
+  font-size: 24px;
   line-height: 41px;
   color: #000000;
   text-align: center;
@@ -211,6 +215,7 @@ export default props => {
       await fetch('/.netlify/functions/claims', {
         method: 'post',
         body: JSON.stringify({
+          network: drizzleState.networkID === 42 ? 'KOVAN' : 'MAINNET',
           addressOwner: item.owner,
           addressFinder: finder,
           itemID: itemID

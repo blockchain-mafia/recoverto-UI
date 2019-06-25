@@ -13,27 +13,24 @@ const Container = styled.div`
   border-radius: 20px; 
   box-shadow: 0px 4px 50px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  @media (max-width: 768px) {
+    padding: 2em 3em;
+    margin: 0;
+  }
 `
 
 const Title = styled.h2`
   font-family: Nunito;
-  font-size: 40px;
+  font-size: 30px;
   color: #14213d;
   padding-bottom: 20px;
 `
 
-const SubTitle = styled.h3`
-  font-family: Nunito;
-  font-size: 30px;
-  color: #14213d;
-  margin: 30px 0;
-`
-
 const Message = styled.div`
   font-family: Nunito;
-  font-size: 30px;
+  font-size: 24px;
   line-height: 41px;
-  color: #000000;
+  color: #000;
   text-align: center;
   padding: 60px 0;
 `
