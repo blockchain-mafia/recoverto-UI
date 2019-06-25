@@ -68,6 +68,7 @@ const StyledPrint = styled.div`
     display: flex;
     flex-direction: column;
     margin: 40px;
+    color: #000;
   }
 `
 
@@ -295,7 +296,6 @@ const StyledDivFound = styled.div`
   max-width: 128px;
   text-align: justify;
   font-size: 15px;
-  font-family: RadnikaBoldCondensed;
   &::after {
     content: "";
     display: inline-block;
@@ -699,7 +699,7 @@ export default props => {
           </Modal>
         )}
       </Formik>
-      {item ? (
+      {item && item.content && item.content.dataDecrypted ? (
         <>
           <Title>{item.content ? item.content.dataDecrypted.type : 'Item'}</Title>
           <Label>Description</Label>
@@ -733,7 +733,12 @@ export default props => {
               trigger={() => <div style={{paddingTop: '20px'}}><button>Print Qr Code</button></div>}
               content={() => componentRef.current}
             />
-            <ComponentToPrint contract={props.contract} itemID_Pk={props.itemID_Pk} ref={componentRef} />
+            <ComponentToPrint 
+              contract={props.contract} 
+              itemID_Pk={itemID} 
+              privateKey={privateKey}
+              ref={componentRef} 
+            />
           </div>
         </>
       ) : (
