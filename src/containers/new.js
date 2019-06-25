@@ -74,6 +74,23 @@ const StyledField = styled(Field)`
   border-radius: 5px;
 `
 
+const StyledSelect = styled.select`
+  text-indent: 10px; 
+  height: 50px;
+  margin: 10px 0;
+  width: 100%;
+  display: block;
+  background: #fff;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  border-radius: 5px;
+`
+
+const StyledOption = styled.option`
+  font-family: Roboto;
+  padding: 0 40px;
+`
+
 const StyledTextarea = styled(Textarea)`
   padding: 20px 0 0 20px;
   margin: 10px 0;
@@ -106,6 +123,19 @@ const ModalContent = styled.div`
 const PModalContent = styled.p`
   padding: 20px 0;
 `
+
+const types = [
+  'Phone',
+  'Bag',
+  'Laptop',
+  'Luggage',
+  'Pets',
+  'Keys',
+  'Ledger',
+  'Trezor',
+  'KeepKey',
+  'Tablet'
+]
 
 export default () => {
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
@@ -230,7 +260,7 @@ export default () => {
         <Title>New Item</Title>
         <Formik
           initialValues={{
-            type: '',
+            type: 'undefined',
             description: '',
             contactInformation: '',
             rewardAmount: 0,
@@ -241,7 +271,7 @@ export default () => {
           }}
           validate={values => {
             let errors = {}
-            if (values.type  === '')
+            if (values.type  === '' || values.type  === 'undefined')
               errors.type = 'Type Required'
             if (values.description  === '')
               errors.description = 'Description Required'
@@ -346,10 +376,28 @@ export default () => {
                   <StyledLabel htmlFor="type">
                     Type
                   </StyledLabel>
-                  <StyledField
+                  <StyledSelect
                     name="type"
-                    placeholder="Type"
-                  />
+                    value={values.type}
+                    onChange={handleChange}
+                  >
+                    <StyledOption 
+                      value={values.type === 'undefined' ? 'undefined' : ''} 
+                      label={values.type === 'undefined' ? 'Select your Type' : 'Custom'} 
+                    />
+                    {values.type === 'undefined' && <StyledOption value="" label="Custom" />}
+                    {types.map(type => (
+                      <StyledOption key={type} value={type} label={type} />
+                    ))}
+                  </StyledSelect>
+                  {
+                    !types.includes(values.type) && values.type !== "undefined" && (
+                      <StyledField
+                        name="type"
+                        placeholder="Describe the Type of your Item"
+                      />
+                    )
+                  }
                   <ErrorMessage
                     name="type"
                     component={Error}
