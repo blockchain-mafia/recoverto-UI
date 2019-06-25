@@ -304,8 +304,8 @@ const StyledDivFound = styled.div`
 `
 
 const StyledDivFoundScreen = styled.div`
-  margin-bottom: -10px;
-  max-width: 128px;
+  margin-bottom: -14px;
+  width: 128px;
   text-align: justify;
   font-size: 15px;
   font-family: RadnikaBoldCondensed;
@@ -318,7 +318,7 @@ const StyledDivFoundScreen = styled.div`
 
 const StyledDivReward = styled.div`
   margin-top: -4px;
-  max-width: 128px;
+  width: 128px;
   text-align: justify;
   font-size: 24px;
   font-family: RadnikaBoldCondensed;
