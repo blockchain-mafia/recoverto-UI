@@ -1,6 +1,18 @@
 @import url('https://fonts.googleapis.com/css?family=Nunito:100,300,400');
 @import url('https://fonts.googleapis.com/css?family=Roboto:100,200,300,400');
 
+@font-face {
+  font-family: RadnikaBoldCondensed;
+  src: url(./fonts/Radnika-BoldCondensed.ttf);
+}
+
+@media print {
+  @font-face {
+    font-family: RadnikaBoldCondensed;
+    src: url(./fonts/Radnika-BoldCondensed.ttf);
+  }
+}
+
 body {
   font-family: Roboto;
   min-height: 100vh;

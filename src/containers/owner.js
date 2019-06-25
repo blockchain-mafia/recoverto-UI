@@ -64,9 +64,18 @@ const Label = styled.div`
 const StyledPrint = styled.div`
   display: none;
   @media print {
-    display: block;
+    font-family: RadnikaBoldCondensed;
+    display: flex;
+    flex-direction: column;
     margin: 40px;
   }
+`
+
+const StyledQrCode = styled.div`
+  font-family: RadnikaBoldCondensed;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `
 
 const StyledNoClaim = styled.div`
@@ -282,15 +291,58 @@ const StyledClaimEvidenceBoxContent = styled.div`
   margin-top: 10px;
 `
 
+const StyledDivFound = styled.div`
+  max-width: 128px;
+  text-align: justify;
+  font-size: 15px;
+  font-family: RadnikaBoldCondensed;
+  &::after {
+    content: "";
+    display: inline-block;
+    width: 100%;
+  }
+`
+
+const StyledDivFoundScreen = styled.div`
+  margin-bottom: -10px;
+  max-width: 128px;
+  text-align: justify;
+  font-size: 15px;
+  font-family: RadnikaBoldCondensed;
+  &::after {
+    content: "";
+    display: inline-block;
+    width: 100%;
+  }
+`
+
+const StyledDivReward = styled.div`
+  margin-top: -4px;
+  max-width: 128px;
+  text-align: justify;
+  font-size: 24px;
+  font-family: RadnikaBoldCondensed;
+  &::after {
+    content: "";
+    display: inline-block;
+    width: 100%;
+  }
+`
+
 class ComponentToPrint extends Component {
   render() {
     return (
       <StyledPrint>
-        <QRCode
-          value={`${process.env.REACT_APP_URL_APP}/contract/${this.props.contract}/items/${
-            this.props.itemID_Pk
-          }`}
-        />
+        <StyledDivFound>FOUND IT? SCAN ME!</StyledDivFound>
+        <div>
+          <QRCode
+            value={
+              `${process.env.REACT_APP_URL_APP}/contract/${this.props.contract}/items/
+              ${this.props.itemID_Pk}-privateKey=${this.props.privateKey}`
+            }
+          />
+        </div>
+        <StyledDivReward>GET REWARD</StyledDivReward>
       </StyledPrint>
     )
   }
@@ -665,11 +717,18 @@ export default props => {
           </div>
           <SubTitle>Qr code</SubTitle>
           <div style={{textAlign: 'center'}}>
-            <QRCode
-              value={
-                `${process.env.REACT_APP_URL_APP}/contract/${props.contract}/items/
-                ${itemID}-privateKey=${privateKey}`}
-            />
+            <StyledQrCode>
+              <StyledDivFoundScreen>FOUND IT? SCAN ME!</StyledDivFoundScreen>
+              <div>
+                <QRCode
+                  value={
+                    `${process.env.REACT_APP_URL_APP}/contract/${props.contract}/items/
+                    ${itemID}-privateKey=${privateKey}`
+                  }
+                />
+              </div>
+              <StyledDivReward>GET REWARD</StyledDivReward>
+            </StyledQrCode>
             <ReactToPrint
               trigger={() => <div style={{paddingTop: '20px'}}><button>Print Qr Code</button></div>}
               content={() => componentRef.current}
