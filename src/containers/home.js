@@ -81,7 +81,7 @@ export default () => {
   const claimIDs = useCacheCall('Recover', 'getClaimIDsByAddress', drizzleState.account)
 
   const claims = useCacheCall(['Recover'], call =>
-    claimIDs
+    claimIDs && claimIDs[0] !== "0"
       ? claimIDs.reduce(
           (acc, d) => {
             const claim = call('Recover', 'claims', d)

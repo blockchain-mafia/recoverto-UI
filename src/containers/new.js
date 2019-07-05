@@ -152,9 +152,9 @@ export default () => {
     transactions: drizzleState.transactions,
     networkID: drizzleState.web3.networkId || 1
   }))
-
+  
   useEffect(() => {
-    if (drizzleState.account === '0x00')
+    if (drizzleState.account === '0x0000000000000000000000000000000000000000')
       setMMOpen(true)
   })
 

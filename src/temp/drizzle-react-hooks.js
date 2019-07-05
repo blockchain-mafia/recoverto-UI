@@ -214,7 +214,7 @@ export const Initializer = ({
   if (drizzleState.web3Status === 'initialized' && timedOut)
     return loadingContractsAndAccounts
   if (drizzleState.web3Status === 'failed') return error
-  return loadingWeb3
+    return loadingWeb3
 }
 
 Initializer.propTypes = {
