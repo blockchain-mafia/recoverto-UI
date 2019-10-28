@@ -60,21 +60,17 @@ const CardItem = ({
 }) => (
   <>
     {newItem ? (
-      <ItemNew onClick={() => navigate('/new')}>
+      <ItemNew onClick={() => navigate('/new/items/undefined/pk/undefined')}>
         <ItemTitle>Add Item</ItemTitle>
-        <div><Plus /></div>
+        <div>
+          <Plus />
+        </div>
       </ItemNew>
     ) : loadingItem ? (
-      <Item>
-        Loading...
-      </Item>
+      <Item>Loading...</Item>
     ) : (
-      <Item
-          onClick={onClick}
-          className={`CardItem ${className}`}
-          {...rest}
-        >
-          {children}
+      <Item onClick={onClick} className={`CardItem ${className}`} {...rest}>
+        {children}
       </Item>
     )}
   </>

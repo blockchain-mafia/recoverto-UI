@@ -26,15 +26,21 @@ const Nav = () => {
 
   return (
     <div className={`App-header-menu ${isTop ? 'App-header-menu__isTop' : ''}`}>
-      <div onClick={() => navigate('/')} style={{cursor: 'pointer'}} className="App-header-menu-logo">RECOVER</div>
+      <div
+        onClick={() => navigate('/')}
+        style={{ cursor: 'pointer' }}
+        className="App-header-menu-logo"
+      >
+        RECOVER
+      </div>
       <Menu right>
-        <Link to='/' className="menu-item">
+        <Link to="/" className="menu-item">
           HOME
         </Link>
-        <Link to='/new' className="menu-item">
+        <Link to="/new/items/undefined/pk/undefined" className="menu-item">
           ADD ITEM
         </Link>
-        <Link to='/settings' className="menu-item">
+        <Link to="/settings" className="menu-item">
           SETTINGS
         </Link>
         <a
@@ -66,49 +72,81 @@ const ContainerLoader = styled.div`
 const C404 = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/404'),
   {
-    fallback: <ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>
+    fallback: (
+      <ContainerLoader>
+        <BeatLoader color={'#fff'} />
+      </ContainerLoader>
+    )
   }
 )
 const Home = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/home'),
   {
-    fallback: <ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>
+    fallback: (
+      <ContainerLoader>
+        <BeatLoader color={'#fff'} />
+      </ContainerLoader>
+    )
   }
 )
 const New = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/new'),
   {
-    fallback: <ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>
+    fallback: (
+      <ContainerLoader>
+        <BeatLoader color={'#fff'} />
+      </ContainerLoader>
+    )
   }
 )
 const Owner = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/owner'),
   {
-    fallback: <ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>
+    fallback: (
+      <ContainerLoader>
+        <BeatLoader color={'#fff'} />
+      </ContainerLoader>
+    )
   }
 )
 const Claim = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/claim'),
   {
-    fallback: <ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>
+    fallback: (
+      <ContainerLoader>
+        <BeatLoader color={'#fff'} />
+      </ContainerLoader>
+    )
   }
 )
 const ClaimSuccess = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/claim-success'),
   {
-    fallback: <ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>
+    fallback: (
+      <ContainerLoader>
+        <BeatLoader color={'#fff'} />
+      </ContainerLoader>
+    )
   }
 )
 const Finder = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/finder'),
   {
-    fallback: <ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>
+    fallback: (
+      <ContainerLoader>
+        <BeatLoader color={'#fff'} />
+      </ContainerLoader>
+    )
   }
 )
 const Settings = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/settings'),
   {
-    fallback: <ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>
+    fallback: (
+      <ContainerLoader>
+        <BeatLoader color={'#fff'} />
+      </ContainerLoader>
+    )
   }
 )
 
@@ -125,13 +163,17 @@ export default () => (
       <Initializer
         error={<C404 Web3 />}
         loadingContractsAndAccounts={<C404 Web3 />}
-        loadingWeb3={<ContainerLoader><BeatLoader color={'#fff'} /></ContainerLoader>}
+        loadingWeb3={
+          <ContainerLoader>
+            <BeatLoader color={'#fff'} />
+          </ContainerLoader>
+        }
       >
         <ArchonInitializer>
           <Router>
             <Main path="/">
               <Home path="/" />
-              <New path="/new" />
+              <New path="/new/items/:itemID/pk/:pk" />
               <Settings path="/settings" />
               <Owner path="/contract/:contract/items/:itemID/owner" />
               {/* NOTE: for one item, several claims are possible */}

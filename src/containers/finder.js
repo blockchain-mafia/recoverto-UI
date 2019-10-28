@@ -1,10 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react'
 import styled from 'styled-components/macro'
-import {
-  Dropdown,
-  DropdownItem,
-  DropdownMenu
-} from 'styled-dropdown-component'
+import { Dropdown, DropdownItem, DropdownMenu } from 'styled-dropdown-component'
 import Textarea from 'react-textarea-autosize'
 import Modal from 'react-responsive-modal'
 import { Formik, Field, ErrorMessage } from 'formik'
@@ -24,7 +20,7 @@ const Container = styled.div`
   margin: 0 126px;
   padding: 77px 104px;
   background: #fff;
-  border-radius: 20px; 
+  border-radius: 20px;
   box-shadow: 0px 4px 50px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   @media (max-width: 768px) {
@@ -54,7 +50,7 @@ const Label = styled.div`
   font-weight: 200;
   font-size: 16px;
   line-height: 19px;
-  color: #5C5C5C;
+  color: #5c5c5c;
 `
 
 const DropdownStyled = styled(Dropdown)`
@@ -100,7 +96,7 @@ const Box = styled.div`
   height: 100px;
   overflow: hidden;
 `
-const StyledLabel  = styled.label`
+const StyledLabel = styled.label`
   font-family: Roboto;
   color: #5c5c5c;
   font-size: 16px;
@@ -128,15 +124,15 @@ const StyledTextarea = styled(Textarea)`
   margin: 20px 0 40px 0;
   width: 100%;
   display: block;
-  background: #FFFFFF;
-  border: 1px solid #CCCCCC;
+  background: #ffffff;
+  border: 1px solid #cccccc;
   box-sizing: border-box;
   border-radius: 5px;
   min-height: 11em;
   font-family: Nunito;
 `
 
-const Error  = styled.div`
+const Error = styled.div`
   color: red;
   font-family: Roboto;
   font-size: 14px;
@@ -146,7 +142,7 @@ const StyledClaimEvidenceContainerBoxContent = styled.div`
   margin-top: 20px;
   display: flex;
   flex-direction: column;
-  padding:  0 4vw;
+  padding: 0 4vw;
 `
 
 const StyledClaimEvidenceBoxContent = styled.div`
@@ -170,7 +166,7 @@ export default props => {
   const [isOpen, setOpen] = useState(false)
   const [isEvidenceSent, setIsEvidenceSent] = useState(false)
   const { useCacheCall, useCacheSend, useCacheEvents, drizzle } = useDrizzle()
-  const drizzleState = useDrizzleState(drizzleState => ({	
+  const drizzleState = useDrizzleState(drizzleState => ({
     account: drizzleState.accounts[0] || '0x00',
     networkID: drizzleState.web3.networkId || 1,
     transactions: drizzleState.transactions
@@ -182,26 +178,29 @@ export default props => {
     }
   })
 
-  const { send: sendReimburse, status: statusReimburse } = useCacheSend('Recover', 'reimburse')
-  const { send: sendPayArbitrationFeeByFinder, status: statusPayArbitrationFeeByFinder } = useCacheSend(
+  const { send: sendReimburse, status: statusReimburse } = useCacheSend(
     'Recover',
-    'payArbitrationFeeByFinder'
+    'reimburse'
   )
+  const {
+    send: sendPayArbitrationFeeByFinder,
+    status: statusPayArbitrationFeeByFinder
+  } = useCacheSend('Recover', 'payArbitrationFeeByFinder')
   const { send: sendAppeal, status: statusAppeal } = useCacheSend(
     'Recover',
     'appeal'
   )
-  const { send: sendSubmitEvidence, status: statusSubmitEvidence } = useCacheSend(
-    'Recover',
-    'submitEvidence'
-  )
+  const {
+    send: sendSubmitEvidence,
+    status: statusSubmitEvidence
+  } = useCacheSend('Recover', 'submitEvidence')
 
   const arbitratorExtraData = useCacheCall('Recover', 'arbitratorExtraData')
 
   const arbitrationCost = useCacheCall(
-    'KlerosLiquid', 
+    'KlerosLiquid',
     'arbitrationCost',
-    (arbitratorExtraData || '0x00')
+    arbitratorExtraData || '0x00'
   )
 
   const loadDescription = useDataloader.getDescription()
@@ -214,7 +213,7 @@ export default props => {
 
   let item
 
-  if(claim) {
+  if (claim) {
     item = useCacheCall('Recover', 'items', claim.itemID)
     // TODO: test without web3 (drizzleState.account)
     claim.funds = useCacheEvents(
@@ -249,14 +248,13 @@ export default props => {
           claim.disputeID
         )
 
-        if (dispute)
-          claim.isRuled = dispute.ruled ? true : false
+        if (dispute) claim.isRuled = dispute.ruled ? true : false
 
         claim.appealCost = useCacheCall(
           'KlerosLiquid',
           'appealCost',
           claim.disputeID,
-          (arbitratorExtraData || '0x00')
+          arbitratorExtraData || '0x00'
         )
 
         claim.evidence = getEvidence(
@@ -267,26 +265,27 @@ export default props => {
       }
     }
 
-    if(item) {
+    if (item) {
       item.content = {
-        dataDecrypted: {type: 'loading...'}
+        dataDecrypted: { type: 'loading...' }
       }
 
       item.itemID = claim.itemID
 
       const itemID = claim.itemID.replace(/0x0/gi, '0x').replace(/0+$/, '')
 
-      if(recover[itemID] && recover[itemID].privateKey) {
+      if (recover[itemID] && recover[itemID].privateKey) {
         const metaEvidence = loadDescription(
           item.descriptionEncryptedLink,
           recover[itemID].privateKey
         )
         if (metaEvidence) item.content = metaEvidence
-      } else item.content = {
-        dataDecrypted: {type: 'Data Encrypted'}
-      }
-      if(recover[itemID] && recover[itemID].finder)
-      item.finder = recover[itemID].finder
+      } else
+        item.content = {
+          dataDecrypted: { type: 'Data Encrypted' }
+        }
+      if (recover[itemID] && recover[itemID].finder)
+        item.finder = recover[itemID].finder
     }
   }
 
@@ -302,13 +301,13 @@ export default props => {
         }}
         validate={values => {
           let errors = {}
-          if (values.name  === '')
-            errors.name = 'Name Required'
+          if (values.name === '') errors.name = 'Name Required'
           if (values.description.length > 100000)
             errors.description =
               'The maximum numbers of the characters for the description is 100,000 characters.'
           if (values.evidenceFile.size > 5000000)
-            errors.evidenceFile = 'The file is too big. The maximum size is 5MB.'
+            errors.evidenceFile =
+              'The file is too big. The maximum size is 5MB.'
           return errors
         }}
         onSubmit={async ({ name, description, evidenceFile }) => {
@@ -324,9 +323,9 @@ export default props => {
               new Buffer(evidenceArrayBuffer)
             )
 
-            evidenceFileURI = await `ipfs/${
-              ipfsHashEvidenceObj[1].hash
-            }${ipfsHashEvidenceObj[0].path}`
+            evidenceFileURI = await `ipfs/${ipfsHashEvidenceObj[1].hash}${
+              ipfsHashEvidenceObj[0].path
+            }`
           }
 
           const evidence = await {
@@ -343,13 +342,11 @@ export default props => {
             enc.encode(JSON.stringify(evidence)) // encode to bytes
           )
 
-          const ipfsHashEvidence =
-            `${ipfsHashEvidenceObj[1].hash}${ipfsHashEvidenceObj[0].path}`
+          const ipfsHashEvidence = `${ipfsHashEvidenceObj[1].hash}${
+            ipfsHashEvidenceObj[0].path
+          }`
 
-          await sendSubmitEvidence(
-            claimID,
-            `/ipfs/${ipfsHashEvidence}`
-          )
+          await sendSubmitEvidence(claimID, `/ipfs/${ipfsHashEvidence}`)
         }}
       >
         {({
@@ -360,37 +357,28 @@ export default props => {
           handleChange,
           resetForm
         }) => (
-          <Modal 
-            open={isOpen} 
-            onClose={() => setOpen(false)} 
+          <Modal
+            open={isOpen}
+            onClose={() => setOpen(false)}
             center
             styles={{
-              closeButton: {background: 'transparent'},
-              modal: {width: '80vw', maxWidth: '300px', padding: '6vh 8vw'}
+              closeButton: { background: 'transparent' },
+              modal: { width: '80vw', maxWidth: '300px', padding: '6vh 8vw' }
             }}
           >
             <ModalTitle>Evidence</ModalTitle>
             <FieldContainer>
               <StyledLabel htmlFor="name">
-                <span 
-                  className="info"
-                  aria-label="The name of the evidence"
-                >
+                <span className="info" aria-label="The name of the evidence">
                   Name
                 </span>
               </StyledLabel>
-              <StyledField
-                name="name"
-                placeholder="Name"
-              />
-              <ErrorMessage
-                name="name"
-                component={Error}
-              />
+              <StyledField name="name" placeholder="Name" />
+              <ErrorMessage name="name" component={Error} />
             </FieldContainer>
             <FieldContainer>
               <StyledLabel htmlFor="description">
-                <span 
+                <span
                   className="info"
                   aria-label="
                     Description of the evidence.
@@ -413,21 +401,18 @@ export default props => {
                   />
                 )}
               />
-              <ErrorMessage
-                name="description"
-                component={Error}
-              />
+              <ErrorMessage name="description" component={Error} />
             </FieldContainer>
             {/* hack Formik for file type */}
             {/* and store only the path on the file in the redux state */}
             <FieldContainer>
               <StyledLabel htmlFor="evidenceFile">
-                <span 
-                    className="info"
-                    aria-label="A file to prove your statement."
-                  >
-                    File (optional)
-                  </span> 
+                <span
+                  className="info"
+                  aria-label="A file to prove your statement."
+                >
+                  File (optional)
+                </span>
               </StyledLabel>
               <div className="NewEvidenceArbitrableTx-form-file FileInput">
                 <input
@@ -449,13 +434,18 @@ export default props => {
                   {values.evidenceFile ? values.evidenceFile.name : null}
                 </div>
               </div>
-              {errors.evidenceFile && <div className="error">{errors.evidenceFile}</div>}
+              {errors.evidenceFile && (
+                <div className="error">{errors.evidenceFile}</div>
+              )}
             </FieldContainer>
             <Button
               onClick={submitForm}
-              style={{width: '100%'}}
+              style={{ width: '100%' }}
               type="submit"
-              disabled={Object.entries(errors).length > 0 || (statusSubmitEvidence && statusSubmitEvidence === 'pending')}
+              disabled={
+                Object.entries(errors).length > 0 ||
+                (statusSubmitEvidence && statusSubmitEvidence === 'pending')
+              }
             >
               Submit Evidence
             </Button>
@@ -464,21 +454,23 @@ export default props => {
                 pending={true}
                 onClick={() => {
                   window.open(
-                    `https://${drizzleState.networkID === 42 ? 'kovan.' : ''}etherscan.io/tx/${Object.keys(drizzleState.transactions)[0]}`,
+                    `https://${
+                      drizzleState.networkID === 42 ? 'kovan.' : ''
+                    }etherscan.io/tx/${
+                      Object.keys(drizzleState.transactions)[0]
+                    }`,
                     '_blank'
                   )
                   resetForm()
                 }}
               />
             )}
-            {
-              statusSubmitEvidence && statusSubmitEvidence === 'success' && (
-                <Box>
-                  Evidence sent
-                  { !isEvidenceSent && resetEvidenceReset(resetForm) }
-                </Box>
-              )
-            }
+            {statusSubmitEvidence && statusSubmitEvidence === 'success' && (
+              <Box>
+                Evidence sent
+                {!isEvidenceSent && resetEvidenceReset(resetForm)}
+              </Box>
+            )}
           </Modal>
         )}
       </Formik>
@@ -488,109 +480,106 @@ export default props => {
             <DropdownStyled>
               {/* FIX: only if status === 0 */}
               <StyledSettings
-                style={!dropdownHidden ? {background: '#efefef'} : {}}
+                style={!dropdownHidden ? { background: '#efefef' } : {}}
                 onClick={() => setDropdownHidden(!dropdownHidden)}
               />
               <DropdownMenuStyled hidden={dropdownHidden}>
-                { 
-                  claim.status === '0' && (
-                    <DropdownItemStyled 
-                      onClick={() => {
-                        sendReimburse(
-                          claimID, 
-                          item.rewardAmount
-                        )
-                        setDropdownHidden(!dropdownHidden)
-                      }}
-                    >
-                      Reimburse
-                    </DropdownItemStyled>
-                  )
-                }
-                {
-                  claim.status === '0' && (
+                {claim.status === '0' && (
+                  <DropdownItemStyled
+                    onClick={() => {
+                      sendReimburse(claimID, item.rewardAmount)
+                      setDropdownHidden(!dropdownHidden)
+                    }}
+                  >
+                    Reimburse
+                  </DropdownItemStyled>
+                )}
+                {claim.status === '0' && (
+                  <DropdownItemStyled
+                    onClick={() => {
+                      sendPayArbitrationFeeByFinder(claimID, {
+                        value: arbitrationCost
+                      })
+                      setDropdownHidden(!dropdownHidden)
+                    }}
+                  >
+                    Raise a Dispute
+                  </DropdownItemStyled>
+                )}
+                {claim.status > '0' && claim.status < '4' && (
+                  <DropdownItemStyled
+                    onClick={() => {
+                      // TODO: open a box to submit an evidence
+                      setOpen(true)
+                      setDropdownHidden(!dropdownHidden)
+                    }}
+                  >
+                    Submit an Evidence
+                  </DropdownItemStyled>
+                )}
+                {claim.status === '3' &&
+                  claim.currentRuling === '1' &&
+                  claim.disputeStatus === '1' &&
+                  claim.isRuled && (
                     <DropdownItemStyled
                       onClick={() => {
-                        sendPayArbitrationFeeByFinder(
-                          claimID,
-                          { value: arbitrationCost }
-                        )
-                        setDropdownHidden(!dropdownHidden)
-                      }}
-                    >
-                      Raise a Dispute
-                    </DropdownItemStyled>
-                  )
-                }
-                {
-                  claim.status > '0' && claim.status < '4' && (
-                    <DropdownItemStyled
-                      onClick={() => {
-                        // TODO: open a box to submit an evidence
-                        setOpen(true)
-                        setDropdownHidden(!dropdownHidden)
-                      }}
-                    >
-                      Submit an Evidence
-                    </DropdownItemStyled>
-                  )
-                }
-                {
-                  claim.status === '3' 
-                  && claim.currentRuling === '1' 
-                  && claim.disputeStatus === '1'
-                  && claim.isRuled
-                  && (
-                    <DropdownItemStyled
-                      onClick={() => {
-                        sendAppeal(
-                          claim.ID,
-                          { value: claim.appealCost }
-                        )
+                        sendAppeal(claim.ID, { value: claim.appealCost })
                         setDropdownHidden(!dropdownHidden)
                       }}
                     >
                       Appeal to the Ruling
                     </DropdownItemStyled>
-                  )
-                }
+                  )}
               </DropdownMenuStyled>
             </DropdownStyled>
           )}
-          <Title>{item.content ? item.content.dataDecrypted.type : 'Item'}</Title>
+          <Title>
+            {item.content ? item.content.dataDecrypted.type : 'Item'}
+          </Title>
           <Label>Description</Label>
-          <div style={{padding: '10px 0'}}>{item.content ? item.content.dataDecrypted.description : '...'}</div>
-          <Label>Contact Information</Label>
-          <div style={{padding: '10px 0'}}>{item.content ? item.content.dataDecrypted.contactInformation : '...'}</div>
-          <Label>Reward</Label>
-          <div style={{padding: '10px 0'}}>{
-              ETHAmount({amount: item.rewardAmount, decimals: 2})
-            } ETH
+          <div style={{ padding: '10px 0' }}>
+            {item.content ? item.content.dataDecrypted.description : '...'}
           </div>
-          {
-            claim.status > 0 && (
-              <>
-                <Label>Dispute Status</Label>
-                <div style={{padding: '10px 0'}}>
-                  {
-                    claim.status === '1'
-                      ? 'Awaiting the fee from the finder.'
-                      : claim.status === '2'
-                        ? 'Awaiting the fee from you.'
-                        : claim.status === '3'
-                          ? !claim.isRuled
-                            ? 'Dispute Ongoing'
-                            : claim.currentRuling === '2'
-                              ? <>You win the dispute. <br />The dispute can be appealable.</>
-                              : <>You lose the dispute. <br />The dispute can be appealable.</>
-                          : claim.status === '4' && claim.currentRuling === '2'
-                            ? 'You win the dispute.'
-                            : 'You lose the dispute.'
-                  }
-                </div>
-              </>
-            )
-          }
+          <Label>Contact Information</Label>
+          <div style={{ padding: '10px 0' }}>
+            {item.content
+              ? item.content.dataDecrypted.contactInformation
+              : '...'}
+          </div>
+          <Label>Reward</Label>
+          <div style={{ padding: '10px 0' }}>
+            {ETHAmount({ amount: item.rewardAmount, decimals: 2 })} ETH
+          </div>
+          {claim.status > 0 && (
+            <>
+              <Label>Dispute Status</Label>
+              <div style={{ padding: '10px 0' }}>
+                {claim.status === '1' ? (
+                  'Awaiting the fee from the finder.'
+                ) : claim.status === '2' ? (
+                  'Awaiting the fee from you.'
+                ) : claim.status === '3' ? (
+                  !claim.isRuled ? (
+                    'Dispute Ongoing'
+                  ) : claim.currentRuling === '2' ? (
+                    <>
+                      You win the dispute. <br />
+                      The dispute can be appealable.
+                    </>
+                  ) : (
+                    <>
+                      You lose the dispute. <br />
+                      The dispute can be appealable.
+                    </>
+                  )
+                ) : claim.status === '4' && claim.currentRuling === '2' ? (
+                  'You win the dispute.'
+                ) : (
+                  'You lose the dispute.'
+                )}
+              </div>
+            </>
+          )}
         </>
       ) : (
         <Title>Loading Item...</Title>
