@@ -38,7 +38,7 @@ export default () => {
   const loadDescription = useDataloader.getDescription()
 
   const { useCacheCall } = useDrizzle()
-  const drizzleState = useDrizzleState(drizzleState => ({	
+  const drizzleState = useDrizzleState(drizzleState => ({
     account: drizzleState.accounts[0] || '0x0000000000000000000000000000000000000000',
     networkID: drizzleState.web3.networkId || 1
   }))
@@ -123,7 +123,7 @@ export default () => {
       <CardItem newItem={true} />
       {
         !claims.loading && claims.data.map(claim => (
-          <CardItem 
+          <CardItem
             key={claim.ID}
             encrypted={false}
             onClick={
@@ -146,7 +146,7 @@ export default () => {
       }
       {
         !items.loading && items.data.reverse().map(item => (
-          <CardItem 
+          <CardItem
             key={item.ID}
             encrypted={false}
             onClick={

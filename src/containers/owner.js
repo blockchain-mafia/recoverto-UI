@@ -28,7 +28,7 @@ const Container = styled.div`
   margin: 0 126px;
   padding: 77px 104px;
   background: #fff;
-  border-radius: 20px; 
+  border-radius: 20px;
   box-shadow: 0px 4px 50px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   @media (max-width: 768px) {
@@ -337,8 +337,7 @@ class ComponentToPrint extends Component {
         <div>
           <QRCode
             value={
-              `${process.env.REACT_APP_URL_APP}/contract/${this.props.contract}/items/
-              ${this.props.itemID_Pk}-privateKey=${this.props.privateKey}`
+              `${process.env.REACT_APP_URL_APP}/contract/${this.props.contract}/items/${this.props.itemID_Pk}-privateKey=${this.props.privateKey}`
             }
           />
         </div>
@@ -355,7 +354,7 @@ export default props => {
   const [isOpen, setOpen] = useState(false)
   const [dropdownHidden, setDropdownHidden] = useState(true)
   const [isEvidenceSent, setIsEvidenceSent] = useState(false)
-  const drizzleState = useDrizzleState(drizzleState => ({	
+  const drizzleState = useDrizzleState(drizzleState => ({
     account: drizzleState.accounts[0] || '0x0000000000000000000000000000000000000000',
     networkID: drizzleState.web3.networkId || 1,
     transactions: drizzleState.transactions
@@ -396,7 +395,7 @@ export default props => {
   const arbitratorExtraData = useCacheCall('Recover', 'arbitratorExtraData')
 
   const arbitrationCost = useCacheCall(
-    'KlerosLiquid', 
+    'KlerosLiquid',
     'arbitrationCost',
     (arbitratorExtraData || '0x00')
   )
@@ -406,7 +405,7 @@ export default props => {
   const loadDescription = useDataloader.getDescription()
 
   if (
-    item !== undefined 
+    item !== undefined
     && item.descriptionEncryptedLink !== undefined
     && privateKey
   ) {
@@ -445,7 +444,7 @@ export default props => {
                     'disputeStatus',
                     claim.disputeID
                   )
-    
+
                   currentRuling = call(
                     'KlerosLiquid',
                     'currentRuling',
@@ -460,7 +459,7 @@ export default props => {
 
                   if (dispute)
                     isRuled = dispute.ruled ? true : false
-    
+
                   appealCost = call(
                     'KlerosLiquid',
                     'appealCost',
@@ -486,7 +485,7 @@ export default props => {
                 claim.finderEmail = finderInformation.dataDecrypted.email
               }
 
-              acc.data.push({ 
+              acc.data.push({
                 ...claim,
                 isRuled,
                 disputeStatus,
@@ -545,7 +544,7 @@ export default props => {
               ipfsHashEvidenceObj[1].hash
             }${ipfsHashEvidenceObj[0].path}`
           }
-          
+
           const evidence = await {
             evidenceFileURI,
             name,
@@ -577,9 +576,9 @@ export default props => {
           handleChange,
           resetForm
         }) => (
-          <Modal 
-            open={isOpen} 
-            onClose={() => setOpen(false)} 
+          <Modal
+            open={isOpen}
+            onClose={() => setOpen(false)}
             center
             styles={{
               closeButton: {background: 'transparent'},
@@ -589,7 +588,7 @@ export default props => {
             <ModalTitle>Evidence</ModalTitle>
             <FieldContainer>
               <StyledLabel htmlFor="name">
-                <span 
+                <span
                   className="info"
                   aria-label="The name of the evidence"
                 >
@@ -607,7 +606,7 @@ export default props => {
             </FieldContainer>
             <FieldContainer>
               <StyledLabel htmlFor="description">
-                <span 
+                <span
                   className="info"
                   aria-label="
                     Description of the evidence.
@@ -639,12 +638,12 @@ export default props => {
             {/* and store only the path on the file in the redux state */}
             <FieldContainer>
               <StyledLabel htmlFor="evidenceFile">
-                <span 
+                <span
                     className="info"
                     aria-label="A file to prove your statement."
                   >
                     File (optional)
-                  </span> 
+                  </span>
               </StyledLabel>
               <div className="NewEvidenceArbitrableTx-form-file FileInput">
                 <input
@@ -733,11 +732,11 @@ export default props => {
               trigger={() => <div style={{paddingTop: '20px'}}><button>Print Qr Code</button></div>}
               content={() => componentRef.current}
             />
-            <ComponentToPrint 
-              contract={props.contract} 
-              itemID_Pk={itemID} 
+            <ComponentToPrint
+              contract={props.contract}
+              itemID_Pk={itemID}
               privateKey={privateKey}
-              ref={componentRef} 
+              ref={componentRef}
             />
           </div>
         </>
@@ -792,10 +791,10 @@ export default props => {
                         )
                       }
                       {
-                        claim.status === '3' 
-                        && claim.currentRuling === '2' 
-                        && claim.disputeStatus === '1' 
-                        && claim.isRuled 
+                        claim.status === '3'
+                        && claim.currentRuling === '2'
+                        && claim.disputeStatus === '1'
+                        && claim.isRuled
                         && (
                           <DropdownItemStyled
                             onClick={() => {
@@ -824,17 +823,17 @@ export default props => {
                       <StyledClaimDescriptionContainerBoxContent>
                         <StyledClaimLabelBoxContent>
                           Email
-                        </StyledClaimLabelBoxContent> 
+                        </StyledClaimLabelBoxContent>
                         <StyledClaimEmailBoxContent>
                           {claim.finderEmail}
-                        </StyledClaimEmailBoxContent> 
+                        </StyledClaimEmailBoxContent>
                       </StyledClaimDescriptionContainerBoxContent>
                     )}
                     {claim.description && (
                       <StyledClaimDescriptionContainerBoxContent>
                         <StyledClaimLabelBoxContent>
                           Description
-                        </StyledClaimLabelBoxContent> 
+                        </StyledClaimLabelBoxContent>
                         <StyledClaimDescriptionBoxContent>
                           {claim.description}
                         </StyledClaimDescriptionBoxContent>
@@ -844,7 +843,7 @@ export default props => {
                       <StyledClaimEvidenceContainerBoxContent>
                         <StyledClaimLabelBoxContent>
                           Evidence{claim.evidence.length > 0 && 's'}
-                        </StyledClaimLabelBoxContent> 
+                        </StyledClaimLabelBoxContent>
                         <StyledClaimEvidenceBoxContent>
                           { claim.evidence.map(e => (
                             <Attachment
@@ -886,7 +885,7 @@ export default props => {
                       <StyledButtonClaimBox
                         onClick={() =>
                           sendAcceptClaim(
-                            claim.ID, 
+                            claim.ID,
                             { value: item.rewardAmount}
                           )
                         }

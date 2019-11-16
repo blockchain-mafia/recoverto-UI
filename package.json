@@ -1,7 +1,7 @@
 {
   "name": "recover",
   "version": "0.0.1",
-  "description": "The Recover user interface.",
+  "description": "The Recover user interface. Lost and found blockchain service.",
   "keywords": [
     "blockchain",
     "ethereum",

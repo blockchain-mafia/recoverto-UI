@@ -10,7 +10,7 @@ const Container = styled.div`
   margin: 0 126px;
   padding: 77px 104px;
   background: #fff;
-  border-radius: 20px; 
+  border-radius: 20px;
   box-shadow: 0px 4px 50px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   @media (max-width: 768px) {
@@ -85,7 +85,7 @@ export default props => {
       <Title>Claim Saved</Title>
       <Message>
           Congratulations! Your claim is saved.
-          <br />If the owner do not contact you soon, 
+          <br />If the owner do not contact you soon,
           <br />you can contact him:
         </Message>
       {item ? (

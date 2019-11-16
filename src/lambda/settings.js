@@ -8,13 +8,13 @@ if (fs.existsSync('.airtable')) {
   const envConfig = dotenv.parse(
     fs.readFileSync('.airtable')
   )
-  
+
   for (let k in envConfig) {
     process.env[k] = envConfig[k]
   }
 }
 
-const { 
+const {
   AIRTABLE_API_KEY,
   AIRTABLE_MAINNET_BASE,
   AIRTABLE_KOVAN_BASE,
@@ -102,7 +102,7 @@ exports.handler = async function(event, context, callback) {
         })
       }
     }
-  } catch (err) { 
+  } catch (err) {
     console.error(err)
     callback(null, {
       statusCode: 500,

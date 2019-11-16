@@ -590,7 +590,7 @@ export default props => {
                       <span
                         className="info"
                         aria-label="
-                          The amount sent to the wallet finder to pay the gas to claim without ETH. 
+                          The amount sent to the wallet finder to pay the gas to claim without ETH.
                           It's a small amount of ETH.
                         "
                       >
@@ -608,7 +608,7 @@ export default props => {
                       <span
                         className="info"
                         aria-label="
-                          Time in seconds after which the finder from whom his claim was accepted 
+                          Time in seconds after which the finder from whom his claim was accepted
                           may force the payment of the reward if there is no dispute flow.
                         "
                       >

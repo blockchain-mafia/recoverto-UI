@@ -32,7 +32,7 @@ const Container = styled.div`
   margin: 0 126px;
   padding: 77px 104px;
   background: #fff;
-  border-radius: 20px; 
+  border-radius: 20px;
   box-shadow: 0px 4px 50px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   @media (max-width: 768px) {
@@ -103,11 +103,11 @@ export default () => {
 
   const addSettings = useCallback(({
       address,
-      signMsg, 
-      email, 
-      phoneNumber, 
-      fundClaims, 
-      timeoutLocked 
+      signMsg,
+      email,
+      phoneNumber,
+      fundClaims,
+      timeoutLocked
     }) => {
       fetch('/.netlify/functions/settings', {
         method: 'post',
@@ -133,7 +133,7 @@ export default () => {
           }))
 
         setIsSaved(true)
-      
+
         // TODO: if error, render error on the UI
     }).catch(err => console.error(err))
   })
@@ -154,7 +154,7 @@ export default () => {
           if (!values.email)
             errors.email = 'Email Required'
           if (
-            values.email !== '' && 
+            values.email !== '' &&
             !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)
           )
             errors.email = 'Invalid email address'
@@ -194,7 +194,7 @@ export default () => {
             <StyledForm>
               <FieldContainer>
                 <StyledLabel htmlFor="email">
-                  <span 
+                  <span
                     className="info"
                     aria-label="Your email to be notified if there is a claim on one of your items."
                   >
@@ -212,7 +212,7 @@ export default () => {
               </FieldContainer>
               <FieldContainer>
                 <StyledLabel htmlFor="phoneNumber">
-                  <span 
+                  <span
                     className="info"
                     aria-label="Your phone number to be notified by SMS if there is a claim on one of your items."
                   >
@@ -220,7 +220,7 @@ export default () => {
                   </span>
                 </StyledLabel>
                 <ReactPhoneInput
-                  value={values.phoneNumber} 
+                  value={values.phoneNumber}
                   onChange={phoneNumber => setFieldValue('phoneNumber', phoneNumber)}
                   containerStyle={{
                     margin: '10px 0',
@@ -246,10 +246,10 @@ export default () => {
               </FieldContainer>
               <FieldContainer>
                 <StyledLabel htmlFor="fundClaims">
-                  <span 
+                  <span
                     className="info"
                     aria-label="
-                      The amount sent to the wallet finder to pay the gas to claim without ETH. 
+                      The amount sent to the wallet finder to pay the gas to claim without ETH.
                       It's a small amount of ETH.
                     "
                   >
@@ -267,10 +267,10 @@ export default () => {
               </FieldContainer>
               <FieldContainer>
                 <StyledLabel htmlFor="timeoutLocked">
-                  <span 
+                  <span
                     className="info"
                     aria-label="
-                      Time in seconds after which the finder from whom his claim was accepted 
+                      Time in seconds after which the finder from whom his claim was accepted
                       may force the payment of the reward if there is no dispute flow.
                     "
                   >

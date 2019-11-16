@@ -7,13 +7,13 @@ if (fs.existsSync('.airtable')) {
   const envConfig = dotenv.parse(
     fs.readFileSync('.airtable')
   )
-  
+
   for (let k in envConfig) {
     process.env[k] = envConfig[k]
   }
 }
 
-const { 
+const {
   AIRTABLE_API_KEY
 } = process.env
 

@@ -28,7 +28,7 @@ const Attachment = ({
   Component = <Component />
   return (
     <StyledAttachment>
-      <span 
+      <span
         className="info"
         aria-label={`${title}: ${description}`}
       >
