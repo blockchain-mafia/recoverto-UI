@@ -175,8 +175,6 @@ const Error = styled.div`
 `
 
 export default props => {
-  const recover = JSON.parse(localStorage.getItem('recover') || '{}')
-
   const { drizzle, useCacheCall } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({
     account:
