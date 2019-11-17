@@ -329,19 +329,27 @@ const StyledDivReward = styled.div`
   }
 `
 
-const ComponentToPrint = ({contract, itemID_Pk, privateKey}) => (
-  <StyledPrint>
-    <StyledDivFound>FOUND IT? SCAN ME!</StyledDivFound>
-    <div>
-      <QRCode
-        value={
-          `${process.env.REACT_APP_URL_APP}/contract/${contract}/items/${itemID_Pk}-privateKey=${privateKey}`
-        }
-      />
-    </div>
-    <StyledDivReward>GET REWARD</StyledDivReward>
-  </StyledPrint>
-)
+// NOTE: ComponentToPrint must be a class Component
+class ComponentToPrint extends Component {
+  render() {
+    const { contract, itemID_Pk, privateKey } = this.props
+
+    return (
+      <StyledPrint>
+        <StyledDivFound>FOUND IT? SCAN ME!</StyledDivFound>
+        <div>
+          <QRCode
+            value={
+              `${process.env.REACT_APP_URL_APP}/contract/${contract}/items/${itemID_Pk}-privateKey=${privateKey}`
+            }
+          />
+        </div>
+        <StyledDivReward>GET REWARD</StyledDivReward>
+      </StyledPrint>
+    )
+  }
+}
+
 
 export default props => {
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')

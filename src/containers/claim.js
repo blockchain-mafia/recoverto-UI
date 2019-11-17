@@ -411,11 +411,12 @@ export default props => {
                   style={{ display: 'block', width: '100%' }}
                   htmlFor="finder"
                 >
-                  Finder Address
+                  Finder Ethereum Account
                 </label>
                 <StyledFieldAddress
                   name="finder"
-                  placeholder="Your Ethereum Address to get the Reward 0x123..."
+                  placeholder="Your Ethereum Account (0x123...)"
+                  autocomplete="nope"
                 />
                 <StyledButtonAddress
                   onClick={() => setOpen(true)}
@@ -439,7 +440,6 @@ export default props => {
                 <label htmlFor="description">Message</label>
                 <StyledField
                   name="description"
-                  value={values.description}
                   render={({ field, form }) => (
                     <StyledTextarea
                       {...field}
