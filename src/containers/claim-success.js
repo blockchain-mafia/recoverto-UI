@@ -63,12 +63,8 @@ const TypeBox = styled.div`
   color: #444;
 `
 
-export default props => {
-  const recover = JSON.parse(localStorage.getItem('recover') || '{}')
-
+export default ({itemID, pk}) => {
   const { useCacheCall } = useDrizzle()
-
-  const { itemID, pk } = props
 
   const item = useCacheCall('Recover', 'items', itemID.padEnd(66, '0'))
 

@@ -1,4 +1,5 @@
-import React from 'react'
+import PropTypes from 'prop-types'
+import React, {useEffect} from 'react'
 import styled from 'styled-components/macro'
 import Dotdotdot from 'react-dotdotdot'
 import { navigate } from '@reach/router'
@@ -32,8 +33,15 @@ const Description = styled(Dotdotdot)`
   font-weight: 100;
 `
 
-export default () => {
+const Home = ({network}) => {
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
+
+  useEffect(() => {
+    if(network === 'mainnet' && drizzleState.networkID != '1')
+      navigate(`/network/kovan`)
+    else if (network === 'kovan' && drizzleState.networkID != '42')
+      navigate(`/network/mainnet`)
+  }, [drizzleState])
 
   const loadDescription = useDataloader.getDescription()
 
@@ -120,20 +128,21 @@ export default () => {
 
   return (
     <Grid>
-      <CardItem newItem={true} />
+      <CardItem newItem={true} network={network} />
       {
         !claims.loading && claims.data.map(claim => (
           <CardItem
             key={claim.ID}
             encrypted={false}
+            network={network}
             onClick={
-              () => navigate(
-                `/contract/${
+              () => navigate(`
+                /network/${network}/contract/${
                   drizzleState.networkID === 42 ?
                     process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
                   : process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
-                }/claims/${claim.ID}`
-              )
+                }/claims/${claim.ID}
+              `)
             }
           >
             <Type>{claim.content && claim.content.dataDecrypted.type}</Type>
@@ -150,13 +159,13 @@ export default () => {
             key={item.ID}
             encrypted={false}
             onClick={
-              () => navigate(
-                `/contract/${
+              () => navigate(`
+                /network/${network}/contract/${
                   drizzleState.networkID === 42 ?
                     process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
                     : process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
-                }/items/${item.ID}/owner`
-              )
+                }/items/${item.ID}/owner
+              `)
             }
           >
             <Type>{item.content && item.content.dataDecrypted.type}</Type>
@@ -169,3 +178,13 @@ export default () => {
     </Grid>
   )
 }
+
+Home.propTypes = {
+  network: PropTypes.string
+}
+
+Home.defaultProps = {
+  network: 'mainnet'
+}
+
+export default Home

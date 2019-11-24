@@ -35,7 +35,7 @@ const getIDByAddress = (base, address) => {
 }
 
 // TODO: use a bot instead of a netlify function to avoid a DDOS attack
-exports.handler = async function(event, context, callback) {
+exports.handler = async function(event) {
   // Only allow POST
   if (event.httpMethod !== "POST")
     return { statusCode: 405, body: "Method Not Allowed" }

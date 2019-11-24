@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import PropTypes from 'prop-types'
+import React, { useEffect, useState, useCallback } from 'react'
 import styled from 'styled-components/macro'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
+import { navigate } from '@reach/router'
 import ReactPhoneInput from 'react-phone-input-2'
 
 import 'react-phone-input-2/dist/style.css'
@@ -87,13 +89,19 @@ const Submit = styled.div`
   text-align: right;
 `
 
-export default () => {
+const Settings = (network) => {
+  useEffect(() => {
+    if(network === 'mainnet' && drizzleState.networkID != '1')
+      navigate(`/network/kovan`)
+    else if (network === 'kovan' && drizzleState.networkID != '42')
+      navigate(`/network/mainnet`)
+  }, [drizzleState])
+
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
 
   const [isSaved, setIsSaved] = useState(false)
-  const [user, setUser] = useState('')
 
-  const { drizzle, useCacheSend } = useDrizzle()
+  const { drizzle } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({
     account: drizzleState.accounts[0] || '0x0000000000000000000000000000000000000000',
     balance: drizzleState.accountBalances[drizzleState.accounts[0]],
@@ -308,3 +316,13 @@ export default () => {
     </Container>
   )
 }
+
+Settings.propTypes = {
+  network: PropTypes.string
+}
+
+Settings.defaultProps = {
+  network: 'mainnet'
+}
+
+export default Settings

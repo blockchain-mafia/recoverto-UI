@@ -1,9 +1,11 @@
+import PropTypes from 'prop-types'
 import React, { useState, useCallback, useEffect } from 'react'
 import EthCrypto from 'eth-crypto'
 import styled from 'styled-components/macro'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import Textarea from 'react-textarea-autosize'
 import Modal from 'react-responsive-modal'
+import { navigate } from '@reach/router'
 import ReactPhoneInput from 'react-phone-input-2'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
@@ -11,7 +13,6 @@ import Button from '../components/button'
 import MessageBoxTx from '../components/message-box-tx'
 import ipfsPublish from './api/ipfs-publish'
 import generateMetaEvidence from '../utils/generate-meta-evidence'
-// import EthereumMetamaskChrome from '../assets/images/ethereum-metamask-chrome.png';
 
 import 'react-phone-input-2/dist/style.css'
 
@@ -154,7 +155,17 @@ const types = [
   'Tablet'
 ]
 
-export default props => {
+const New = ({network, itemID, pk}) => {
+  useEffect(() => {
+    if(network === 'mainnet' && drizzleState.networkID != '1')
+      navigate(`/network/kovan`)
+    else if (network === 'kovan' && drizzleState.networkID != '42')
+      navigate(`/network/mainnet`)
+
+  if (drizzleState.account === '0x0000000000000000000000000000000000000000')
+    setMMOpen(true)
+  }, [drizzleState])
+
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
 
   const [isMetaEvidencePublish, setIsMetaEvidencePublish] = useState(false)
@@ -169,13 +180,6 @@ export default props => {
     transactions: drizzleState.transactions,
     networkID: drizzleState.web3.networkId || 1
   }))
-
-  useEffect(() => {
-    if (drizzleState.account === '0x0000000000000000000000000000000000000000')
-      setMMOpen(true)
-  })
-
-  const { itemID, pk } = props
 
   const [identity] =
     itemID !== 'undefined'
@@ -702,9 +706,10 @@ export default props => {
                       )
                     }
                   />
+                  {/* FIXME: use `navigate()` if it's possible else add note */}
                   {status === 'success' && isMetaEvidencePublish
                     ? window.location.replace(
-                        `/contract/${
+                        `/network/${network}/contract/${
                           drizzleState.networkID === 42
                             ? process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
                             : process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
@@ -720,3 +725,17 @@ export default props => {
     </>
   )
 }
+
+New.propTypes = {
+  network: PropTypes.string,
+  itemID: PropTypes.string,
+  pk: PropTypes.string
+}
+
+New.defaultProps = {
+  network: 'mainnet',
+  itemID: PropTypes.string,
+  pk: PropTypes.string
+}
+
+export default New

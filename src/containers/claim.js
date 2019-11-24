@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import React, { useCallback, useState, useEffect } from 'react'
 import styled from 'styled-components/macro'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
@@ -174,7 +175,16 @@ const Error = styled.div`
   margin: -20px 0 30px 0;
 `
 
-export default props => {
+const Claim = ({itemID_Pk, network}) => {
+  useEffect(() => {
+    if(network === 'mainnet' && drizzleState.networkID != '1')
+      navigate(`/network/kovan`)
+    else if (network === 'kovan' && drizzleState.networkID != '42')
+      navigate(`/network/mainnet`)
+
+    if (!wallet) setWallet(EthCrypto.createIdentity())
+  }, [drizzleState])
+
   const { drizzle, useCacheCall } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({
     account:
@@ -187,13 +197,9 @@ export default props => {
   const [isSendClaim, setSendClaim] = useState('')
   const [isOpen, setOpen] = useState(false)
 
-  const [itemID, privateKey] = props.itemID_Pk.split('-privateKey=')
+  const [itemID, privateKey] = itemID_Pk.split('-privateKey=')
 
   const item = useCacheCall('Recover', 'items', itemID.padEnd(66, '0'))
-
-  useEffect(() => {
-    if (!wallet) setWallet(EthCrypto.createIdentity())
-  })
 
   const claim = useCallback(async ({ finder, email, description }) => {
     const web3 = new Web3(
@@ -278,7 +284,7 @@ export default props => {
             .on('transactionHash', () => {
               // TODO: post msg to airtable to be sure the tx is deployed
               navigate(`
-                /contract/${
+                /network/${network}/contract/${
                   drizzleState.networkID === 42
                     ? process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
                     : process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
@@ -296,7 +302,7 @@ export default props => {
     item.owner === '0x0000000000000000000000000000000000000000'
   )
     navigate(`
-      /new/items/undefined/pk/undefined
+      /network/${network}/new/items/undefined/pk/undefined
     `)
   else if (
     item !== undefined &&
@@ -463,13 +469,13 @@ export default props => {
               </div>
               <div style={{ textAlign: 'right' }}>
                 <Button
-                  style={{
-                    padding: '0 30px',
-                    textAlign: 'center',
-                    lineHeight: '50px',
-                    border: '1px solid #14213d',
-                    borderRadius: '10px'
-                  }}
+                  // style={{
+                  //   padding: '0 30px',
+                  //   textAlign: 'center',
+                  //   lineHeight: '50px',
+                  //   border: '1px solid #14213d',
+                  //   borderRadius: '10px'
+                  // }}
                   type="submit"
                   disabled={Object.entries(errors).length > 0}
                 >
@@ -484,3 +490,15 @@ export default props => {
     </Container>
   )
 }
+
+Claim.propTypes = {
+  itemID_Pk: PropTypes.string,
+  network: PropTypes.string
+}
+
+Claim.defaultProps = {
+  itemID_Pk: '',
+  network: 'mainnet'
+}
+
+export default Claim

@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import React, { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
 import loadable from '@loadable/component'
@@ -11,7 +12,7 @@ import { register } from './service-worker'
 import { ArchonInitializer } from './archon'
 import { DrizzleProvider, Initializer } from '../temp/drizzle-react-hooks'
 
-const Nav = () => {
+const Nav = ({network}) => {
   const [isTop, setTop] = useState(true)
 
   useEffect(() => {
@@ -27,33 +28,33 @@ const Nav = () => {
   return (
     <div className={`App-header-menu ${isTop ? 'App-header-menu__isTop' : ''}`}>
       <div
-        onClick={() => navigate('/')}
+        onClick={() => navigate(`/network/${network}`)}
         style={{ cursor: 'pointer' }}
         className="App-header-menu-logo"
       >
         RECOVER
       </div>
       <Menu right>
-        <Link to="/" className="menu-item">
+        <Link to={`/network/${network}`} className="menu-item">
           HOME
         </Link>
-        <Link to="/new/items/undefined/pk/undefined" className="menu-item">
+        <Link to={`/network/${network}/new/items/undefined/pk/undefined`} className="menu-item">
           ADD ITEM
         </Link>
-        <Link to="/settings" className="menu-item">
+        <Link to={`/network/${network}/settings`} className="menu-item">
           SETTINGS
         </Link>
-        <a
-          className="menu-item"
-          href="https://t.me/joinchat/FHLxh03ifcIUaiFAu8DE0g"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          SUPPORT
-        </a>
       </Menu>
     </div>
   )
+}
+
+Nav.propTypes = {
+  network: PropTypes.string
+}
+
+Nav.defaultProps = {
+  network: 'mainnet'
 }
 
 const Main = ({ children }) => (
@@ -172,14 +173,14 @@ export default () => (
         <ArchonInitializer>
           <Router>
             <Main path="/">
-              <Home path="/" />
-              <New path="/new/items/:itemID/pk/:pk" />
-              <Settings path="/settings" />
-              <Owner path="/contract/:contract/items/:itemID/owner" />
+              <Home path="network/:network" />
+              <New path="network/:network/new/items/:itemID/pk/:pk" />
+              <Settings path="network/:network/settings" />
+              <Owner path="network/:network/contract/:contract/items/:itemID/owner" />
               {/* NOTE: for one item, several claims are possible */}
-              <Finder path="/contract/:contract/claims/:claimID" />
-              <ClaimSuccess path="/contract/:contract/items/:itemID/pk/:pk/claim-success" />
-              <Claim path="/contract/:contract/items/:itemID_Pk" />
+              <Finder path="network/:network/contract/:contract/claims/:claimID" />
+              <ClaimSuccess path="network/:network/contract/:contract/items/:itemID/pk/:pk/claim-success" />
+              <Claim path="network/:network/contract/:contract/items/:itemID_Pk" />
               <C404 default />
             </Main>
           </Router>

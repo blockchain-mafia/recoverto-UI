@@ -1,4 +1,5 @@
-import React, { Component, useCallback, useRef, useState, useMemo } from 'react'
+import PropTypes from 'prop-types'
+import React, { Component, useEffect, useCallback, useRef, useState, useMemo } from 'react'
 import styled from 'styled-components/macro'
 import { Formik, Field, ErrorMessage } from 'formik'
 import QRCode from 'qrcode.react'
@@ -9,6 +10,7 @@ import {
   DropdownItem,
   DropdownMenu
 } from 'styled-dropdown-component'
+import { navigate } from '@reach/router'
 import Modal from 'react-responsive-modal'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
@@ -332,15 +334,15 @@ const StyledDivReward = styled.div`
 // NOTE: ComponentToPrint must be a class Component
 class ComponentToPrint extends Component {
   render() {
-    const { contract, itemID_Pk, privateKey } = this.props
+    const { network, contract, itemID_Pk, privateKey } = this.props
 
     return (
       <StyledPrint>
-        <StyledDivFound>FOUND IT? SCAN ME!</StyledDivFound>
+        <StyledDivFound>LOST IT? SCAN ME!</StyledDivFound>
         <div>
           <QRCode
             value={
-              `${process.env.REACT_APP_URL_APP}/contract/${contract}/items/${itemID_Pk}-privateKey=${privateKey}`
+              `${process.env.REACT_APP_URL_APP}/network/${network}/contract/${contract}/items/${itemID_Pk}-privateKey=${privateKey}`
             }
           />
         </div>
@@ -351,7 +353,14 @@ class ComponentToPrint extends Component {
 }
 
 
-export default props => {
+const Owner = ({network, contract, itemID}) => {
+  useEffect(() => {
+    if(network === 'mainnet' && drizzleState.networkID != '1')
+      navigate(`/network/kovan`)
+    else if (network === 'kovan' && drizzleState.networkID != '42')
+      navigate(`/network/mainnet`)
+  }, [drizzleState])
+
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
 
   const [claimID, setClaimID] = useState(null)
@@ -391,7 +400,6 @@ export default props => {
     'submitEvidence'
   )
 
-  const itemID = props.itemID
   const privateKey = recover[itemID] ? recover[itemID].privateKey : null
 
   const item = useCacheCall('Recover', 'items', itemID.padEnd(66, '0'))
@@ -725,7 +733,7 @@ export default props => {
               <div>
                 <QRCode
                   value={
-                    `${process.env.REACT_APP_URL_APP}/contract/${props.contract}/items/${itemID}-privateKey=${privateKey}`
+                    `${process.env.REACT_APP_URL_APP}/network/${network}/contract/${contract}/items/${itemID}-privateKey=${privateKey}`
                   }
                 />
               </div>
@@ -736,7 +744,8 @@ export default props => {
               content={() => componentRef.current}
             />
             <ComponentToPrint
-              contract={props.contract}
+              network={network}
+              contract={contract}
               itemID_Pk={itemID}
               privateKey={privateKey}
               ref={componentRef}
@@ -926,3 +935,17 @@ export default props => {
     </Container>
   )
 }
+
+Owner.propTypes = {
+  network: PropTypes.string,
+  contract: PropTypes.string,
+  itemID: PropTypes.string
+}
+
+Owner.defaultProps = {
+  network: 'mainnet',
+  contract: PropTypes.string,
+  itemID: PropTypes.string
+}
+
+export default Owner

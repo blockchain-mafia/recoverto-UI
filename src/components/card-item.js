@@ -56,11 +56,12 @@ const CardItem = ({
   onClick,
   status,
   className,
+  network,
   ...rest
 }) => (
   <>
     {newItem ? (
-      <ItemNew onClick={() => navigate('/new/items/undefined/pk/undefined')}>
+      <ItemNew onClick={() => navigate(`/network/${network}/new/items/undefined/pk/undefined`)}>
         <ItemTitle>Add Item</ItemTitle>
         <div>
           <Plus />
@@ -85,7 +86,8 @@ CardItem.propTypes = {
   // Modifiers
   newItem: PropTypes.bool,
   className: PropTypes.string,
-  encrypted: PropTypes.bool
+  encrypted: PropTypes.bool,
+  network: PropTypes.string
 }
 
 CardItem.defaultProps = {
@@ -95,7 +97,8 @@ CardItem.defaultProps = {
   // Modifiers
   newItem: false,
   className: '',
-  encrypted: true
+  encrypted: true,
+  network: 'mainnet'
 }
 
 export default CardItem

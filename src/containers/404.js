@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types'
-import React from 'react'
+import React, { useEffect } from 'react'
+import { navigate } from '@reach/router'
 import styled from 'styled-components/macro'
 
 const StyledDiv = styled.div`
@@ -29,35 +30,45 @@ const StyledMessageLine3 = styled.div`
   font-size: 16px;
   margin-top: 25px;
 `
-const _404 = ({ Web3 }) => (
-  <StyledDiv Web3={Web3}>
-    <StyledInfoDiv className="">
-      <Styled404Div className="primary-color theme-color">
-        {Web3 && 'Web3 '}404
-      </Styled404Div>
-      <StyledMessageLine1 className="ternary-color theme-color">
-        Oops,
-      </StyledMessageLine1>
-      <StyledMessageLine2 className="ternary-color theme-color">
-        {Web3
-          ? 'Trouble finding your Web3 provider.'
-          : 'Issue with Web3'}
-      </StyledMessageLine2>
-      <StyledMessageLine3 className="ternary-color theme-color">
-        {Web3
-          ? 'Please make sure you have your wallet unlocked on Mainnet or Kovan. If you don\'t have a wallet, we recommend you install MetaMask on desktop and Trust on mobile.'
-          : 'Issue with Web3.'}
-      </StyledMessageLine3>
-    </StyledInfoDiv>
-  </StyledDiv>
-)
+const _404 = ({ Web3, network }) => {
+  // if the `network` is undefined redirect the user to the mainnet network
+  useEffect(() => {
+    // NOTE: the Home component must redirect the user to the right network if necessary
+    if (network === undefined) navigate(`/network/mainnet`)
+  })
+
+  return (
+    <StyledDiv Web3={Web3}>
+      <StyledInfoDiv className="">
+        <Styled404Div className="primary-color theme-color">
+          {Web3 && 'Web3 '}404
+        </Styled404Div>
+        <StyledMessageLine1 className="ternary-color theme-color">
+          Oops,
+        </StyledMessageLine1>
+        <StyledMessageLine2 className="ternary-color theme-color">
+          {Web3
+            ? 'Trouble finding your Web3 provider.'
+            : 'Issue with Web3'}
+        </StyledMessageLine2>
+        <StyledMessageLine3 className="ternary-color theme-color">
+          {Web3
+            ? 'Please make sure you have your wallet unlocked on Mainnet or Kovan. If you don\'t have a wallet, we recommend you install MetaMask on desktop and Trust on mobile.'
+            : 'Issue with Web3.'}
+        </StyledMessageLine3>
+      </StyledInfoDiv>
+    </StyledDiv>
+  )
+}
 
 _404.propTypes = {
-  Web3: PropTypes.bool
+  Web3: PropTypes.bool,
+  network: PropTypes.string
 }
 
 _404.defaultProps = {
-  Web3: false
+  Web3: false,
+  network: undefined
 }
 
 export default _404

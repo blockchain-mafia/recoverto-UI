@@ -1,9 +1,11 @@
-import React, { useState, useCallback, useMemo } from 'react'
+import PropTypes from 'prop-types'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import styled from 'styled-components/macro'
 import { Dropdown, DropdownItem, DropdownMenu } from 'styled-dropdown-component'
 import Textarea from 'react-textarea-autosize'
 import Modal from 'react-responsive-modal'
 import { Formik, Field, ErrorMessage } from 'formik'
+import { navigate } from '@reach/router'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import ETHAmount from '../components/eth-amount'
@@ -34,13 +36,6 @@ const Title = styled.h2`
   font-size: 40px;
   color: #14213d;
   padding-bottom: 20px;
-`
-
-const SubTitle = styled.h3`
-  font-family: Nunito;
-  font-size: 30px;
-  color: #14213d;
-  margin: 30px 0;
 `
 
 const Label = styled.div`
@@ -138,20 +133,6 @@ const Error = styled.div`
   font-size: 14px;
 `
 
-const StyledClaimEvidenceContainerBoxContent = styled.div`
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  padding: 0 4vw;
-`
-
-const StyledClaimEvidenceBoxContent = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  margin-top: 10px;
-`
-
 const ModalTitle = styled.h3`
   font-family: Nunito;
   font-size: 30px;
@@ -159,7 +140,14 @@ const ModalTitle = styled.h3`
   padding-bottom: 14px;
 `
 
-export default props => {
+const Finder = ({network, claimID}) => {
+  useEffect(() => {
+    if(network === 'mainnet' && drizzleState.networkID != '1')
+      navigate(`/network/kovan`)
+    else if (network === 'kovan' && drizzleState.networkID != '42')
+      navigate(`/network/mainnet`)
+  }, [drizzleState])
+
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
 
   const [dropdownHidden, setDropdownHidden] = useState(true)
@@ -205,7 +193,7 @@ export default props => {
 
   const loadDescription = useDataloader.getDescription()
 
-  const claimID = props.claimID.replace(/0+$/, '')
+  claimID = claimID.replace(/0+$/, '')
 
   const claim = useCacheCall('Recover', 'claims', claimID)
 
@@ -587,3 +575,15 @@ export default props => {
     </Container>
   )
 }
+
+Finder.propTypes = {
+  network: PropTypes.string,
+  claimID: PropTypes.string
+}
+
+Finder.defaultProps = {
+  network: 'mainnet',
+  claimID: ''
+}
+
+export default Finder
