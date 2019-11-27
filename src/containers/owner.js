@@ -352,6 +352,65 @@ class ComponentToPrint extends Component {
   }
 }
 
+// FIXME: find a better Component name
+const ActionFunds = ({claim, item}) => {
+  const { useCacheEvents, useCacheSend } = useDrizzle()
+  const funds = useCacheEvents(
+    'Recover',
+    'Fund',
+    useMemo(
+      () => ({
+        filter: { _claimID: claim.ID },
+        fromBlock: process.env.REACT_APP_DRAW_EVENT_LISTENER_BLOCK_NUMBER
+      }),
+      [claim]
+    )
+  )
+
+  const { send: sendAcceptClaim, status: statusAcceptClaim } = useCacheSend(
+    'Recover',
+    'acceptClaim'
+  )
+
+  const { send: sendPay, status: statusPay } = useCacheSend('Recover', 'pay')
+
+  return (
+    <>
+      {claim.amountLocked === '0' && funds && funds.length === 0 && (
+        <StyledButtonClaimBox
+          onClick={() =>
+            sendAcceptClaim(
+              claim.ID,
+              { value: item.rewardAmount}
+            )
+          }
+        >
+          ACCEPT CLAIM
+        </StyledButtonClaimBox>
+      )}
+
+      {claim.status === '0' && claim.amountLocked > 0 && funds && funds.length === 0 && (
+        <StyledButtonClaimBox
+          onClick={() =>
+            sendPay(
+              claim.ID,
+              claim.amountLocked
+            )
+          }
+        >
+          REWARD THE FINDER
+        </StyledButtonClaimBox>
+      )}
+      {funds && funds.length > 0 && (
+        <StyledButtonClaimBox
+          style={{cursor: 'not-allowed'}}
+        >
+          TRANSACTION FINISHED
+        </StyledButtonClaimBox>
+      )}
+    </>
+  )
+}
 
 const Owner = ({network, contract, itemID}) => {
   useEffect(() => {
@@ -382,11 +441,6 @@ const Owner = ({network, contract, itemID}) => {
   const componentRef = useRef()
   const { useCacheCall, useCacheSend, useCacheEvents, drizzle } = useDrizzle()
 
-  const { send: sendAcceptClaim, status: statusAcceptClaim } = useCacheSend(
-    'Recover',
-    'acceptClaim'
-  )
-  const { send: sendPay, status: statusPay } = useCacheSend('Recover', 'pay')
   const { send: sendPayArbitrationFeeByOwner, status: statusPayArbitrationFeeByOwner } = useCacheSend(
     'Recover',
     'payArbitrationFeeByOwner'
@@ -433,18 +487,6 @@ const Owner = ({network, contract, itemID}) => {
       ? claimIDs.reduce(
           (acc, d) => {
             const claim = call('Recover', 'claims', d)
-
-            const funds = useCacheEvents(
-              'Recover',
-              'Fund',
-              useMemo(
-                () => ({
-                  filter: { _claimID: d },
-                  fromBlock: process.env.REACT_APP_DRAW_EVENT_LISTENER_BLOCK_NUMBER
-                }),
-                [drizzleState.account]
-              )
-            )
 
             if(claim) {
               let disputeStatus, currentRuling, appealCost, evidence, isRuled
@@ -503,7 +545,6 @@ const Owner = ({network, contract, itemID}) => {
                 disputeStatus,
                 currentRuling,
                 appealCost,
-                funds,
                 evidence,
                 ID: d
               })
@@ -892,39 +933,7 @@ const Owner = ({network, contract, itemID}) => {
                         </StyledClaimDescriptionContainerBoxContent>
                       )
                     }
-
-                    {claim.amountLocked === '0' && claim.funds && claim.funds.length === 0 && (
-                      <StyledButtonClaimBox
-                        onClick={() =>
-                          sendAcceptClaim(
-                            claim.ID,
-                            { value: item.rewardAmount}
-                          )
-                        }
-                      >
-                        ACCEPT CLAIM
-                      </StyledButtonClaimBox>
-                    )}
-
-                    {claim.status === '0' && claim.amountLocked > 0 && claim.funds && claim.funds.length === 0 && (
-                      <StyledButtonClaimBox
-                        onClick={() =>
-                          sendPay(
-                            claim.ID,
-                            claim.amountLocked
-                          )
-                        }
-                      >
-                        REWARD THE FINDER
-                      </StyledButtonClaimBox>
-                    )}
-                    {claim.funds && claim.funds.length > 0 && (
-                      <StyledButtonClaimBox
-                        style={{cursor: 'not-allowed'}}
-                      >
-                        TRANSACTION FINISHED
-                      </StyledButtonClaimBox>
-                    )}
+                    <ActionFunds claim={claim} item={item} />
                   </StyledClaimBoxContainer>
                 </div>
               ))
