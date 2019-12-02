@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import React, { useCallback, useState, useEffect } from 'react'
+import React, { useCallback, useState } from 'react'
 import styled from 'styled-components/macro'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import Textarea from 'react-textarea-autosize'
@@ -176,15 +176,6 @@ const Error = styled.div`
 `
 
 const Claim = ({itemID_Pk, network}) => {
-  useEffect(() => {
-    if(network === 'mainnet' && drizzleState.networkID != '1')
-      navigate(`/network/kovan`)
-    else if (network === 'kovan' && drizzleState.networkID != '42')
-      navigate(`/network/mainnet`)
-
-    if (!wallet) setWallet(EthCrypto.createIdentity())
-  }, [drizzleState])
-
   const { drizzle, useCacheCall } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({
     account:
@@ -422,7 +413,7 @@ const Claim = ({itemID_Pk, network}) => {
                 <StyledFieldAddress
                   name="finder"
                   placeholder="Your Ethereum Account (0x123...)"
-                  autocomplete="nope"
+                  autoComplete="nope"
                 />
                 <StyledButtonAddress
                   onClick={() => setOpen(true)}
@@ -469,6 +460,7 @@ const Claim = ({itemID_Pk, network}) => {
               </div>
               <div style={{ textAlign: 'right' }}>
                 <Button
+                  // FIXME:
                   // style={{
                   //   padding: '0 30px',
                   //   textAlign: 'center',

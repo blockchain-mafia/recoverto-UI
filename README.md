@@ -20,6 +20,10 @@ The Recover user interface.
 4.  `cp .airtable.development .airtable # and set the ids`
 5.  Run `yarn` to install dependencies and then `yarn start` to start the dev server.
 
+## Note
+
+The QrCode without `Web3` works only on the mainnet network (because the fallback `Web3` is hardcoded for this network).
+
 ## Other Scripts
 
 - `yarn run prettify` - Apply prettier to the entire project.

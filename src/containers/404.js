@@ -30,13 +30,7 @@ const StyledMessageLine3 = styled.div`
   font-size: 16px;
   margin-top: 25px;
 `
-const _404 = ({ Web3, network }) => {
-  // if the `network` is undefined redirect the user to the mainnet network
-  useEffect(() => {
-    // NOTE: the Home component must redirect the user to the right network if necessary
-    if (network === undefined) navigate(`/network/mainnet`)
-  })
-
+const _404 = ({ Web3 }) => {
   return (
     <StyledDiv Web3={Web3}>
       <StyledInfoDiv className="">
@@ -62,13 +56,11 @@ const _404 = ({ Web3, network }) => {
 }
 
 _404.propTypes = {
-  Web3: PropTypes.bool,
-  network: PropTypes.string
+  Web3: PropTypes.bool
 }
 
 _404.defaultProps = {
-  Web3: false,
-  network: undefined
+  Web3: false
 }
 
 export default _404

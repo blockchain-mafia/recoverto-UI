@@ -81,8 +81,7 @@ export default ({itemID, pk}) => {
       <Title>Claim Saved</Title>
       <Message>
           Congratulations! Your claim is saved.
-          <br />If the owner do not contact you soon,
-          <br />you can contact him:
+          <br />Contact the owner now:
         </Message>
       {item ? (
         <Box>

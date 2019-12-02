@@ -27,7 +27,8 @@ const options = {
   web3: {
     fallback: {
       type: 'ws',
-      // TODO: switch to the kovan fallback if the app uses the kovan network
+      // FIXME: switch to the kovan fallback if the app uses the kovan network
+      // For this, we need to compute the network before the execution of this file.
       url: process.env.REACT_APP_WEB3_MAINNET_FALLBACK_URL
     }
   } 
