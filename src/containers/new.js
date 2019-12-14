@@ -38,13 +38,6 @@ const Title = styled.h2`
   padding-bottom: 20px;
 `
 
-const ModalTitle = styled.h3`
-  font-family: Nunito;
-  font-size: 30px;
-  color: #14213d;
-  padding-bottom: 14px;
-`
-
 const FieldContainer = styled.div`
   margin: 20px 0;
 `
@@ -113,6 +106,13 @@ const Submit = styled.div`
   text-align: right;
 `
 
+const ModalTitle = styled.h3`
+  font-family: Nunito;
+  font-size: 30px;
+  color: #14213d;
+  padding-bottom: 14px;
+`
+
 const ModalContent = styled.div`
   font-family: Roboto;
   color: #14213d;
@@ -157,13 +157,15 @@ const types = [
 
 const New = ({network, itemID, pk}) => {
   useEffect(() => {
-    if(network === 'mainnet' && drizzleState.networkID != '1')
-      navigate(`/network/kovan`)
-    else if (network === 'kovan' && drizzleState.networkID != '42')
-      navigate(`/network/mainnet`)
+    console.log(network)
+    console.log(drizzleState.networkID)
+      if (network === 'mainnet' && drizzleState.networkID !== '1')
+        navigate(`/network/kovan`)
+      else if (network === 'kovan' && drizzleState.networkID !== '42')
+        navigate(`/network/mainnet`)
 
-  if (drizzleState.account === '0x0000000000000000000000000000000000000000')
-    setMMOpen(true)
+    if (drizzleState.account === '0x0000000000000000000000000000000000000000')
+      setMMOpen(true)
   }, [drizzleState])
 
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
@@ -175,10 +177,10 @@ const New = ({network, itemID, pk}) => {
   const drizzleState = useDrizzleState(drizzleState => ({
     account:
       drizzleState.accounts[0] || '0x0000000000000000000000000000000000000000',
-    balance: drizzleState.accountBalances[drizzleState.accounts[0]] || 0,
     ID: `${drizzleState.accounts[0]}-${drizzleState.web3.networkId}`,
     transactions: drizzleState.transactions,
-    networkID: drizzleState.web3.networkId || 1
+    // NOTE: Force the type string to be compitable with different version of web3
+    networkID: drizzleState.web3.networkId ? drizzleState.web3.networkId.toString() : '1'
   }))
 
   const [identity] =
@@ -256,6 +258,7 @@ const New = ({network, itemID, pk}) => {
 
   return (
     <>
+      {/* TODO: refactoring Metamask modal, see Home (move to /components) */}
       <Modal
         open={isMMOpen}
         onClose={v => v}
@@ -265,8 +268,6 @@ const New = ({network, itemID, pk}) => {
         styles={{
           closeButton: { background: 'transparent' },
           modal: {
-            // background: `url(${EthereumMetamaskChrome}) #fff no-repeat center`,
-            // backgroundPosition: 'center center',
             width: '80vw',
             maxWidth: '400px',
             padding: '6vh 8vw',
@@ -313,20 +314,17 @@ const New = ({network, itemID, pk}) => {
             contactInformation: '',
             rewardAmount: 0,
             email:
-              (recover[drizzleState.ID] && recover[drizzleState.ID].email) ||
-              '',
+              (recover[drizzleState.ID] && recover[drizzleState.ID].email)
+              || '',
             phoneNumber:
-              (recover[drizzleState.ID] &&
-                recover[drizzleState.ID].phoneNumber) ||
-              '',
+              (recover[drizzleState.ID] && recover[drizzleState.ID].phoneNumber)
+              || '',
             fundClaims:
-              (recover[drizzleState.ID] &&
-                recover[drizzleState.ID].fundClaims) ||
-              '0.007',
+              (recover[drizzleState.ID] && recover[drizzleState.ID].fundClaims)
+              || '0.007',
             timeoutLocked:
-              (recover[drizzleState.ID] &&
-                recover[drizzleState.ID].timeoutLocked) ||
-              604800
+              (recover[drizzleState.ID] && recover[drizzleState.ID].timeoutLocked)
+              || 604800
           }}
           validate={values => {
             let errors = {}
@@ -350,8 +348,8 @@ const New = ({network, itemID, pk}) => {
               errors.rewardAmount = 'The reward must be positive.'
             if (!values.email) errors.email = 'Email Required'
             if (
-              values.email !== '' &&
-              !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)
+              values.email !== ''
+              && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)
             )
               errors.email = 'Invalid email address'
             if (isNaN(values.fundClaims)) errors.fundClaims = 'Number Required'
@@ -438,9 +436,8 @@ const New = ({network, itemID, pk}) => {
             )
 
             values.timeoutLocked =
-              (recover[drizzleState.ID] &&
-                recover[drizzleState.ID].timeoutLocked) ||
-              604800
+              (recover[drizzleState.ID] && recover[drizzleState.ID].timeoutLocked)
+              || 604800
 
             addItem(values)
           }}

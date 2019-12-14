@@ -367,11 +367,13 @@ const ActionFunds = ({claim, item}) => {
     )
   )
 
+  // TODO: add loader with `statusAcceptClaim`.
   const { send: sendAcceptClaim, status: statusAcceptClaim } = useCacheSend(
     'Recover',
     'acceptClaim'
   )
 
+  // TODO: add loader with `statusPay`.
   const { send: sendPay, status: statusPay } = useCacheSend('Recover', 'pay')
 
   return (
@@ -414,9 +416,9 @@ const ActionFunds = ({claim, item}) => {
 
 const Owner = ({network, contract, itemID}) => {
   useEffect(() => {
-    if(network === 'mainnet' && drizzleState.networkID != '1')
+    if(network === 'mainnet' && drizzleState.networkID !== '1')
       navigate(`/network/kovan`)
-    else if (network === 'kovan' && drizzleState.networkID != '42')
+    else if (network === 'kovan' && drizzleState.networkID !== '42')
       navigate(`/network/mainnet`)
   }, [drizzleState])
 
@@ -427,8 +429,12 @@ const Owner = ({network, contract, itemID}) => {
   const [dropdownHidden, setDropdownHidden] = useState(true)
   const [isEvidenceSent, setIsEvidenceSent] = useState(false)
   const drizzleState = useDrizzleState(drizzleState => ({
-    account: drizzleState.accounts[0] || '0x0000000000000000000000000000000000000000',
-    networkID: drizzleState.web3.networkId || 1,
+    account: drizzleState.accounts[0]
+      ? drizzleState.accounts[0].toString()
+      : '0x0000000000000000000000000000000000000000',
+    networkID: drizzleState.web3.networkId
+      ? drizzleState.web3.networkId.toString()
+      : '1',
     transactions: drizzleState.transactions
   }))
   const resetEvidenceReset = useCallback(resetForm => {
@@ -439,12 +445,14 @@ const Owner = ({network, contract, itemID}) => {
   })
 
   const componentRef = useRef()
-  const { useCacheCall, useCacheSend, useCacheEvents, drizzle } = useDrizzle()
+  const { useCacheCall, useCacheSend, drizzle } = useDrizzle()
 
+  // TODO: add loader with `statusPayArbitrationFeeByOwner`.
   const { send: sendPayArbitrationFeeByOwner, status: statusPayArbitrationFeeByOwner } = useCacheSend(
     'Recover',
     'payArbitrationFeeByOwner'
   )
+  // TODO: add loader with `statusAppeal`.
   const { send: sendAppeal, status: statusAppeal } = useCacheSend(
     'Recover',
     'appeal'

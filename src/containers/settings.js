@@ -89,11 +89,11 @@ const Submit = styled.div`
   text-align: right;
 `
 
-const Settings = (network) => {
+const Settings = ({network}) => {
   useEffect(() => {
-    if(network === 'mainnet' && drizzleState.networkID != '1')
+    if(network === 'mainnet' && drizzleState.networkID !== '1')
       navigate(`/network/kovan`)
-    else if (network === 'kovan' && drizzleState.networkID != '42')
+    else if (network === 'kovan' && drizzleState.networkID !== '42')
       navigate(`/network/mainnet`)
   }, [drizzleState])
 
@@ -103,9 +103,13 @@ const Settings = (network) => {
 
   const { drizzle } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({
-    account: drizzleState.accounts[0] || '0x0000000000000000000000000000000000000000',
-    balance: drizzleState.accountBalances[drizzleState.accounts[0]],
+    account: drizzleState.accounts[0]
+      ? drizzleState.accounts[0].toString()
+      : '0x0000000000000000000000000000000000000000',
     ID: `${drizzleState.accounts[0]}-${drizzleState.web3.networkId}`,
+    networkID: drizzleState.web3.networkId
+      ? drizzleState.web3.networkId.toString()
+      : '1',
     transactions: drizzleState.transactions
   }))
 

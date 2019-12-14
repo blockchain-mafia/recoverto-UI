@@ -1,12 +1,31 @@
 import PropTypes from 'prop-types'
-import React, {useEffect} from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components/macro'
 import Dotdotdot from 'react-dotdotdot'
+import Modal from 'react-responsive-modal'
 import { navigate } from '@reach/router'
 
 import { useDataloader } from '../bootstrap/dataloader'
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import CardItem from '../components/card-item'
+
+const ModalTitle = styled.h3`
+  font-family: Nunito;
+  font-size: 30px;
+  color: #14213d;
+  padding-bottom: 14px;
+`
+
+const ModalContent = styled.div`
+  font-family: Roboto;
+  color: #14213d;
+  font-size: 16px;
+  line-height: 24px;
+`
+
+const PModalContent = styled.p`
+  padding: 20px 0;
+`
 
 const Grid = styled.div`
   display: grid;
@@ -36,20 +55,31 @@ const Description = styled(Dotdotdot)`
 const Home = ({network}) => {
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
 
-  useEffect(() => {
-    if(network === 'mainnet' && drizzleState.networkID != '1')
-      navigate(`/network/kovan`)
-    else if (network === 'kovan' && drizzleState.networkID != '42')
-      navigate(`/network/mainnet`)
-  }, [drizzleState])
-
-  const loadDescription = useDataloader.getDescription()
+  const [isMMOpen, setMMOpen] = useState(false)
 
   const { useCacheCall } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({
-    account: drizzleState.accounts[0] || '0x0000000000000000000000000000000000000000',
-    networkID: drizzleState.web3.networkId || 1
+    account: drizzleState.accounts[0]
+      ? drizzleState.accounts[0].toString()
+      : '0x0000000000000000000000000000000000000000',
+    networkID: drizzleState.web3.networkId
+      ? drizzleState.web3.networkId.toString()
+      : '1'
   }))
+
+  useEffect(() => {
+    // NOTE: redirect the client if the network does not match with the URL.
+    if(network === 'mainnet' && drizzleState.networkID !== '1')
+      navigate(`/network/kovan`)
+    else if (network === 'kovan' && drizzleState.networkID !== '42')
+      navigate(`/network/mainnet`)
+
+    // NOTE: if the client does not injected web3, display the web3 modal.
+    if (drizzleState.account === '0x0000000000000000000000000000000000000000')
+      setMMOpen(true)
+  }, [drizzleState])
+
+  const loadDescription = useDataloader.getDescription()
 
   const itemIDs = useCacheCall('Recover', 'getItemIDsByOwner', drizzleState.account)
 
@@ -89,7 +119,7 @@ const Home = ({network}) => {
   const claimIDs = useCacheCall('Recover', 'getClaimIDsByAddress', drizzleState.account)
 
   const claims = useCacheCall(['Recover'], call =>
-    claimIDs && claimIDs[0] !== "0"
+    claimIDs && claimIDs[0] !== '0'
       ? claimIDs.reduce(
           (acc, d) => {
             const claim = call('Recover', 'claims', d)
@@ -127,55 +157,97 @@ const Home = ({network}) => {
   )
 
   return (
-    <Grid>
-      <CardItem newItem={true} network={network} />
-      {
-        !claims.loading && claims.data.map(claim => (
-          <CardItem
-            key={claim.ID}
-            encrypted={false}
-            network={network}
-            onClick={
-              () => navigate(`
-                /network/${network}/contract/${
-                  drizzleState.networkID === 42 ?
-                    process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
-                  : process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
-                }/claims/${claim.ID}
-              `)
-            }
-          >
-            <Type>{claim.content && claim.content.dataDecrypted.type}</Type>
-            <Description clamp={5}>
-              {claim.content && claim.content.dataDecrypted.description}
-              {/* <p style={{padding: '10px 0'}}>Status: {claim && claim.status}</p> */}
-            </Description>
-          </CardItem>
-        ))
-      }
-      {
-        !items.loading && items.data.reverse().map(item => (
-          <CardItem
-            key={item.ID}
-            encrypted={false}
-            onClick={
-              () => navigate(`
-                /network/${network}/contract/${
-                  drizzleState.networkID === 42 ?
-                    process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
+    <>
+      {/* TODO: refactoring Metamask modal, see New (move to /components) */}
+      <Modal
+        open={isMMOpen}
+        onClose={v => v}
+        showCloseIcon={false}
+        focusTrapped={false}
+        center
+        styles={{
+          closeButton: { background: 'transparent' },
+          modal: {
+            width: '80vw',
+            maxWidth: '400px',
+            padding: '6vh 8vw',
+            borderRadius: '10px'
+          }
+        }}
+      >
+        <ModalTitle>Metamask Wallet Required</ModalTitle>
+        <ModalContent>
+          <PModalContent>
+            This is a decentralized application. You need to have a Metamask
+            account with some Ethers, cryptocurrency of the Ethereum Blockchain.
+          </PModalContent>
+
+          <PModalContent>
+            Here is the shortest way to create a Metamask Wallet with some
+            Ethers:
+          </PModalContent>
+          <ol>
+            <li>
+              1. Install <a href="https://metamask.io/">Metamask</a>
+            </li>
+            <li>
+              2. Buy some Ethers on{' '}
+              <a href="https://www.coinbase.com/">Coinbase</a>
+            </li>
+            <li>3. Transfer your Ethers to your Metamask Wallet</li>
+          </ol>
+        </ModalContent>
+      </Modal>
+      <Grid>
+        <CardItem newItem={true} network={network} />
+        {
+          !claims.loading && claims.data.map(claim => (
+            <CardItem
+              key={claim.ID}
+              encrypted={false}
+              network={network}
+              onClick={
+                () => navigate(`
+                  /network/${network}/contract/${
+                    drizzleState.networkID === '42' ?
+                      process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
                     : process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
-                }/items/${item.ID}/owner
-              `)
-            }
-          >
-            <Type>{item.content && item.content.dataDecrypted.type}</Type>
-            <Description clamp={5}>
-              {item.content && item.content.dataDecrypted.description}
-            </Description>
-          </CardItem>
-        ))
-      }
-    </Grid>
+                  }/claims/${claim.ID}
+                `)
+              }
+            >
+              <Type>{claim.content && claim.content.dataDecrypted.type}</Type>
+              <Description clamp={5}>
+                {claim.content && claim.content.dataDecrypted.description}
+                {/* <p style={{padding: '10px 0'}}>Status: {claim && claim.status}</p> */}
+              </Description>
+            </CardItem>
+          ))
+        }
+        {
+          !items.loading && items.data.reverse().map(item => (
+            <CardItem
+              key={item.ID}
+              encrypted={false}
+              onClick={
+                () => navigate(`
+                  /network/${network}/contract/${
+                    drizzleState.networkID === '42' ?
+                      process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
+                      : process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
+                  }/items/${item.ID}/owner
+                `)
+              }
+            >
+              <Type>{item.content && item.content.dataDecrypted.type}</Type>
+              <Description clamp={5}>
+                {item.content && item.content.dataDecrypted.description}
+              </Description>
+            </CardItem>
+          ))
+        }
+      </Grid>
+    </>
   )
 }
 

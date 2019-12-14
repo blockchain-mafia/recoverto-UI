@@ -142,9 +142,9 @@ const ModalTitle = styled.h3`
 
 const Finder = ({network, claimID}) => {
   useEffect(() => {
-    if(network === 'mainnet' && drizzleState.networkID != '1')
+    if(network === 'mainnet' && drizzleState.networkID !== '1')
       navigate(`/network/kovan`)
-    else if (network === 'kovan' && drizzleState.networkID != '42')
+    else if (network === 'kovan' && drizzleState.networkID !== '42')
       navigate(`/network/mainnet`)
   }, [drizzleState])
 
@@ -155,8 +155,12 @@ const Finder = ({network, claimID}) => {
   const [isEvidenceSent, setIsEvidenceSent] = useState(false)
   const { useCacheCall, useCacheSend, useCacheEvents, drizzle } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({
-    account: drizzleState.accounts[0] || '0x00',
-    networkID: drizzleState.web3.networkId || 1,
+    account: drizzleState.accounts[0]
+      ? drizzleState.accounts[0].toString()
+      : '0x0000000000000000000000000000000000000000',
+    networkID: drizzleState.web3.networkId
+      ? drizzleState.web3.networkId.toString()
+      : '1',
     transactions: drizzleState.transactions
   }))
   const resetEvidenceReset = useCallback(resetForm => {
@@ -166,13 +170,14 @@ const Finder = ({network, claimID}) => {
     }
   })
 
+  // TODO: implement loader
   const { send: sendReimburse, status: statusReimburse } = useCacheSend(
     'Recover',
     'reimburse'
   )
   const {
     send: sendPayArbitrationFeeByFinder,
-    status: statusPayArbitrationFeeByFinder
+    status: statusPayArbitrationFeeByFinder // TODO: implement loader
   } = useCacheSend('Recover', 'payArbitrationFeeByFinder')
   const { send: sendAppeal, status: statusAppeal } = useCacheSend(
     'Recover',

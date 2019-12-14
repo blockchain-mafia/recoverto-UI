@@ -12,8 +12,15 @@ import { register } from './service-worker'
 import { ArchonInitializer } from './archon'
 import { DrizzleProvider, Initializer } from '../temp/drizzle-react-hooks'
 
-const Nav = ({network}) => {
+const Nav = () => {
   const [isTop, setTop] = useState(true)
+  const [network, setNetwork] = useState('mainnet')
+
+  useEffect(() => {
+    const urlSplitArray = window.location.href.split('/')
+    if (urlSplitArray.indexOf('network') !== -1)
+      setNetwork(urlSplitArray[urlSplitArray.indexOf('network') + 1])
+  }, [window.location.href])
 
   useEffect(() => {
     document.addEventListener('scroll', () => {
@@ -49,17 +56,9 @@ const Nav = ({network}) => {
   )
 }
 
-Nav.propTypes = {
-  network: PropTypes.string
-}
-
-Nav.defaultProps = {
-  network: 'mainnet'
-}
-
 const Main = ({ children }) => (
   <>
-    <Nav />
+    <Nav test={children}/>
     <main>{children}</main>
   </>
 )
@@ -70,16 +69,6 @@ const ContainerLoader = styled.div`
   left: calc(50% - 28px);
 `
 
-const C404 = loadable(
-  () => import(/* webpackPrefetch: true */ '../containers/404'),
-  {
-    fallback: (
-      <ContainerLoader>
-        <BeatLoader color={'#fff'} />
-      </ContainerLoader>
-    )
-  }
-)
 const Home = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/home'),
   {
@@ -142,6 +131,16 @@ const Finder = loadable(
 )
 const Settings = loadable(
   () => import(/* webpackPrefetch: true */ '../containers/settings'),
+  {
+    fallback: (
+      <ContainerLoader>
+        <BeatLoader color={'#fff'} />
+      </ContainerLoader>
+    )
+  }
+)
+const C404 = loadable(
+  () => import(/* webpackPrefetch: true */ '../containers/404'),
   {
     fallback: (
       <ContainerLoader>

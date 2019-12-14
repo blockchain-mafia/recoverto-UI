@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import React, { useEffect } from 'react'
-import { navigate } from '@reach/router'
+import { navigate } from "@reach/router"
 import styled from 'styled-components/macro'
 
 const StyledDiv = styled.div`
@@ -30,7 +30,13 @@ const StyledMessageLine3 = styled.div`
   font-size: 16px;
   margin-top: 25px;
 `
-const _404 = ({ Web3 }) => {
+
+const _404 = ({uri, Web3}) => {
+  useEffect(() => {
+    if (uri === '/')
+      navigate(`/network/mainnet`)
+  })
+
   return (
     <StyledDiv Web3={Web3}>
       <StyledInfoDiv className="">
@@ -41,14 +47,18 @@ const _404 = ({ Web3 }) => {
           Oops,
         </StyledMessageLine1>
         <StyledMessageLine2 className="ternary-color theme-color">
-          {Web3
-            ? 'Trouble finding your Web3 provider.'
-            : 'Issue with Web3'}
+          {
+            Web3
+              ? 'Trouble finding your Web3 provider.'
+              : 'Issue with Web3'
+          }
         </StyledMessageLine2>
         <StyledMessageLine3 className="ternary-color theme-color">
-          {Web3
-            ? 'Please make sure you have your wallet unlocked on Mainnet or Kovan. If you don\'t have a wallet, we recommend you install MetaMask on desktop and Trust on mobile.'
-            : 'Issue with Web3.'}
+          {
+            Web3
+              ? 'Please make sure you have your wallet unlocked on Mainnet or Kovan. If you don\'t have a wallet, we recommend you install MetaMask on desktop and Trust on mobile.'
+              : null
+          }
         </StyledMessageLine3>
       </StyledInfoDiv>
     </StyledDiv>

@@ -41,7 +41,7 @@ const Message = styled.div`
   font-family: Nunito;
   font-size: 24px;
   line-height: 41px;
-  color: #000000;
+  color: #000;
   text-align: center;
   padding: 60px 0;
 `
@@ -77,14 +77,19 @@ const DescriptionBox = styled.div`
   font-size: 20px;
 `
 
+const StyledForm = styled(Form)`
+  display: flex;
+  flex-direction: column;
+`
+
 const StyledField = styled(Field)`
   line-height: 50px;
   padding-left: 20px;
   margin: 20px 0 40px 0;
   width: 100%;
   display: block;
-  background: #ffffff;
-  border: 1px solid #cccccc;
+  background: #fff;
+  border: 1px solid #ccc;
   box-sizing: border-box;
   border-radius: 5px;
 `
@@ -99,11 +104,6 @@ const StyledTextarea = styled(Textarea)`
   box-sizing: border-box;
   border-radius: 5px;
   font-family: Nunito;
-`
-
-const StyledForm = styled(Form)`
-  display: flex;
-  flex-direction: column;
 `
 
 const StyledFieldAddress = styled(Field)`
@@ -180,10 +180,13 @@ const Claim = ({itemID_Pk, network}) => {
   const drizzleState = useDrizzleState(drizzleState => ({
     account:
       drizzleState.accounts[0] || '0x0000000000000000000000000000000000000000',
-    networkID: drizzleState.web3.networkId || 1,
+    networkID: drizzleState.web3.networkId
+      ? drizzleState.web3.networkId.toString()
+      : '1',
     web3: drizzleState.web3
   }))
   const [isClaim, setClaim] = useState(false)
+  // FIXME: set wallet, send via email
   const [wallet, setWallet] = useState('')
   const [isSendClaim, setSendClaim] = useState('')
   const [isOpen, setOpen] = useState(false)
@@ -196,7 +199,7 @@ const Claim = ({itemID_Pk, network}) => {
     const web3 = new Web3(
       new Web3.providers.HttpProvider(
         `https://${
-          drizzleState.networkID === 42 ? 'kovan' : 'mainnet'
+          drizzleState.networkID === '42' ? 'kovan' : 'mainnet'
         }.infura.io/v3/846256afe0ee40f0971d902ea8d36266`
       ),
       {
@@ -212,7 +215,7 @@ const Claim = ({itemID_Pk, network}) => {
       await fetch('/.netlify/functions/claims', {
         method: 'post',
         body: JSON.stringify({
-          network: drizzleState.networkID === 42 ? 'KOVAN' : 'MAINNET',
+          network: drizzleState.networkID === '42' ? 'KOVAN' : 'MAINNET',
           addressOwner: item.owner,
           addressFinder: finder,
           itemID: itemID
@@ -276,7 +279,7 @@ const Claim = ({itemID_Pk, network}) => {
               // TODO: post msg to airtable to be sure the tx is deployed
               navigate(`
                 /network/${network}/contract/${
-                  drizzleState.networkID === 42
+                  drizzleState.networkID === '42'
                     ? process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
                     : process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
                 }/items/${itemID}/pk/${privateKey}/claim-success
@@ -320,6 +323,7 @@ const Claim = ({itemID_Pk, network}) => {
           {/* Add fiat price with API */}
           {/* Use https://api.etherscan.io/api?module=stats&action=ethprice&apikey= */}
           <TitleBox>
+            {/* TODO: Display reward in FIAT currency */}
             {ETHAmount({ amount: item.rewardAmount, decimals: 2 })} ETH
           </TitleBox>
           <TypeBox>
@@ -422,6 +426,27 @@ const Claim = ({itemID_Pk, network}) => {
                   I don't have an Account
                 </StyledButtonAddress>
                 <ErrorMessage name="finder" component={Error} />
+              </div>
+              <div>
+                <label
+                  style={{ display: 'block', width: '100%' }}
+                  htmlFor="isAdvanced"
+                >
+                  Method to get the Reward
+                </label>
+                <Field name="isAdvanced">
+                  {({ field, form }) => (
+                    <input
+                      {...field}
+                      type="checkbox"
+                      onChange={e => {
+                        handleChange(e)
+                        form.setFieldValue('isAdvanced', e.target.value)
+                      }}
+                    />
+                  )}
+                </Field>
+                <ErrorMessage name="isAdvanced" component={Error} />
               </div>
               <div>
                 <label
