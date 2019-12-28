@@ -5,11 +5,10 @@ import { Formik, Form, Field, ErrorMessage } from 'formik'
 import { navigate } from '@reach/router'
 import ReactPhoneInput from 'react-phone-input-2'
 
-import 'react-phone-input-2/dist/style.css'
-
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import Button from '../components/button'
 
+import 'react-phone-input-2/lib/style.css'
 
 const Box = styled.div`
   display: flex;
@@ -90,13 +89,6 @@ const Submit = styled.div`
 `
 
 const Settings = ({network}) => {
-  useEffect(() => {
-    if(network === 'mainnet' && drizzleState.networkID !== '1')
-      navigate(`/network/kovan`)
-    else if (network === 'kovan' && drizzleState.networkID !== '42')
-      navigate(`/network/mainnet`)
-  }, [drizzleState])
-
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
 
   const [isSaved, setIsSaved] = useState(false)
@@ -112,6 +104,13 @@ const Settings = ({network}) => {
       : '1',
     transactions: drizzleState.transactions
   }))
+
+  useEffect(() => {
+    if(network === 'mainnet' && drizzleState.networkID !== '1')
+      navigate(`/network/kovan`)
+    else if (network === 'kovan' && drizzleState.networkID !== '42')
+      navigate(`/network/mainnet`)
+  }, [drizzleState])
 
   const addSettings = useCallback(({
       address,

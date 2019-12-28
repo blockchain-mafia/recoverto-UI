@@ -14,7 +14,7 @@ import MessageBoxTx from '../components/message-box-tx'
 import ipfsPublish from './api/ipfs-publish'
 import generateMetaEvidence from '../utils/generate-meta-evidence'
 
-import 'react-phone-input-2/dist/style.css'
+import 'react-phone-input-2/lib/style.css'
 
 const Container = styled.div`
   font-family: Nunito;
@@ -156,18 +156,6 @@ const types = [
 ]
 
 const New = ({network, itemID, pk}) => {
-  useEffect(() => {
-    console.log(network)
-    console.log(drizzleState.networkID)
-      if (network === 'mainnet' && drizzleState.networkID !== '1')
-        navigate(`/network/kovan`)
-      else if (network === 'kovan' && drizzleState.networkID !== '42')
-        navigate(`/network/mainnet`)
-
-    if (drizzleState.account === '0x0000000000000000000000000000000000000000')
-      setMMOpen(true)
-  }, [drizzleState])
-
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
 
   const [isMetaEvidencePublish, setIsMetaEvidencePublish] = useState(false)
@@ -182,6 +170,18 @@ const New = ({network, itemID, pk}) => {
     // NOTE: Force the type string to be compitable with different version of web3
     networkID: drizzleState.web3.networkId ? drizzleState.web3.networkId.toString() : '1'
   }))
+
+  useEffect(() => {
+    console.log(network)
+    console.log(drizzleState.networkID)
+      if (network === 'mainnet' && drizzleState.networkID !== '1')
+        navigate(`/network/kovan`)
+      else if (network === 'kovan' && drizzleState.networkID !== '42')
+        navigate(`/network/mainnet`)
+
+    if (drizzleState.account === '0x0000000000000000000000000000000000000000')
+      setMMOpen(true)
+  }, [drizzleState])
 
   const [identity] =
     itemID !== 'undefined'

@@ -76,6 +76,8 @@ export default ({itemID, pk}) => {
       item.content = metaEvidence
   }
 
+  // TODO: send email "claim succed"
+
   return (
     <Container>
       <Title>Claim Saved</Title>

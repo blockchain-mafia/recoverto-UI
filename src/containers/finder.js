@@ -141,13 +141,6 @@ const ModalTitle = styled.h3`
 `
 
 const Finder = ({network, claimID}) => {
-  useEffect(() => {
-    if(network === 'mainnet' && drizzleState.networkID !== '1')
-      navigate(`/network/kovan`)
-    else if (network === 'kovan' && drizzleState.networkID !== '42')
-      navigate(`/network/mainnet`)
-  }, [drizzleState])
-
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
 
   const [dropdownHidden, setDropdownHidden] = useState(true)
@@ -163,6 +156,14 @@ const Finder = ({network, claimID}) => {
       : '1',
     transactions: drizzleState.transactions
   }))
+
+  useEffect(() => {
+    if(network === 'mainnet' && drizzleState.networkID !== '1')
+      navigate(`/network/kovan`)
+    else if (network === 'kovan' && drizzleState.networkID !== '42')
+      navigate(`/network/mainnet`)
+  }, [drizzleState])
+
   const resetEvidenceReset = useCallback(resetForm => {
     if (!isEvidenceSent) {
       resetForm()
@@ -221,7 +222,7 @@ const Finder = ({network, claimID}) => {
       )
     )
 
-    if (claim.disputeID != '0') {
+    if (claim.disputeID != '0') { // FIXME: operator !== ??
       if (claim.status > '2') {
         claim.disputeStatus = useCacheCall(
           'KlerosLiquid',

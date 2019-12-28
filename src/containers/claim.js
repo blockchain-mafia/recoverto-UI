@@ -6,7 +6,6 @@ import Textarea from 'react-textarea-autosize'
 import Web3 from 'web3'
 import EthCrypto from 'eth-crypto'
 import { navigate } from '@reach/router'
-import Modal from 'react-responsive-modal'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import Button from '../components/button'
@@ -106,66 +105,36 @@ const StyledTextarea = styled(Textarea)`
   font-family: Nunito;
 `
 
-const StyledFieldAddress = styled(Field)`
-  line-height: 50px;
-  padding-left: 20px;
-  margin: 20px 0 40px 0;
-  width: 65%;
+const StyledFieldDivSwitch = styled.div`
+  position: relative;
   display: inline-block;
-  background: #fff;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-  border-radius: 5px;
-  @media only screen and (max-width: 768px) {
-    width: 100%;
-    margin: 20px 0 10px 0;
+  width: 60px;
+  height: 34px;
+`
+
+const StyledFieldSpanSwitch = styled.span`
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+  background-color: ${props => props.checked ? '#14213d' : '#ccc'};
+  ::before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: #fff;
+    transition: .4s;
+    border-radius: 34px;
+    transform: ${props => props.checked ? 'translateX(26px)' : 'translateX(0)'};
   }
-`
-
-const ModalTitle = styled.h3`
-  font-family: Nunito;
-  font-size: 30px;
-  color: #14213d;
-  padding-bottom: 14px;
-`
-
-const StyledButtonAddress = styled(Button)`
-  height: 54px;
-  width: 34%;
-  margin-left: 1%;
-  display: inline-block;
-  background: #fff;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-  border-radius: 5px;
-  padding: 1px;
-  @media only screen and (max-width: 768px) {
-    width: 100%;
-    margin: 20px 0 40px 0;
-  }
-`
-
-const StyledLabel = styled.label`
-  font-size: 16px;
-  line-height: 16px;
-  font-family: Nunito;
-  color: #444;
-`
-
-const StyledAccount = styled.div`
-  line-height: 50px;
-  padding: 0 20px;
-  margin: 20px 0 40px 0;
-  width: 100%;
-  background: #f2f2f2;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-  border-radius: 5px;
-  font-family: Roboto;
-  font-weight: 500;
-  color: #000;
-  overflow: scroll;
-  scrollbar-width: none;
 `
 
 const Error = styled.div`
@@ -186,10 +155,8 @@ const Claim = ({itemID_Pk, network}) => {
     web3: drizzleState.web3
   }))
   const [isClaim, setClaim] = useState(false)
-  // FIXME: set wallet, send via email
-  const [wallet, setWallet] = useState('')
-  const [isSendClaim, setSendClaim] = useState('')
-  const [isOpen, setOpen] = useState(false)
+  const [wallet] = useState(EthCrypto.createIdentity())
+  const [isAdvanced, setIsAdvanced] = useState(false)
 
   const [itemID, privateKey] = itemID_Pk.split('-privateKey=')
 
@@ -208,9 +175,9 @@ const Claim = ({itemID_Pk, network}) => {
         transactionBlockTimeout: 5
       }
     )
+
     if (!isClaim) {
       setClaim(true)
-      setSendClaim('pending')
 
       await fetch('/.netlify/functions/claims', {
         method: 'post',
@@ -218,7 +185,10 @@ const Claim = ({itemID_Pk, network}) => {
           network: drizzleState.networkID === '42' ? 'KOVAN' : 'MAINNET',
           addressOwner: item.owner,
           addressFinder: finder,
-          itemID: itemID
+          itemID: itemID,
+          isAdvanced: isAdvanced,
+          privateKeyFinder: isAdvanced ? '' : wallet.privateKey,
+          emailFinder: email
         })
       })
         .then(res => res.json())
@@ -291,17 +261,17 @@ const Claim = ({itemID_Pk, network}) => {
 
   const loadDescription = useDataloader.getDescription()
 
-  if (
-    item !== undefined &&
-    item.owner === '0x0000000000000000000000000000000000000000'
+  if ( // redirect page to register your item
+    item !== undefined
+    && item.owner === '0x0000000000000000000000000000000000000000'
   )
     navigate(`
       /network/${network}/new/items/undefined/pk/undefined
     `)
-  else if (
-    item !== undefined &&
-    item.descriptionEncryptedLink !== undefined &&
-    privateKey
+  else if ( // load metaevidence
+    item !== undefined
+    && item.descriptionEncryptedLink !== undefined
+    && privateKey
   ) {
     const metaEvidence = loadDescription(
       item.descriptionEncryptedLink,
@@ -323,7 +293,7 @@ const Claim = ({itemID_Pk, network}) => {
           {/* Add fiat price with API */}
           {/* Use https://api.etherscan.io/api?module=stats&action=ethprice&apikey= */}
           <TitleBox>
-            {/* TODO: Display reward in FIAT currency */}
+            {/* TODO: Display reward in FIAT currency per default */}
             {ETHAmount({ amount: item.rewardAmount, decimals: 2 })} ETH
           </TitleBox>
           <TypeBox>
@@ -332,21 +302,49 @@ const Claim = ({itemID_Pk, network}) => {
           <DescriptionBox>
             {item.content ? item.content.dataDecrypted.description : '...'}
           </DescriptionBox>
+          <div
+            style={{
+              display: 'flex',
+              width: '280px',
+              height: '50px',
+              background: '#12c2e9',
+              borderRadius: '40px',
+              fontSize: '16px',
+              margin: '30px auto 0 auto',
+              justifyContent: 'space-around',
+              alignItems: 'center'
+            }}
+          >
+            <div style={{width: '90px'}}>Simple</div>
+            <StyledFieldDivSwitch>
+              <StyledFieldSpanSwitch
+                checked={isAdvanced}
+                onClick={() => setIsAdvanced(!isAdvanced)}
+              />
+            </StyledFieldDivSwitch>
+            <div style={{width: '90px'}}>Advanced</div>
+          </div>
         </Box>
       ) : (
         <Title>Loading Item...</Title>
       )}
       <Formik
         initialValues={{
-          finder: '',
+          finder: '', // NOTE: type should be an address
           email: '',
           description: ''
         }}
         validate={values => {
           let errors = {}
-          if (!values.finder) errors.finder = 'Address Required'
-          if (!drizzle.web3.utils.isAddress(values.finder))
-            errors.finder = 'Valid Address Required'
+
+          if (isAdvanced) {
+            if (!values.finder)
+              errors.finder = 'Address Required'
+            if (!drizzle.web3.utils.isAddress(values.finder))
+              errors.finder = 'Valid Address Required'
+          } else {
+            values.finder = wallet.address
+          }
           if (!values.email) errors.email = 'Email Required'
           if (
             values.email !== '' &&
@@ -358,96 +356,33 @@ const Claim = ({itemID_Pk, network}) => {
           if (values.description.length > 1000000)
             errors.description =
               'The maximum numbers of the characters for the description is 1,000,000 characters.'
+
           return errors
         }}
+
         onSubmit={claim}
       >
-        {({ errors, values, handleChange }) => (
+        {({ errors }) => (
           <>
-            <Modal
-              focusTrapped={false}
-              open={isOpen}
-              onClose={() => setOpen(false)}
-              center
-              styles={{
-                closeButton: { background: 'transparent' },
-                modal: { width: '80vw', maxWidth: '300px', padding: '6vh 3vw' }
-              }}
-            >
-              <ModalTitle>Create Account</ModalTitle>
-              <StyledLabel>
-                <span
-                  className="info"
-                  aria-label="It's your Ethereum Address (like 0x123...)."
-                >
-                  Your Account ID (Ethereum Address)
-                </span>
-              </StyledLabel>
-              <StyledAccount>{wallet.address}</StyledAccount>
-              <StyledLabel style={{ display: 'block', width: '100%' }}>
-                Your Password (Private Key)
-              </StyledLabel>
-              <StyledAccount>{wallet.privateKey}</StyledAccount>
-              <Button
-                style={{
-                  padding: '0 30px',
-                  textAlign: 'center',
-                  lineHeight: '50px',
-                  border: '1px solid #14213d',
-                  borderRadius: '10px',
-                  width: '100%'
-                }}
-                onClick={() => {
-                  setOpen(false)
-                  values.finder = wallet.address
-                }}
-                type="button"
-              >
-                I Saved my Password
-              </Button>
-            </Modal>
             <StyledForm>
-              <div>
-                <label
-                  style={{ display: 'block', width: '100%' }}
-                  htmlFor="finder"
-                >
-                  Finder Ethereum Account
-                </label>
-                <StyledFieldAddress
-                  name="finder"
-                  placeholder="Your Ethereum Account (0x123...)"
-                  autoComplete="nope"
-                />
-                <StyledButtonAddress
-                  onClick={() => setOpen(true)}
-                  type="button"
-                >
-                  I don't have an Account
-                </StyledButtonAddress>
-                <ErrorMessage name="finder" component={Error} />
-              </div>
-              <div>
-                <label
-                  style={{ display: 'block', width: '100%' }}
-                  htmlFor="isAdvanced"
-                >
-                  Method to get the Reward
-                </label>
-                <Field name="isAdvanced">
-                  {({ field, form }) => (
-                    <input
-                      {...field}
-                      type="checkbox"
-                      onChange={e => {
-                        handleChange(e)
-                        form.setFieldValue('isAdvanced', e.target.value)
-                      }}
+              {
+                isAdvanced && (
+                  <div>
+                    <label
+                      style={{ display: 'block', width: '100%' }}
+                      htmlFor="finder"
+                    >
+                      Account
+                    </label>
+                    <StyledField
+                      name="finder"
+                      placeholder="Your Ethereum Account (0x123...)"
+                      autoComplete="nope"
                     />
-                  )}
-                </Field>
-                <ErrorMessage name="isAdvanced" component={Error} />
-              </div>
+                    <ErrorMessage name="finder" component={Error} />
+                  </div>
+                )
+              }
               <div>
                 <label
                   style={{ display: 'block', width: '100%' }}
@@ -474,10 +409,7 @@ const Claim = ({itemID_Pk, network}) => {
                         \n\nSee you!
                       `}
                       minRows={10}
-                      onChange={e => {
-                        handleChange(e)
-                        form.setFieldValue('description', e.target.value)
-                      }}
+                      onChange={e => form.setFieldValue('description', e.target.value)}
                     />
                   )}
                 />
@@ -500,7 +432,7 @@ const Claim = ({itemID_Pk, network}) => {
                 </Button>
               </div>
             </StyledForm>
-            {isSendClaim === 'pending' && <MessageBoxTx ongoing={true} />}
+            {isClaim && <MessageBoxTx ongoing={true} />}
           </>
         )}
       </Formik>

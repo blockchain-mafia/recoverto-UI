@@ -415,13 +415,6 @@ const ActionFunds = ({claim, item}) => {
 }
 
 const Owner = ({network, contract, itemID}) => {
-  useEffect(() => {
-    if(network === 'mainnet' && drizzleState.networkID !== '1')
-      navigate(`/network/kovan`)
-    else if (network === 'kovan' && drizzleState.networkID !== '42')
-      navigate(`/network/mainnet`)
-  }, [drizzleState])
-
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
 
   const [claimID, setClaimID] = useState(null)
@@ -462,6 +455,13 @@ const Owner = ({network, contract, itemID}) => {
     'submitEvidence'
   )
 
+  useEffect(() => {
+    if(network === 'mainnet' && drizzleState.networkID !== '1')
+      navigate(`/network/kovan`)
+    else if (network === 'kovan' && drizzleState.networkID !== '42')
+      navigate(`/network/mainnet`)
+  }, [drizzleState])
+
   const privateKey = recover[itemID] ? recover[itemID].privateKey : null
 
   const item = useCacheCall('Recover', 'items', itemID.padEnd(66, '0'))
@@ -499,7 +499,7 @@ const Owner = ({network, contract, itemID}) => {
             if(claim) {
               let disputeStatus, currentRuling, appealCost, evidence, isRuled
 
-              if (claim.disputeID != '0') {
+              if (claim.disputeID != '0') { // FIXME: operator !== ??
                 if (claim.status > '2') {
                   disputeStatus = call(
                     'KlerosLiquid',

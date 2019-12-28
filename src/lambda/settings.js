@@ -3,6 +3,9 @@ import fs from 'fs'
 import dotenv from 'dotenv'
 import sigUtil from 'eth-sig-util'
 
+import getIdByAddress from '../utils/getIdByAddress'
+
+// TODO: move to utils folder
 // Set up airtable envs in the development envirronement.
 if (fs.existsSync('.airtable')) {
   const envConfig = dotenv.parse(
@@ -14,24 +17,7 @@ if (fs.existsSync('.airtable')) {
   }
 }
 
-const {
-  AIRTABLE_API_KEY,
-  AIRTABLE_MAINNET_BASE,
-  AIRTABLE_KOVAN_BASE,
-} = process.env
-
-// TODO: move to the utils folder
-const getIDByAddress = (base, address) => {
-  return new Promise((resolve, reject) => {
-    base('Owners').select({
-      view: 'Grid view',
-      filterByFormula: `{Address} = '${address}'`
-    }).firstPage((err, records) => {
-      if (records.length === 0) resolve(false)
-      else records.forEach(record => resolve(record['id']))
-    })
-  })
-}
+const { AIRTABLE_API_KEY } = process.env
 
 exports.handler = async function(event, context, callback) {
     // Only allow GET or POST
@@ -59,10 +45,8 @@ exports.handler = async function(event, context, callback) {
       body: JSON.stringify({ error: "Address Not Allowed" })
     }
 
-  const baseNetwork = `AIRTABLE_${network}_BASE`
-
   const base = new Airtable({ apiKey: AIRTABLE_API_KEY })
-    .base(eval(baseNetwork))
+    .base(process.env[`AIRTABLE_${network}_BASE`])
 
   try {
     if (event.httpMethod === "GET") // GET
@@ -78,7 +62,7 @@ exports.handler = async function(event, context, callback) {
         })
       })
     else {
-      const ID = await getIDByAddress(base, address.toLowerCase())
+      const ID = await getIdByAddress(base, address.toLowerCase())
       if (ID) {
         base('Owners').update(ID, {
           "Address": address.toLowerCase(),

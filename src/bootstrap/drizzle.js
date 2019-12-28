@@ -31,7 +31,7 @@ const options = {
       // For this, we need to compute the network before the execution of this file.
       url: process.env.REACT_APP_WEB3_MAINNET_FALLBACK_URL
     }
-  } 
+  }
 }
 
 export default new Drizzle(options, generateStore(options))
