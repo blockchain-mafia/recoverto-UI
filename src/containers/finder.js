@@ -449,7 +449,7 @@ const Finder = ({network, claimID}) => {
                 onClick={() => {
                   window.open(
                     `https://${
-                      drizzleState.networkID === 42 ? 'kovan.' : ''
+                      drizzleState.networkID === '42' ? 'kovan.' : ''
                     }etherscan.io/tx/${
                       Object.keys(drizzleState.transactions)[0]
                     }`,

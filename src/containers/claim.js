@@ -303,7 +303,7 @@ const Claim = ({itemID_Pk, network}) => {
             {item.content ? item.content.dataDecrypted.description : '...'}
           </DescriptionBox>
           <div
-            style={{
+            style={{ // TODO: refactoring
               display: 'flex',
               width: '280px',
               height: '50px',

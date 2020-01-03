@@ -225,7 +225,7 @@ const New = ({network, itemID, pk}) => {
       fetch('/.netlify/functions/settings', {
         method: 'post',
         body: JSON.stringify({
-          network: drizzleState.networkID === 42 ? 'KOVAN' : 'MAINNET',
+          network: drizzleState.networkID === '42' ? 'KOVAN' : 'MAINNET',
           address: drizzleState.account,
           signMsg,
           email,
@@ -381,7 +381,7 @@ const New = ({network, itemID, pk}) => {
                 JSON.stringify(
                   generateMetaEvidence({
                     arbitrableAddress:
-                      drizzleState.networkID === 42
+                      drizzleState.networkID === '42'
                         ? process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
                         : process.env.REACT_APP_RECOVER_MAINNET_ADDRESS,
                     owner: drizzleState.account,
@@ -390,7 +390,7 @@ const New = ({network, itemID, pk}) => {
                       .toString(),
                     timeout: values.timeoutLocked,
                     arbitrator:
-                      drizzleState.networkID === 42
+                      drizzleState.networkID === '42'
                         ? process.env.REACT_APP_ARBITRATOR_KOVAN_ADDRESS
                         : process.env.REACT_APP_ARBITRATOR_MAINNET_ADDRESS
                   })
@@ -679,7 +679,7 @@ const New = ({network, itemID, pk}) => {
                   onClick={() =>
                     window.open(
                       `https://${
-                        drizzleState.networkID === 42 ? 'kovan.' : ''
+                        drizzleState.networkID === '42' ? 'kovan.' : ''
                       }etherscan.io/tx/${
                         Object.keys(drizzleState.transactions)[0]
                       }`,
@@ -695,7 +695,7 @@ const New = ({network, itemID, pk}) => {
                     onClick={() =>
                       window.open(
                         `https://${
-                          drizzleState.networkID === 42 ? 'kovan.' : ''
+                          drizzleState.networkID === '42' ? 'kovan.' : ''
                         }etherscan.io/tx/${
                           Object.keys(drizzleState.transactions)[0]
                         }`,
@@ -707,7 +707,7 @@ const New = ({network, itemID, pk}) => {
                   {status === 'success' && isMetaEvidencePublish
                     ? window.location.replace(
                         `/network/${network}/contract/${
-                          drizzleState.networkID === 42
+                          drizzleState.networkID === '42'
                             ? process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
                             : process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
                         }/items/${values.itemID.replace(/0+$/, '')}/owner`
