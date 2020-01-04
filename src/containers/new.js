@@ -167,7 +167,7 @@ const New = ({network, itemID, pk}) => {
       drizzleState.accounts[0] || '0x0000000000000000000000000000000000000000',
     ID: `${drizzleState.accounts[0]}-${drizzleState.web3.networkId}`,
     transactions: drizzleState.transactions,
-    // NOTE: Force the type string to be compitable with different version of web3
+    // NOTE: Force the type string to be compatible with different version of web3
     networkID: drizzleState.web3.networkId ? drizzleState.web3.networkId.toString() : '1'
   }))
 
@@ -362,6 +362,7 @@ const New = ({network, itemID, pk}) => {
 
             return errors
           }}
+
           onSubmit={async values => {
             const dataEncrypted = await EthCrypto.encryptWithPublicKey(
               identity.publicKey,

@@ -180,6 +180,7 @@ const Settings = ({network}) => {
 
           return errors
         }}
+
         onSubmit={async values => {
           const signMsg = await drizzle.web3.eth.personal.sign(
             `Signature required to check if your are the owner of this address: ${drizzleState.account}`,

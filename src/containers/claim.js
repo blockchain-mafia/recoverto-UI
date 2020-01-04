@@ -200,8 +200,8 @@ const Claim = ({itemID_Pk, network}) => {
         JSON.stringify({
           ...JSON.parse(localStorage.getItem('recover') || '{}'),
           [itemID]: {
-            finder: drizzleState.account,
-            privateKey
+            finder,
+            privateKey // to decode the metaevidence
           }
         })
       )
