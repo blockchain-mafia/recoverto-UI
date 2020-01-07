@@ -46,14 +46,14 @@ const Message = styled.div`
 `
 
 const Box = styled.div`
+  width: calc(100% + 104px*2);
   font-family: Roboto;
   color: #444;
   background: #a6ffcb;
-  border-radius: 5px;
   padding: 45px 0;
   font-size: 40px;
   text-align: center;
-  margin-bottom: 60px;
+  margin: 0 -104px 60px -104px;
 `
 
 const TitleBox = styled.div`
@@ -74,6 +74,18 @@ const TypeBox = styled.div`
 
 const DescriptionBox = styled.div`
   font-size: 20px;
+`
+
+const SwitchBox = styled.div`
+  display: flex;
+  width: 260px;
+  height: 50px;
+  background: #12c2e9;
+  border-radius: 40px;
+  font-size: 16px;
+  margin: 30px auto;
+  justify-content: space-around;
+  align-items: center;
 `
 
 const StyledForm = styled(Form)`
@@ -302,28 +314,16 @@ const Claim = ({itemID_Pk, network}) => {
           <DescriptionBox>
             {item.content ? item.content.dataDecrypted.description : '...'}
           </DescriptionBox>
-          <div
-            style={{ // TODO: refactoring
-              display: 'flex',
-              width: '280px',
-              height: '50px',
-              background: '#12c2e9',
-              borderRadius: '40px',
-              fontSize: '16px',
-              margin: '30px auto 0 auto',
-              justifyContent: 'space-around',
-              alignItems: 'center'
-            }}
-          >
-            <div style={{width: '90px'}}>Simple</div>
+          <SwitchBox>
+            <div style={{width: '100px', fontSize: '14px'}}>Simple</div>
             <StyledFieldDivSwitch>
               <StyledFieldSpanSwitch
                 checked={isAdvanced}
                 onClick={() => setIsAdvanced(!isAdvanced)}
               />
             </StyledFieldDivSwitch>
-            <div style={{width: '90px'}}>Advanced</div>
-          </div>
+            <div style={{width: '100px', fontSize: '14px'}}>Advanced</div>
+          </SwitchBox>
         </Box>
       ) : (
         <Title>Loading Item...</Title>
@@ -362,7 +362,7 @@ const Claim = ({itemID_Pk, network}) => {
 
         onSubmit={claim}
       >
-        {({ errors }) => (
+        {({ touched, errors }) => (
           <>
             <StyledForm>
               {
@@ -417,16 +417,15 @@ const Claim = ({itemID_Pk, network}) => {
               </div>
               <div style={{ textAlign: 'right' }}>
                 <Button
-                  // FIXME:
-                  // style={{
-                  //   padding: '0 30px',
-                  //   textAlign: 'center',
-                  //   lineHeight: '50px',
-                  //   border: '1px solid #14213d',
-                  //   borderRadius: '10px'
-                  // }}
+                  style={{
+                    width: '100%'
+                  }}
                   type="submit"
-                  disabled={Object.entries(errors).length > 0}
+                  disabled={
+                    Object.entries(touched).length === 0
+                    && touched.constructor === Object
+                    || Object.entries(errors).length > 0
+                  }
                 >
                   Claim Discovered →
                 </Button>

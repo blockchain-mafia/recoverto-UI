@@ -631,6 +631,7 @@ const Owner = ({network, contract, itemID}) => {
       >
         {({
           submitForm,
+          touched,
           errors,
           setFieldValue,
           values,
@@ -732,7 +733,13 @@ const Owner = ({network, contract, itemID}) => {
               onClick={submitForm}
               style={{width: '100%'}}
               type="submit"
-              disabled={Object.entries(errors).length > 0 || (statusSubmitEvidence && statusSubmitEvidence === 'pending')}
+              disabled={
+                Object.entries(touched).length === 0
+                && touched.constructor === Object
+                || Object.entries(errors).length > 0
+                || (statusSubmitEvidence
+                && statusSubmitEvidence === 'pending')
+              }
             >
               Submit Evidence
             </Button>

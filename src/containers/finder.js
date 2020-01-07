@@ -345,6 +345,7 @@ const Finder = ({network, claimID}) => {
       >
         {({
           submitForm,
+          touched,
           errors,
           setFieldValue,
           values,
@@ -437,8 +438,10 @@ const Finder = ({network, claimID}) => {
               style={{ width: '100%' }}
               type="submit"
               disabled={
-                Object.entries(errors).length > 0 ||
-                (statusSubmitEvidence && statusSubmitEvidence === 'pending')
+                Object.entries(touched).length === 0
+                && touched.constructor === Object
+                || Object.entries(errors).length > 0
+                || (statusSubmitEvidence && statusSubmitEvidence === 'pending')
               }
             >
               Submit Evidence

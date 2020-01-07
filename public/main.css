@@ -39,14 +39,15 @@ button {
   border-radius: 10px;
 }
 
-button:hover {
-  background: #a6ffcb;
-}
-
 button:disabled, button[disabled] {
   color: #444;
   background: #efefef;
   border-color: #444;
+}
+
+button:enabled, button[enabled] {
+  background: #a6ffcb;
+  border: 1px solid #14213d;
 }
 
 /*** IntlTelInput ***/

@@ -443,7 +443,7 @@ const New = ({network, itemID, pk}) => {
             addItem(values)
           }}
         >
-          {({ errors, setFieldValue, values, handleChange }) => (
+          {({ touched, errors, setFieldValue, values, handleChange }) => (
             <>
               <StyledForm>
                 <FieldContainer>
@@ -666,7 +666,9 @@ const New = ({network, itemID, pk}) => {
                   <Button
                     type="submit"
                     disabled={
-                      Object.entries(errors).length > 0 ||
+                      Object.entries(touched).length === 0
+                      && touched.constructor === Object
+                      || Object.entries(errors).length > 0
                       (status && status === 'pending')
                     }
                   >

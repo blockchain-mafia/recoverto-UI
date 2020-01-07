@@ -198,6 +198,7 @@ const Settings = ({network}) => {
         }}
       >
         {({
+          touched,
           errors,
           setFieldValue,
           values
@@ -301,7 +302,11 @@ const Settings = ({network}) => {
               <Submit>
                 <Button
                   type="submit"
-                  disabled={Object.entries(errors).length > 0}
+                  disabled={
+                    Object.entries(touched).length === 0
+                    && touched.constructor === Object
+                    || Object.entries(errors).length > 0
+                  }
                 >
                   Save Settings
                 </Button>
