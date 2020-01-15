@@ -14,6 +14,8 @@ import { DrizzleProvider, Initializer } from '../temp/drizzle-react-hooks'
 const Nav = () => {
   const [isTop, setTop] = useState(true)
   const [network, setNetwork] = useState('mainnet')
+  // TODO: add logic to set up the contract
+  const [contract, setContract] = useState(process.env.REACT_APP_RECOVER_MAINNET_ADDRESS)
 
   useEffect(() => {
     const urlSplitArray = window.location.href.split('/')
@@ -41,13 +43,13 @@ const Nav = () => {
         RECOVER
       </div>
       <Menu right>
-        <Link to={`/network/${network}`} className="menu-item">
+        <Link to={`/network/${network}/contract/${contract}`} className="menu-item">
           HOME
         </Link>
-        <Link to={`/network/${network}/new/items/undefined/pk/undefined`} className="menu-item">
+        <Link to={`/network/${network}/contract/${contract}/new/items/undefined/pk/undefined`} className="menu-item">
           ADD ITEM
         </Link>
-        <Link to={`/network/${network}/settings`} className="menu-item">
+        <Link to={`/network/${network}/contract/${contract}/settings`} className="menu-item">
           SETTINGS
         </Link>
       </Menu>
@@ -171,9 +173,9 @@ export default () => (
         <ArchonInitializer>
           <Router>
             <Main path="/">
-              <Home path="network/:network" />
-              <New path="network/:network/new/items/:itemID/pk/:pk" />
-              <Settings path="network/:network/settings" />
+              <Home path="network/:network/contract/:contract" />
+              <New path="network/:network/contract/:contract/new/items/:itemID/pk/:pk" />
+              <Settings path="network/:network/contract/:contract/settings" />
               <Owner path="network/:network/contract/:contract/items/:itemID/owner" />
               {/* NOTE: for one item, several claims are possible */}
               <Finder path="network/:network/contract/:contract/claims/:claimID" />

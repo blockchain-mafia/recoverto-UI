@@ -140,7 +140,7 @@ const ModalTitle = styled.h3`
   padding-bottom: 14px;
 `
 
-const Finder = ({network, claimID}) => {
+const Finder = ({network, contract, claimID}) => {
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
 
   const [dropdownHidden, setDropdownHidden] = useState(true)
@@ -159,9 +159,9 @@ const Finder = ({network, claimID}) => {
 
   useEffect(() => {
     if(network === 'mainnet' && drizzleState.networkID !== '1')
-      navigate(`/network/kovan`)
+      navigate(`/network/kovan/contract/${process.env.REACT_APP_RECOVER_KOVAN_ADDRESS}`)
     else if (network === 'kovan' && drizzleState.networkID !== '42')
-      navigate(`/network/mainnet`)
+      navigate(`/network/mainnet/contract/${process.env.REACT_APP_RECOVER_MAINNET_ADDRESS}`)
   }, [drizzleState])
 
   const resetEvidenceReset = useCallback(resetForm => {

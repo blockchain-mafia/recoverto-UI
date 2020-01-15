@@ -156,7 +156,7 @@ const Error = styled.div`
   margin: -20px 0 30px 0;
 `
 
-const Claim = ({itemID_Pk, network}) => {
+const Claim = ({ network, contract, itemID_Pk }) => {
   const { drizzle, useCacheCall } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({
     account:
@@ -260,11 +260,7 @@ const Claim = ({itemID_Pk, network}) => {
             .on('transactionHash', () => {
               // TODO: post msg to airtable to be sure the tx is deployed
               navigate(`
-                /network/${network}/contract/${
-                  drizzleState.networkID === '42'
-                    ? process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
-                    : process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
-                }/items/${itemID}/pk/${privateKey}/claim-success
+                /network/${network}/contract/${contract}/items/${itemID}/pk/${privateKey}/claim-success
               `)
             })
         })
@@ -276,11 +272,11 @@ const Claim = ({itemID_Pk, network}) => {
   if ( // redirect page to register your item
     item !== undefined
     && item.owner === '0x0000000000000000000000000000000000000000'
-  )
+  ) {
     navigate(`
-      /network/${network}/new/items/undefined/pk/undefined
+      /network/${network}/contract/${contract}/new/items/${itemID}/pk/${privateKey}
     `)
-  else if ( // load metaevidence
+  } else if ( // load metaevidence
     item !== undefined
     && item.descriptionEncryptedLink !== undefined
     && privateKey
@@ -290,7 +286,7 @@ const Claim = ({itemID_Pk, network}) => {
       privateKey
     )
     if (metaEvidence) item.content = metaEvidence
-  }
+  } // TODO: add fallback `else`
 
   return (
     <Container>
@@ -422,8 +418,10 @@ const Claim = ({itemID_Pk, network}) => {
                   }}
                   type="submit"
                   disabled={
-                    Object.entries(touched).length === 0
-                    && touched.constructor === Object
+                    (
+                      Object.entries(touched).length === 0
+                      && touched.constructor === Object
+                    )
                     || Object.entries(errors).length > 0
                   }
                 >

@@ -34,7 +34,7 @@ const StyledMessageLine3 = styled.div`
 const _404 = ({uri, Web3}) => {
   useEffect(() => {
     if (uri === '/')
-      navigate(`/network/mainnet`)
+      navigate(`/network/mainnet/contract/${process.env.REACT_APP_RECOVER_MAINNET_ADDRESS}`)
   })
 
   return (

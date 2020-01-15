@@ -52,7 +52,7 @@ const Description = styled(Dotdotdot)`
   font-weight: 100;
 `
 
-const Home = ({network}) => {
+const Home = ({ network, contract }) => {
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
 
   const [isMMOpen, setMMOpen] = useState(false)
@@ -70,9 +70,9 @@ const Home = ({network}) => {
   useEffect(() => {
     // NOTE: redirect the client if the network does not match with the URL.
     if(network === 'mainnet' && drizzleState.networkID !== '1')
-      navigate(`/network/kovan`)
+      navigate(`/network/kovan/contract/${process.env.REACT_APP_RECOVER_KOVAN_ADDRESS}`)
     else if (network === 'kovan' && drizzleState.networkID !== '42')
-      navigate(`/network/mainnet`)
+      navigate(`/network/mainnet/contract/${process.env.REACT_APP_RECOVER_MAINNET_ADDRESS}`)
 
     // NOTE: if the client does not injected web3, display the web3 modal.
     if (drizzleState.account === '0x0000000000000000000000000000000000000000')
@@ -208,11 +208,7 @@ const Home = ({network}) => {
               network={network}
               onClick={
                 () => navigate(`
-                  /network/${network}/contract/${
-                    drizzleState.networkID === '42' ?
-                      process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
-                    : process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
-                  }/claims/${claim.ID}
+                  /network/${network}/contract/${contract}/claims/${claim.ID}
                 `)
               }
             >
@@ -231,11 +227,7 @@ const Home = ({network}) => {
               encrypted={false}
               onClick={
                 () => navigate(`
-                  /network/${network}/contract/${
-                    drizzleState.networkID === '42' ?
-                      process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
-                      : process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
-                  }/items/${item.ID}/owner
+                  /network/${network}/contract/${contract}/items/${item.ID}/owner
                 `)
               }
             >

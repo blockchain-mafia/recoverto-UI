@@ -155,7 +155,7 @@ const types = [
   'Tablet'
 ]
 
-const New = ({network, itemID, pk}) => {
+const New = ({network, contract, itemID, pk}) => {
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
 
   const [isMetaEvidencePublish, setIsMetaEvidencePublish] = useState(false)
@@ -172,12 +172,10 @@ const New = ({network, itemID, pk}) => {
   }))
 
   useEffect(() => {
-    console.log(network)
-    console.log(drizzleState.networkID)
       if (network === 'mainnet' && drizzleState.networkID !== '1')
-        navigate(`/network/kovan`)
+        navigate(`network/kovan/contract/${process.env.REACT_APP_RECOVER_KOVAN_ADDRESS}/new/items/${itemID ? itemID : 'undefined'}/pk/${pk ? pk : 'undefined'}`)
       else if (network === 'kovan' && drizzleState.networkID !== '42')
-        navigate(`/network/mainnet`)
+        navigate(`network/mainnet/contract/${process.env.REACT_APP_RECOVER_MAINNET_ADDRESS}/new/items/${itemID ? itemID : 'undefined'}/pk/${pk ? pk : 'undefined'}`)
 
     if (drizzleState.account === '0x0000000000000000000000000000000000000000')
       setMMOpen(true)
@@ -381,10 +379,7 @@ const New = ({network, itemID, pk}) => {
               enc.encode(
                 JSON.stringify(
                   generateMetaEvidence({
-                    arbitrableAddress:
-                      drizzleState.networkID === '42'
-                        ? process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
-                        : process.env.REACT_APP_RECOVER_MAINNET_ADDRESS,
+                    arbitrableAddress: contract,
                     owner: drizzleState.account,
                     dataEncrypted: EthCrypto.cipher
                       .stringify(dataEncrypted)
@@ -709,11 +704,7 @@ const New = ({network, itemID, pk}) => {
                   {/* FIXME: use `navigate()` if it's possible else add note */}
                   {status === 'success' && isMetaEvidencePublish
                     ? window.location.replace(
-                        `/network/${network}/contract/${
-                          drizzleState.networkID === '42'
-                            ? process.env.REACT_APP_RECOVER_KOVAN_ADDRESS
-                            : process.env.REACT_APP_RECOVER_MAINNET_ADDRESS
-                        }/items/${values.itemID.replace(/0+$/, '')}/owner`
+                        `/network/${network}/contract/${contract}/items/${values.itemID.replace(/0+$/, '')}/owner`
                       )
                     : 'Error during the transaction.'}
                 </>

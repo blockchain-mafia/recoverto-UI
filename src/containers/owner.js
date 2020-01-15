@@ -457,9 +457,9 @@ const Owner = ({network, contract, itemID}) => {
 
   useEffect(() => {
     if(network === 'mainnet' && drizzleState.networkID !== '1')
-      navigate(`/network/kovan`)
+      navigate(`/network/kovan/contract/${process.env.REACT_APP_RECOVER_KOVAN_ADDRESS}`)
     else if (network === 'kovan' && drizzleState.networkID !== '42')
-      navigate(`/network/mainnet`)
+      navigate(`/network/mainnet/contract/${process.env.REACT_APP_RECOVER_MAINNET_ADDRESS}`)
   }, [drizzleState])
 
   const privateKey = recover[itemID] ? recover[itemID].privateKey : null

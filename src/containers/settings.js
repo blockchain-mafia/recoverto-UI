@@ -88,7 +88,7 @@ const Submit = styled.div`
   text-align: right;
 `
 
-const Settings = ({network}) => {
+const Settings = ({ network, contract }) => {
   const recover = JSON.parse(localStorage.getItem('recover') || '{}')
 
   const [isSaved, setIsSaved] = useState(false)
@@ -107,9 +107,9 @@ const Settings = ({network}) => {
 
   useEffect(() => {
     if(network === 'mainnet' && drizzleState.networkID !== '1')
-      navigate(`/network/kovan`)
+      navigate(`/network/kovan/contract/${process.env.REACT_APP_RECOVER_KOVAN_ADDRESS}`)
     else if (network === 'kovan' && drizzleState.networkID !== '42')
-      navigate(`/network/mainnet`)
+      navigate(`/network/mainnet/contract/${process.env.REACT_APP_RECOVER_MAINNET_ADDRESS}`)
   }, [drizzleState])
 
   const addSettings = useCallback(({
@@ -123,7 +123,7 @@ const Settings = ({network}) => {
       fetch('/.netlify/functions/settings', {
         method: 'post',
         body: JSON.stringify({
-          network: drizzleState.networkID === '42' ? 'KOVAN' : 'MAINNET',
+          network,
           address,
           signMsg,
           email: email || (recover[drizzleState.ID] && recover[drizzleState.ID].email) || '',
