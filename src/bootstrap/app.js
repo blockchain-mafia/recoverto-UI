@@ -36,7 +36,7 @@ const Nav = () => {
   return (
     <div className={`App-header-menu ${isTop ? 'App-header-menu__isTop' : ''}`}>
       <div
-        onClick={() => navigate(`/network/${network}`)}
+        onClick={() => navigate(`/`)}
         style={{ cursor: 'pointer' }}
         className="App-header-menu-logo"
       >
