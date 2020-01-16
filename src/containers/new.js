@@ -661,10 +661,9 @@ const New = ({network, contract, itemID, pk}) => {
                   <Button
                     type="submit"
                     disabled={
-                      Object.entries(touched).length === 0
-                      && touched.constructor === Object
+                      (Object.entries(touched).length === 0
+                      && touched.constructor === Object)
                       || Object.entries(errors).length > 0
-                      (status && status === 'pending')
                     }
                   >
                     Save Transaction →
