@@ -57,11 +57,12 @@ const CardItem = ({
   status,
   className,
   network,
+  contract,
   ...rest
 }) => (
   <>
     {newItem ? (
-      <ItemNew onClick={() => navigate(`/network/${network}/new/items/undefined/pk/undefined`)}>
+      <ItemNew onClick={() => navigate(`/network/${network}/contract/${contract}/new/items/undefined/pk/undefined`)}>
         <ItemTitle>Add Item</ItemTitle>
         <div>
           <Plus />

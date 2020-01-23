@@ -199,7 +199,7 @@ const Home = ({ network, contract }) => {
         </ModalContent>
       </Modal>
       <Grid>
-        <CardItem newItem={true} network={network} />
+        <CardItem newItem={true} network={network} contract={contract} />
         {
           !claims.loading && claims.data.map(claim => (
             <CardItem
