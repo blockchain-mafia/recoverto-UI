@@ -22,7 +22,7 @@ The Recover user interface.
 
 ## Note
 
-The QrCode without `Web3` works only on the mainnet network (because the fallback `Web3` is hardcoded for this network).
+The QrCode without `web3` (Metamask) works only on the mainnet network (because the fallback `web3` is hardcoded for this network).
 
 ## Other Scripts
 
