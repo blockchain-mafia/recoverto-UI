@@ -7,6 +7,7 @@ import Textarea from 'react-textarea-autosize'
 import Modal from 'react-responsive-modal'
 import { navigate } from '@reach/router'
 import ReactPhoneInput from 'react-phone-input-2'
+import Webcam from 'react-webcam'
 
 import { useDrizzle, useDrizzleState } from '../temp/drizzle-react-hooks'
 import Button from '../components/button'
@@ -15,6 +16,8 @@ import ipfsPublish from './api/ipfs-publish'
 import generateMetaEvidence from '../utils/generate-meta-evidence'
 
 import 'react-phone-input-2/lib/style.css'
+
+import qrCode from '../assets/images/qr-code.png'
 
 const Container = styled.div`
   font-family: Nunito;
@@ -142,6 +145,19 @@ const Box = styled.div`
   }
 `
 
+const PrePrintQrCodeMessage = styled.div`
+  display: flex;
+  justify-content: space-between;
+  font-family: Nunito;
+  padding: 0 25px;
+  font-size: 16px;
+  line-height: 62px;
+  color: #444;
+  background: #a6ffcb;
+  border-radius: 10px;
+  cursor: pointer;
+`
+
 const types = [
   'Phone',
   'Bag',
@@ -161,6 +177,8 @@ const New = ({network, contract, itemID, pk}) => {
   const [isMetaEvidencePublish, setIsMetaEvidencePublish] = useState(false)
   const [isOpen, setOpen] = useState(false)
   const [isMMOpen, setMMOpen] = useState(false)
+  const [isQrCodeScanModalOpen, setIsQrCodeScanModalOpen] = useState(false)
+  const [qrCodeResult, setQrCodeResult] = useState('') // TODO: return the QrCode result
   const { drizzle, useCacheSend } = useDrizzle()
   const drizzleState = useDrizzleState(drizzleState => ({
     account:
@@ -181,13 +199,28 @@ const New = ({network, contract, itemID, pk}) => {
       setMMOpen(true)
   }, [drizzleState])
 
-  const [identity] =
-    itemID !== 'undefined'
-      ? useState({
-          privateKey: pk,
-          publicKey: EthCrypto.publicKeyByPrivateKey(pk)
-        })
-      : useState(EthCrypto.createIdentity())
+  let identity
+
+  useEffect(() => {
+    if (itemID !== 'undefined' && pk)
+      identity = {
+        privateKey: pk,
+        publicKey: EthCrypto.publicKeyByPrivateKey(pk)
+      }
+    else
+      identity = EthCrypto.createIdentity()
+  }, [itemID, pk])
+
+  const webcamRef = React.useRef(null)
+
+  useEffect(() => {
+      if(isQrCodeScanModalOpen)
+        setInterval(() => console.log(webcamRef.current.getScreenshot()), 1000) // FIXME: take screenshot every seconds. Must be change to 200.
+      // TODO: send to service to decode it
+      // then redirect to the QrCode result
+    },
+    [isQrCodeScanModalOpen, webcamRef]
+  )
 
   const { send, status } = useCacheSend('Recover', 'addItem')
 
@@ -296,6 +329,32 @@ const New = ({network, contract, itemID, pk}) => {
           </ol>
         </ModalContent>
       </Modal>
+      <Modal
+        open={isQrCodeScanModalOpen}
+        onClose={v => v}
+        showCloseIcon={false}
+        focusTrapped={false}
+        center
+        styles={{
+          closeButton: { background: 'transparent' },
+          modal: {
+            width: '80vw',
+            maxWidth: '400px',
+            padding: '6vh 8vw',
+            borderRadius: '10px'
+          }
+        }}
+      >
+        <ModalTitle>Scan your QrCode</ModalTitle>
+        <ModalContent>
+          <Webcam
+            audio={false}
+            ref={webcamRef}
+            screenshotFormat="image/jpeg"
+          />
+          This feature is under development.
+        </ModalContent>
+      </Modal>
       {itemID !== 'undefined' && (
         <Box>
           <div style={{ flexGrow: '1', textAlign: 'center' }}>
@@ -305,6 +364,10 @@ const New = ({network, contract, itemID, pk}) => {
       )}
       <Container>
         <Title>New Item</Title>
+        {/* <PrePrintQrCodeMessage onClick={() => setIsQrCodeScanModalOpen(true)}>
+          <div>If you have a pre-printed QrCode, like the Loser Box, click here.</div>
+          <div><img src={qrCode} style={{width: '37px'}} alt="" /></div>
+        </PrePrintQrCodeMessage> */}
         <Formik
           initialValues={{
             type: 'undefined',

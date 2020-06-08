@@ -14,6 +14,7 @@ import ipfsPublish from './api/ipfs-publish'
 import MessageBoxTx from '../components/message-box-tx'
 import ReadFile from '../utils/read-file'
 import Button from '../components/button'
+
 import { ReactComponent as Settings } from '../assets/images/settings.svg'
 
 const Container = styled.div`
