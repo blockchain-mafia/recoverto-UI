@@ -157,7 +157,7 @@ const Settings = ({ network, contract }) => {
         initialValues={{
           email: (recover[drizzleState.ID] && recover[drizzleState.ID].email) || '',
           phoneNumber: (recover[drizzleState.ID] && recover[drizzleState.ID].phoneNumber) || '',
-          fundClaims: (recover[drizzleState.ID] && recover[drizzleState.ID].fundClaims) || 0.007,
+          fundClaims: (recover[drizzleState.ID] && recover[drizzleState.ID].fundClaims) || 0.015,
           timeoutLocked: (recover[drizzleState.ID] && recover[drizzleState.ID].timeoutLocked) || 604800
         }}
         validate={values => {

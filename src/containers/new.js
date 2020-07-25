@@ -382,7 +382,7 @@ const New = ({network, contract, itemID, pk}) => {
               || '',
             fundClaims:
               (recover[drizzleState.ID] && recover[drizzleState.ID].fundClaims)
-              || '0.007',
+              || '0.015',
             timeoutLocked:
               (recover[drizzleState.ID] && recover[drizzleState.ID].timeoutLocked)
               || 604800
@@ -486,7 +486,7 @@ const New = ({network, contract, itemID, pk}) => {
             const fundClaimsAmount =
               (recover[drizzleState.ID] &&
                 recover[drizzleState.ID].fundClaims) ||
-              '0.007'
+              '0.015'
 
             values.value = drizzle.web3.utils.toWei(
               typeof fundClaimsAmount === 'string'
